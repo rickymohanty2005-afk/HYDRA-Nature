@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: hydra-nature
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        value: https://hydra-nature-cyan.vercel.app,https://hydra-nature.vercel.app,https://hydra24n.com,https://www.hydra24n.com
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

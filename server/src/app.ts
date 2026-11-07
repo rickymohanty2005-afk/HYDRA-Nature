@@ -38,13 +38,20 @@ app.use(
 );
 
 // CORS configuration (CLIENT_URL may be a comma-separated list; trailing slashes are ignored)
-const allowedOrigins = [
-  ...env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/+$/, '')).filter(Boolean),
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'https://hydra-nature.onrender.com',
-  'https://hydra24n.com/',
-  'https://hydra-nature.vercel.app/',
+const allowedOrigins: (string | RegExp)[] = [
+  ...env.CLIENT_URL.split(',')
+    .concat([
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'https://hydra24n.com',
+      'https://www.hydra24n.com',
+      'https://hydra-nature.vercel.app',
+      'https://hydra-nature-cyan.vercel.app',
+    ])
+    .map((url) => url.trim().replace(/\/+$/, ''))
+    .filter(Boolean),
+  // Any Vercel domain for this project (e.g. hydra-nature-cyan.vercel.app, preview deployments)
+  /^https:\/\/hydra-nature(-[a-z0-9-]+)?\.vercel\.app$/,
 ];
 
 app.use(
