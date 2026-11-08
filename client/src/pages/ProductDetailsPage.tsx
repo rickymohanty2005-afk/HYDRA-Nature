@@ -453,17 +453,17 @@ export const ProductDetailsPage: React.FC = () => {
               <div className="p-2.5 bg-white rounded-xl border border-[#EDE8E1]">
                 <Truck className="w-4 h-4 mx-auto text-[#13382B] mb-1" />
                 <p className="text-[10px] font-semibold text-gray-800">Free Express Delivery</p>
-                <p className="text-[9px] text-gray-400">Orders over ₹999</p>
+                
               </div>
               <div className="p-2.5 bg-white rounded-xl border border-[#EDE8E1]">
                 <RotateCcw className="w-4 h-4 mx-auto text-[#13382B] mb-1" />
                 <p className="text-[10px] font-semibold text-gray-800">14-Day Returns</p>
-                <p className="text-[9px] text-gray-400">Guaranteed quality</p>
+               
               </div>
               <div className="p-2.5 bg-white rounded-xl border border-[#EDE8E1]">
                 <ShieldCheck className="w-4 h-4 mx-auto text-[#13382B] mb-1" />
                 <p className="text-[10px] font-semibold text-gray-800">100% Authentic</p>
-                <p className="text-[9px] text-gray-400">Direct laboratory</p>
+           
               </div>
             </div>
 

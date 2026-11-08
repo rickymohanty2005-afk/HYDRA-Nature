@@ -16,7 +16,7 @@ import { ReturnPolicy } from './components/ReturnPolicy';
 
 // Public Pages
 import { HomePage } from './pages/HomePage';
-import { ShopPage } from './pages/ShopPage';
+import ShopPage from './pages/ShopPage';
 import { ProductDetailsPage } from './pages/ProductDetailsPage';
 import { AboutPage } from './pages/AboutPage';
 import { BlogPage } from './pages/BlogPage';

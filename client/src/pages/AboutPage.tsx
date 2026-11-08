@@ -1,95 +1,181 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, FlaskConical, Shield, HeartHandshake, Sparkles, Award } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Leaf, FlaskConical, Shield, HeartHandshake, Award } from 'lucide-react';
+
+const STATS = [
+  { value: '2021', label: 'Founded' },
+  { value: '100%', label: 'Cruelty-Free & Vegan' },
+  { value: '72h', label: 'Continuous Hydration' },
+  { value: '99.4%', label: 'Vitamins Preserved' },
+];
+
+const INGREDIENTS = [
+  'Plant Squalane',
+  'Kakadu Plum',
+  'Edelweiss',
+  'Hyaluronic Peptides',
+  'Ectoin',
+  'Matcha',
+  'Ceramides',
+  'Niacinamide',
+];
+
+const PILLARS = [
+  {
+    icon: Leaf,
+    title: 'Bio-Active Botanicals',
+    text: 'Cold-pressed, wild-harvested botanicals sourced ethically from certified regenerative farms.',
+  },
+  {
+    icon: FlaskConical,
+    title: 'Molecular Efficacy',
+    text: 'Peer-reviewed cellular bioavailability with triple-weight hyaluronic peptides and ectoin.',
+  },
+  {
+    icon: Shield,
+    title: 'Dermatologically Safe',
+    text: 'Zero parabens, phthalates, synthetic colorants, sulfates, or artificial musk.',
+  },
+  {
+    icon: HeartHandshake,
+    title: '100% Recyclable',
+    text: 'Packaged in pharmaceutical amber glass with FSC-certified post-consumer biodegradable boxes.',
+  },
+];
+
+const PROCESS = [
+  { step: '01', title: 'Source', text: 'Botanicals harvested at peak potency from regenerative partner farms.' },
+  { step: '02', title: 'Ferment', text: 'Cold-fermented at low thermal thresholds to keep cellular vitamins intact.' },
+  { step: '03', title: 'Test', text: 'Every batch verified in independent third-party dermatological labs.' },
+  { step: '04', title: 'Bottle', text: 'Sealed in amber glass to protect actives from light and air.' },
+];
+
+const STYLES = `
+@keyframes about-marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+.about-marquee { animation: about-marquee 40s linear infinite }
+@media (prefers-reduced-motion: reduce) { .about-marquee { animation: none } }
+`;
+
+const Eyebrow: React.FC<{ children: React.ReactNode; light?: boolean }> = ({ children, light }) => (
+  <span
+    className={`inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.3em] ${
+      light ? 'text-[#A68962]' : 'text-[#3F6352]'
+    }`}
+  >
+    <span className={`h-px w-8 ${light ? 'bg-[#A68962]' : 'bg-[#3F6352]'}`} />
+    {children}
+  </span>
+);
 
 export const AboutPage: React.FC = () => {
   return (
-    <div className="w-full bg-[#FAF8F5] pb-24">
-      {/* 1. ABOUT HERO (Pixel-matched from reference Image 1) */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-[#F1EBE3] via-[#F6F2EC] to-[#ECE5DC] border-b border-[#EDE8E1] py-14 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-10">
-          <div className="max-w-xl space-y-4 text-center md:text-left">
-            <span className="text-xs font-semibold tracking-widest text-[#3F6352] uppercase">
-              Brand Philosophy & Ethos
-            </span>
-            <h1 className="font-serif text-3xl sm:text-5xl font-medium text-[#13382B] leading-tight">
-              About Hydra
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-              Our journey towards natural, effective and sustainable skincare. We believe in the
-              power of nature and the science of skincare.
-            </p>
-            <div className="pt-2">
-              <a
-                href="#our-story"
-                className="inline-flex items-center gap-2 px-7 py-3 bg-[#13382B] text-white rounded-full text-xs font-semibold hover:bg-[#1E4D3B] transition-colors shadow-md"
-              >
-                <span>Our Story</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </a>
+    <div className="w-full bg-[#FAF8F5] text-[#13382B]">
+      <style>{STYLES}</style>
+
+      {/* 1. HERO */}
+      <section className="relative bg-[#FAF8F5] text-[#13382B]">
+        <div className="mx-auto max-w-[1440px] px-4 pt-14 sm:px-8 sm:pt-20 lg:px-12">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end">
+            <div>
+              <Eyebrow light>About Hydra</Eyebrow>
+              <h1 className="mt-6 font-serif text-5xl font-normal leading-[1.02] sm:text-6xl lg:text-7xl">
+                Nature, refined
+                <br />
+                by <em className="text-[#A68962]">science.</em>
+              </h1>
+            </div>
+            <div className="space-y-6 lg:pb-3">
+              <p className="max-w-md text-sm leading-relaxed text-[#56645D] sm:text-base">
+                Our journey towards natural, effective and sustainable skincare. We believe in the power of
+                nature and the science of skincare.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href="#our-story"
+                  className="group inline-flex items-center gap-2 rounded-md bg-[#13382B] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#1E4D3B]"
+                >
+                  Our Story
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </a>
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center gap-2 rounded-md border border-[#13382B]/25 px-6 py-3 text-sm font-medium text-[#13382B] transition-colors hover:border-[#13382B] hover:bg-[#13382B]/5"
+                >
+                  Shop the Range
+                </Link>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Laboratory Glassware with Botanical Leaves Image */}
-          <div className="w-56 sm:w-72 h-44 sm:h-56 rounded-3xl overflow-hidden shadow-xl border-4 border-white flex-shrink-0">
+        {/* Wide image with overlapping stats */}
+        <div className="mx-auto mt-12 max-w-[1440px] px-4 sm:px-8 lg:px-12">
+          <div className="relative overflow-hidden rounded-2xl border border-[#E8DFD0]">
             <img
-              src="https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=700&q=80"
-              alt="Hydra Botanical Laboratory"
-              className="w-full h-full object-cover"
+              src="/images/home/skincare%20banner%202.png"
+              alt="The Hydra skincare collection on a stone pedestal"
+              className="aspect-[4/3] w-full object-cover sm:aspect-[21/9]"
             />
           </div>
         </div>
+        <div className="relative z-10 mx-auto max-w-[1440px] translate-y-1/2 px-4 sm:px-8 lg:px-12">
+          <dl className="mx-auto grid max-w-5xl grid-cols-2 overflow-hidden rounded-2xl border border-[#E8DFD0] bg-white text-[#13382B] shadow-xl shadow-[#13382B]/5 sm:grid-cols-4">
+            {STATS.map(({ value, label }, i) => (
+              <div
+                key={label}
+                className={`px-5 py-6 text-center sm:py-8 ${i > 0 ? 'sm:border-l' : ''} ${
+                  i % 2 === 1 ? 'border-l' : ''
+                } ${i > 1 ? 'border-t sm:border-t-0' : ''} border-[#EDE8E1]`}
+              >
+                <dt className="sr-only">{label}</dt>
+                <dd className="font-serif text-3xl sm:text-4xl">{value}</dd>
+                <dd className="mt-1 text-[11px] uppercase tracking-[0.18em] text-[#687770]">{label}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </section>
 
-      {/* 2. THE DUAL PILLARS: NATURE & SCIENCE */}
-      <section id="our-story" className="py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <span className="text-xs uppercase tracking-widest font-semibold text-[#3F6352]">
-                Our Foundation
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#13382B] leading-tight">
-                Where Botanical Wisdom Meets Molecular Precision
-              </h2>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                Founded with a rebel spirit against toxic preservatives and artificial optical
-                fillers, Hydra was born in 2021 from a simple yet revolutionary conviction:
-                skincare should neither harm your body's endocrine system nor strip the planet's
-                ecosystems.
-              </p>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                Our team of dermatological chemists and botanical ethnopharmacologists spent 3 years
-                perfecting our cold-fermentation technique. By fermenting plant squalane, Kakadu
-                plum, and edelweiss at low thermal thresholds, we preserve 99.4% of the cellular
-                vitamins intact—resulting in formulations that absorb within seconds and hydrate for
-                72 continuous hours.
-              </p>
-
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#EDE8E1]">
-                <div>
-                  <h3 className="font-serif text-2xl font-bold text-[#13382B]">100%</h3>
-                  <p className="text-xs text-gray-500">Cruelty-Free & Vegan</p>
-                </div>
-                <div>
-                  <h3 className="font-serif text-2xl font-bold text-[#13382B]">72 Hours</h3>
-                  <p className="text-xs text-gray-500">Continuous Hydration Lock</p>
-                </div>
-              </div>
+      {/* 2. OUR STORY */}
+      <section id="our-story" className="scroll-mt-32 pb-20 pt-36 sm:pb-28 sm:pt-44">
+        <div className="mx-auto grid max-w-[1240px] gap-14 px-4 sm:px-8 lg:grid-cols-2 lg:items-center lg:gap-20">
+          {/* Image collage */}
+          <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
+            <div className="aspect-[4/5] w-[78%] overflow-hidden rounded-2xl">
+              <img src="/images/home/care_model.png" alt="Hydra skincare care ritual" className="h-full w-full object-cover" />
             </div>
+            <div className="absolute bottom-[-8%] right-0 aspect-square w-[50%] overflow-hidden rounded-2xl border-[6px] border-[#FAF8F5] shadow-xl">
+              <img src="/images/home/petri_dropper.jpg" alt="Formulation research in the Hydra lab" className="h-full w-full object-cover" />
+            </div>
+            <div className="absolute left-[62%] top-8 hidden rounded-full bg-[#0C241B] px-5 py-5 text-center text-white shadow-xl sm:block">
+              <p className="font-serif text-2xl leading-none text-[#C5A880]">3</p>
+              <p className="mt-1 text-[9px] uppercase tracking-[0.2em] text-white/70">Years R&amp;D</p>
+            </div>
+          </div>
 
-            {/* Collage of Ingredients and Lab Research */}
-            <div className="relative">
-              <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-                <img
-                  src="https://images.unsplash.com/photo-1570554886111-e80fcca6a029?auto=format&fit=crop&w=800&q=80"
-                  alt="Scientific Formulation"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute -bottom-6 -left-6 bg-[#13382B] text-white p-6 rounded-2xl shadow-xl max-w-xs hidden sm:block">
-                <p className="text-xs font-serif font-bold text-[#C5A880]">The Hydra Promise</p>
-                <p className="text-[11px] text-[#CCDED2] mt-1">
+          <div className="space-y-6">
+            <Eyebrow>Our Foundation</Eyebrow>
+            <h2 className="font-serif text-4xl font-normal leading-[1.1] sm:text-5xl">
+              Where botanical wisdom meets <em className="text-[#3F6352]">molecular precision.</em>
+            </h2>
+            <p className="text-sm leading-relaxed text-[#56645D] sm:text-base">
+              Founded with a rebel spirit against toxic preservatives and artificial optical fillers, Hydra was
+              born in 2021 from a simple yet revolutionary conviction: skincare should neither harm your body's
+              endocrine system nor strip the planet's ecosystems.
+            </p>
+            <p className="text-sm leading-relaxed text-[#56645D] sm:text-base">
+              Our team of dermatological chemists and botanical ethnopharmacologists spent 3 years perfecting our
+              cold-fermentation technique. By fermenting plant squalane, Kakadu plum, and edelweiss at low thermal
+              thresholds, we preserve 99.4% of the cellular vitamins intact—resulting in formulations that absorb
+              within seconds and hydrate for 72 continuous hours.
+            </p>
+            <div className="flex items-start gap-4 rounded-xl border border-[#E8DFD0] bg-white p-5">
+              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#0C241B] text-[#C5A880]">
+                <Award className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="font-serif text-lg">The Hydra Promise</p>
+                <p className="mt-0.5 text-sm text-[#687770]">
                   Every batch tested in independent third-party dermatological laboratories.
                 </p>
               </div>
@@ -98,79 +184,138 @@ export const AboutPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. FOUR CORE VALUES */}
-      <section className="py-16 bg-white border-y border-[#EDE8E1]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#3F6352]">
-            OUR STANDARDS
-          </span>
-          <h2 className="font-serif text-3xl font-semibold text-[#13382B] mt-1 mb-12">
-            The 4 Pillars of Hydra Formulations
-          </h2>
+      {/* 3. INGREDIENT MARQUEE */}
+      <section className="overflow-hidden border-y border-[#E8DFD0] bg-[#FAF8F5] py-6" aria-label="Key ingredients">
+        <div className="about-marquee flex w-max items-center">
+          {[...INGREDIENTS, ...INGREDIENTS].map((name, i) => (
+            <span key={i} className="flex items-center gap-8 px-4 font-serif text-2xl italic text-[#13382B]/80 sm:text-3xl">
+              {name}
+              <span className="text-base not-italic text-[#A68962]" aria-hidden="true">✦</span>
+            </span>
+          ))}
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="p-6 bg-[#FAF8F5] rounded-2xl border border-[#EDE8E1] space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-[#EAF1EB] text-[#13382B] flex items-center justify-center mx-auto">
-                <Leaf className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-base font-bold text-[#13382B]">Bio-Active Botanicals</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Cold-pressed, wild-harvested botanicals sourced ethically from certified regenerative farms.
-              </p>
+      {/* 4. PILLARS */}
+      <section className="py-20 sm:py-28">
+        <div className="mx-auto max-w-[1240px] px-4 sm:px-8">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <Eyebrow>Our Standards</Eyebrow>
+              <h2 className="mt-4 max-w-xl font-serif text-4xl font-normal leading-[1.1] sm:text-5xl">
+                The four pillars of every formulation.
+              </h2>
             </div>
+            <p className="max-w-sm text-sm leading-relaxed text-[#687770]">
+              What goes into a Hydra bottle is decided by four non-negotiables — and what stays out matters just
+              as much.
+            </p>
+          </div>
 
-            <div className="p-6 bg-[#FAF8F5] rounded-2xl border border-[#EDE8E1] space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-[#EAF1EB] text-[#13382B] flex items-center justify-center mx-auto">
-                <FlaskConical className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-base font-bold text-[#13382B]">Molecular Efficacy</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Peer-reviewed cellular bioavailability with triple-weight hyaluronic peptides and ectoin.
-              </p>
-            </div>
-
-            <div className="p-6 bg-[#FAF8F5] rounded-2xl border border-[#EDE8E1] space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-[#EAF1EB] text-[#13382B] flex items-center justify-center mx-auto">
-                <Shield className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-base font-bold text-[#13382B]">Dermatologically Safe</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Zero parabens, phthalates, synthetic colorants, sulfates, or artificial musk.
-              </p>
-            </div>
-
-            <div className="p-6 bg-[#FAF8F5] rounded-2xl border border-[#EDE8E1] space-y-3">
-              <div className="w-12 h-12 rounded-xl bg-[#EAF1EB] text-[#13382B] flex items-center justify-center mx-auto">
-                <HeartHandshake className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-base font-bold text-[#13382B]">100% Recyclable</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Packaged in pharmaceutical amber glass with FSC-certified post-consumer biodegradable boxes.
-              </p>
-            </div>
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {PILLARS.map(({ icon: Icon, title, text }, i) => (
+              <article
+                key={title}
+                className="group relative flex min-h-[300px] flex-col justify-between overflow-hidden rounded-2xl border border-[#E8DFD0] bg-white p-7 transition-all duration-500 hover:-translate-y-1 hover:border-[#C5A880] hover:shadow-xl hover:shadow-[#13382B]/5"
+              >
+                <div className="flex items-start justify-between">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EAF1EB] text-[#13382B] transition-colors duration-500 group-hover:bg-[#13382B] group-hover:text-white">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="font-serif text-sm text-[#A68962]">0{i + 1}</span>
+                </div>
+                <div>
+                  <h3 className="font-serif text-2xl leading-tight text-[#13382B]">
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-[#687770]">
+                    {text}
+                  </p>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 4. FOUNDER NOTE */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <Award className="w-10 h-10 text-[#C5A880] mx-auto" />
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#13382B]">
-            "True luxury is not an artificial fragrance or heavy marketing packaging. True luxury is
-            knowing exactly what touches your skin every morning."
-          </h2>
-          <div>
-            <p className="font-serif text-base font-semibold text-[#1A211D]">Dr. Evelyn Vance</p>
-            <p className="text-xs text-[#708078]">Founder & Chief Formulation Chemist, Hydra Skincare</p>
+      {/* 5. PROCESS */}
+      <section className="border-t border-[#E8DFD0] bg-[#FAF8F5] py-20 text-[#13382B] sm:py-28">
+        <div className="mx-auto max-w-[1240px] px-4 sm:px-8">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-20">
+            <div className="lg:sticky lg:top-40 lg:self-start">
+              <Eyebrow light>From Leaf to Bottle</Eyebrow>
+              <h2 className="mt-4 font-serif text-4xl font-normal leading-[1.1] sm:text-5xl">
+                A slower process, for skin that <em className="text-[#A68962]">shows it.</em>
+              </h2>
+              <div className="mt-8 overflow-hidden rounded-2xl border border-[#E8DFD0]">
+                <img
+                  src="/images/home/banner_nature.jpg"
+                  alt="Botanicals used in Hydra formulations"
+                  className="aspect-[16/10] w-full object-cover"
+                />
+              </div>
+            </div>
+
+            <ol className="divide-y divide-[#E8DFD0] border-y border-[#E8DFD0]">
+              {PROCESS.map(({ step, title, text }) => (
+                <li key={step} className="group grid grid-cols-[auto_1fr] gap-6 py-8 sm:gap-10 sm:py-10">
+                  <span className="font-serif text-5xl leading-none text-[#13382B]/20 transition-colors duration-500 group-hover:text-[#A68962] sm:text-6xl">
+                    {step}
+                  </span>
+                  <div>
+                    <h3 className="font-serif text-2xl text-[#13382B] sm:text-3xl">{title}</h3>
+                    <p className="mt-2 max-w-md text-sm leading-relaxed text-[#687770]">{text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
-          <div className="pt-4">
+        </div>
+      </section>
+
+      {/* 6. FOUNDER NOTE */}
+      <section className="border-t border-[#E8DFD0] bg-[#FAF8F5] py-20 sm:py-28">
+        <figure className="mx-auto max-w-4xl px-4 text-center sm:px-8">
+          <span className="font-serif text-7xl leading-none text-[#A68962]" aria-hidden="true">
+            “
+          </span>
+          <blockquote className="-mt-4 font-serif text-2xl font-normal leading-snug text-[#13382B] sm:text-4xl">
+            True luxury is not an artificial fragrance or heavy marketing packaging. True luxury is knowing exactly
+            what touches your skin every morning.
+          </blockquote>
+          <figcaption className="mt-8 flex flex-col items-center gap-1">
+            <span className="h-px w-10 bg-[#A68962]" />
+            <span className="mt-3 font-serif text-lg text-[#1A211D]">Dr. Evelyn Vance</span>
+            <span className="text-xs uppercase tracking-[0.2em] text-[#687770]">
+              Founder &amp; Chief Formulation Chemist
+            </span>
+          </figcaption>
+        </figure>
+      </section>
+
+      {/* 7. CTA */}
+      <section className="bg-[#FAF8F5] px-4 pb-20 sm:px-8 sm:pb-28">
+        <div className="relative mx-auto max-w-[1376px] overflow-hidden rounded-3xl border border-[#E8DFD0] bg-[#FAF8F5]">
+          <img
+            src="/images/home/Hydra%20Skincare%20banner%203.png"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-right"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/95 to-[#FAF8F5]/10" />
+          <div className="relative max-w-xl px-6 py-16 text-[#13382B] sm:px-14 sm:py-24">
+            <Eyebrow light>Begin Your Ritual</Eyebrow>
+            <h2 className="mt-4 font-serif text-4xl font-normal leading-[1.1] sm:text-5xl">
+              Skincare you can read like a label.
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-[#56645D] sm:text-base">
+              Explore the complete Hydra range — every ingredient chosen with intention.
+            </p>
             <Link
               to="/shop"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-[#13382B] text-white rounded-full text-xs font-semibold hover:bg-[#1E4D3B] transition-colors"
+              className="group mt-8 inline-flex items-center gap-2 rounded-md bg-[#13382B] px-7 py-3.5 text-sm font-medium text-white transition-colors hover:bg-[#1E4D3B]"
             >
-              <span>Explore the Complete Range</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              Explore the Complete Range
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
           </div>
         </div>

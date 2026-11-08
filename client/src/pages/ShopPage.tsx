@@ -5,7 +5,7 @@ import { ProductCard } from '../components/common/ProductCard';
 import { productService, ProductQueryParams } from '../services/productService';
 import { Product } from '../types';
 
-export const ShopPage: React.FC = () => {
+const ShopPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -155,39 +155,119 @@ export const ShopPage: React.FC = () => {
     setInStockOnly(false);
   };
 
+  const hasActiveFilters =
+    currentCategory !== 'All Products' ||
+    !!currentSearch ||
+    (!!currentSubcategory && currentSubcategory !== 'All') ||
+    inStockOnly;
+
+  const goToPage = (pageNum: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', pageNum.toString());
+    setSearchParams(newParams);
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  };
+
+  const allCategories = [{ name: 'All Products', count: total }, ...categories];
+
+  const filterChipClass =
+    'inline-flex items-center gap-1.5 rounded-full border border-[#E8DFD0] bg-white py-1 pl-3 pr-1.5 text-[11px] font-medium text-[#13382B]';
+  const chipCloseClass =
+    'flex h-5 w-5 items-center justify-center rounded-full text-[#687770] transition-colors hover:bg-[#13382B] hover:text-white';
+
   return (
-    <div className="w-full bg-[#FAF8F5] pb-20">
+    <div className="w-full bg-[#FAF8F5] pb-24">
       {/* 1. SHOP HERO BANNER */}
       <section className="relative overflow-hidden bg-gradient-to-r from-[#F0ECE4] via-[#F4EFEB] to-[#EBE4D8] border-b border-[#EDE8E1] py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-3 max-w-xl text-center md:text-left">
-            <div className="text-xs text-[#708078] tracking-widest uppercase font-medium">
-              Home / Shop {currentCategory !== 'All Products' ? `/ ${currentCategory}` : ''}
-            </div>
-            <h1 className="font-serif text-3xl sm:text-5xl font-medium text-[#13382B]">
-              {currentCategory === 'All Products' ? 'Shop Our Skincare' : currentCategory}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+          <div className="space-y-5 text-center md:text-left">
+            <nav
+              aria-label="Breadcrumb"
+              className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#3F6352]"
+            >
+              <span className="h-px w-8 bg-[#3F6352]" />
+              <span>Home</span>
+              <span className="text-[#A68962]">/</span>
+              <span className={currentCategory === 'All Products' ? 'text-[#13382B]' : ''}>Shop</span>
+              {currentCategory !== 'All Products' && (
+                <>
+                  <span className="text-[#A68962]">/</span>
+                  <span className="text-[#13382B]">{currentCategory}</span>
+                </>
+              )}
+            </nav>
+            <h1 className="font-serif text-4xl font-normal leading-[1.05] text-[#13382B] sm:text-6xl">
+              {currentCategory === 'All Products' ? (
+                <>
+                  Shop Our <em className="text-[#A68962]">Skincare</em>
+                </>
+              ) : (
+                currentCategory
+              )}
             </h1>
-            <p className="text-sm text-gray-600 max-w-md">
+            <p className="mx-auto max-w-md text-sm leading-relaxed text-[#56645D] sm:text-base md:mx-0">
               Discover clean, cellular formulations crafted with potent active botanicals and verified clinical purity.
             </p>
+            <div className="flex items-center justify-center gap-6 pt-1 md:justify-start">
+              <div>
+                <p className="font-serif text-2xl text-[#13382B]">{total}</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#687770]">Formulations</p>
+              </div>
+              <span className="h-8 w-px bg-[#E0D7C9]" />
+              <div>
+                <p className="font-serif text-2xl text-[#13382B]">{categories.length}</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#687770]">Categories</p>
+              </div>
+            </div>
           </div>
 
-          <div className="w-48 sm:w-64 h-36 sm:h-44 rounded-2xl overflow-hidden shadow-lg border-2 border-white flex-shrink-0">
-            <img
-              src="/images/home/productpage.png"
-              alt="Hydra Skincare Formulation"
-              className="w-full h-full object-cover"
-            />
+          <div className="relative mx-auto w-64 sm:w-80 md:mx-0">
+            <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/80 shadow-xl shadow-[#13382B]/10">
+              <img
+                src="/images/home/productpage.png"
+                alt="Hydra Skincare Formulation"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-full border border-[#E8DFD0] bg-white px-4 py-2 shadow-lg">
+              <Sparkles className="h-3.5 w-3.5 text-[#A68962]" />
+              <span className="text-[11px] font-medium text-[#13382B]">Clean &amp; clinically tested</span>
+            </div>
           </div>
         </div>
       </section>
 
       {/* 2. FILTER & CATALOG BODY */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        {/* Mobile Category Chips */}
+        <div className="mb-5 lg:hidden">
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#3F6352]">
+            <Filter className="h-3.5 w-3.5" /> Categories
+          </p>
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none">
+            {allCategories.map((cat) => {
+              const isSelected = currentCategory.toLowerCase() === cat.name.toLowerCase();
+              return (
+                <button
+                  key={cat.name}
+                  onClick={() => handleCategorySelect(cat.name)}
+                  className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs font-medium transition-colors ${
+                    isSelected
+                      ? 'border-[#13382B] bg-[#13382B] text-white'
+                      : 'border-[#E8DFD0] bg-white text-[#56645D] hover:border-[#13382B]/40'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Top Control Bar */}
-        <div className="bg-white rounded-2xl p-4 border border-[#EDE8E1] shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+        <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-[#EDE8E1] bg-white p-3 shadow-sm md:flex-row md:items-center md:justify-between">
           {/* Dynamic Subcategory Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
+          <div className="flex w-full items-center gap-1 overflow-x-auto scrollbar-none md:w-auto">
             {subcategories.map((sub) => {
               const isSelected =
                 (currentSubcategory === sub) ||
@@ -198,10 +278,10 @@ export const ShopPage: React.FC = () => {
                 <button
                   key={sub}
                   onClick={() => handleSubcategorySelect(sub)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all ${
                     isSelected
                       ? 'bg-[#13382B] text-white shadow-sm'
-                      : 'bg-[#FAF8F5] text-gray-600 hover:bg-[#EDE8E1]'
+                      : 'text-[#56645D] hover:bg-[#FAF8F5] hover:text-[#13382B]'
                   }`}
                 >
                   {sub}
@@ -211,25 +291,26 @@ export const ShopPage: React.FC = () => {
           </div>
 
           {/* Search & Sort Controls */}
-          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-            <form onSubmit={handleSearchSubmit} className="relative flex-1 md:w-56">
+          <div className="flex w-full items-center justify-end gap-2 md:w-auto">
+            <form onSubmit={handleSearchSubmit} className="relative flex-1 md:w-60">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#687770]" />
               <input
                 type="text"
                 placeholder="Search formulations..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-8 pr-4 py-1.5 text-xs bg-[#FAF8F5] border border-[#EDE8E1] rounded-full focus:outline-none focus:border-[#13382B]"
+                className="h-10 w-full rounded-full border border-[#EDE8E1] bg-[#FAF8F5] pl-10 pr-4 text-xs text-[#13382B] placeholder:text-[#8A968F] transition-colors focus:border-[#13382B] focus:bg-white focus:outline-none"
               />
-              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2.5" />
             </form>
 
             {/* Sort Select */}
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <span className="hidden sm:inline">Sort:</span>
+            <label className="relative flex h-10 items-center gap-2 rounded-full border border-[#EDE8E1] bg-[#FAF8F5] pl-4 pr-9 text-xs text-[#687770] transition-colors focus-within:border-[#13382B]">
+              <SlidersHorizontal className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="sr-only">Sort products</span>
               <select
                 value={currentSort}
                 onChange={handleSortChange}
-                className="bg-[#FAF8F5] border border-[#EDE8E1] rounded-full px-3 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-[#13382B] cursor-pointer"
+                className="cursor-pointer appearance-none bg-transparent text-xs font-medium text-[#13382B] focus:outline-none"
               >
                 <option value="popular">Popular</option>
                 <option value="newest">Newest Arrivals</option>
@@ -237,106 +318,138 @@ export const ShopPage: React.FC = () => {
                 <option value="price-desc">Price: High to Low</option>
                 <option value="rating">Top Rated</option>
               </select>
-            </div>
+              <ChevronDown className="pointer-events-none absolute right-3.5 h-3.5 w-3.5" />
+            </label>
           </div>
         </div>
 
         {/* Content Layout: Categories Sidebar + Product Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
           {/* Desktop Left Sidebar: Dynamic Categories & Filters */}
-          <aside className="hidden lg:block lg:col-span-3 space-y-6">
-            {/* Dynamic Categories Box */}
-            <div className="bg-white rounded-2xl p-6 border border-[#EDE8E1] shadow-sm space-y-4">
-              <h3 className="font-serif text-base font-bold text-[#13382B] border-b border-gray-100 pb-3 flex items-center justify-between">
-                <span>Categories</span>
-                <span className="text-[10px] text-gray-400 font-sans font-normal">
-                  {total} available
-                </span>
-              </h3>
-              <ul className="space-y-1.5 text-xs">
-                <li>
-                  <button
-                    onClick={() => handleCategorySelect('All Products')}
-                    className={`w-full text-left py-2 px-3 rounded-xl flex items-center justify-between transition-colors ${
-                      currentCategory === 'All Products'
-                        ? 'bg-[#EAF1EB] text-[#13382B] font-bold shadow-sm'
-                        : 'text-gray-600 hover:bg-[#FAF8F5]'
-                    }`}
-                  >
-                    <span>All Products</span>
-                    <span className="text-[11px] text-gray-400 font-mono">{total}</span>
-                  </button>
-                </li>
-                {categories.map((cat) => {
-                  const isSelected = currentCategory.toLowerCase() === cat.name.toLowerCase();
-                  return (
-                    <li key={cat.name}>
-                      <button
-                        onClick={() => handleCategorySelect(cat.name)}
-                        className={`w-full text-left py-2 px-3 rounded-xl flex items-center justify-between transition-colors ${
-                          isSelected
-                            ? 'bg-[#EAF1EB] text-[#13382B] font-bold shadow-sm'
-                            : 'text-gray-600 hover:bg-[#FAF8F5]'
-                        }`}
-                      >
-                        <span>{cat.name}</span>
-                        <span className="text-[11px] text-gray-400 font-mono">{cat.count}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            {/* In Stock Toggle */}
-            <div className="bg-white rounded-2xl p-5 border border-[#EDE8E1] shadow-sm">
-              <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-xs font-semibold text-gray-800">In Stock Only</span>
-                <input
-                  type="checkbox"
-                  checked={inStockOnly}
-                  onChange={(e) => setInStockOnly(e.target.checked)}
-                  className="rounded text-[#13382B] focus:ring-[#13382B] w-4 h-4 cursor-pointer"
-                />
-              </label>
-            </div>
-
-            {/* Botanical Guarantee Banner */}
-            <div className="bg-[#13382B] text-white rounded-2xl p-5 space-y-2 shadow-sm">
-              <div className="flex items-center gap-1.5 text-[#C5A880]">
-                <Sparkles className="w-3.5 h-3.5" />
-                <p className="text-xs font-serif font-bold">Cellular Purity Guarantee</p>
+          <aside className="hidden lg:col-span-3 lg:block">
+            <div className="sticky top-36 space-y-5">
+              {/* Dynamic Categories Box */}
+              <div className="rounded-2xl border border-[#EDE8E1] bg-white p-6 shadow-sm">
+                <div className="mb-4 flex items-end justify-between border-b border-[#EDE8E1] pb-4">
+                  <h3 className="font-serif text-xl font-normal text-[#13382B]">Categories</h3>
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-[#687770]">{total} available</span>
+                </div>
+                <ul className="space-y-0.5 text-[13px]">
+                  {allCategories.map((cat) => {
+                    const isSelected = currentCategory.toLowerCase() === cat.name.toLowerCase();
+                    return (
+                      <li key={cat.name}>
+                        <button
+                          onClick={() => handleCategorySelect(cat.name)}
+                          className={`relative flex w-full items-center justify-between rounded-lg py-2.5 pl-4 pr-3 text-left transition-colors ${
+                            isSelected
+                              ? 'bg-[#EAF1EB] font-semibold text-[#13382B]'
+                              : 'text-[#56645D] hover:bg-[#FAF8F5] hover:text-[#13382B]'
+                          }`}
+                        >
+                          <span
+                            className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[#13382B] transition-opacity ${
+                              isSelected ? 'opacity-100' : 'opacity-0'
+                            }`}
+                          />
+                          <span className="flex items-center gap-2">
+                            {cat.name}
+                            {isSelected && <Check className="h-3.5 w-3.5 text-[#A68962]" />}
+                          </span>
+                          <span
+                            className={`min-w-[1.75rem] rounded-full px-2 py-0.5 text-center text-[10px] font-medium ${
+                              isSelected ? 'bg-[#13382B] text-white' : 'bg-[#FAF8F5] text-[#687770]'
+                            }`}
+                          >
+                            {cat.count}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-              <p className="text-[11px] text-[#A2B997] leading-relaxed">
-                Zero parabens, artificial dyes, harsh sulfates, or mineral oils. Sustainably packaged in UV-protective glass.
-              </p>
+
+              {/* In Stock Toggle */}
+              <div className="rounded-2xl border border-[#EDE8E1] bg-white p-5 shadow-sm">
+                <label className="flex cursor-pointer items-center justify-between gap-4">
+                  <span>
+                    <span className="block text-[13px] font-semibold text-[#13382B]">In Stock Only</span>
+                    <span className="block text-[11px] text-[#687770]">Hide sold-out formulations</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={inStockOnly}
+                    onChange={(e) => setInStockOnly(e.target.checked)}
+                    className="peer sr-only"
+                  />
+                  <span className="relative h-6 w-11 flex-shrink-0 rounded-full bg-[#E8DFD0] transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:bg-[#13382B] peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-[#13382B] peer-focus-visible:ring-offset-2" />
+                </label>
+              </div>
+
+              {/* Botanical Guarantee Banner */}
+              <div className="relative overflow-hidden rounded-2xl bg-[#13382B] p-6 text-white shadow-sm">
+                <Sparkles className="absolute -right-3 -top-3 h-20 w-20 text-white/5" />
+                <div className="flex items-center gap-2 text-[#C5A880]">
+                  <Sparkles className="h-4 w-4" />
+                  <p className="font-serif text-base">Cellular Purity Guarantee</p>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-[#A2B997]">
+                  Zero parabens, artificial dyes, harsh sulfates, or mineral oils. Sustainably packaged in UV-protective glass.
+                </p>
+              </div>
             </div>
           </aside>
 
           {/* Right Product Grid */}
           <div className="lg:col-span-9">
+            {/* Results header */}
+            <div className="mb-6 flex flex-col gap-3 border-b border-[#EDE8E1] pb-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs text-[#687770]">
+                {loading ? (
+                  'Loading formulations…'
+                ) : (
+                  <>
+                    Showing <span className="font-semibold text-[#13382B]">{products.length}</span> of{' '}
+                    <span className="font-semibold text-[#13382B]">{total}</span> products
+                  </>
+                )}
+              </p>
+
+              {/* In Stock toggle for smaller screens */}
+              <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[#13382B] lg:hidden">
+                <input
+                  type="checkbox"
+                  checked={inStockOnly}
+                  onChange={(e) => setInStockOnly(e.target.checked)}
+                  className="h-4 w-4 cursor-pointer rounded text-[#13382B] focus:ring-[#13382B]"
+                />
+                In Stock Only
+              </label>
+            </div>
+
             {/* Active Filters display */}
-            {(currentCategory !== 'All Products' || currentSearch || (currentSubcategory && currentSubcategory !== 'All') || inStockOnly) && (
-              <div className="flex items-center gap-2 mb-4 flex-wrap text-xs">
-                <span className="text-gray-500 font-medium">Filters:</span>
+            {hasActiveFilters && (
+              <div className="mb-6 flex flex-wrap items-center gap-2">
+                <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3F6352]">Filters</span>
                 {currentCategory !== 'All Products' && (
-                  <span className="px-2.5 py-1 bg-[#EAF1EB] text-[#2E6B48] font-medium rounded-full flex items-center gap-1">
-                    Category: {currentCategory}
-                    <button onClick={() => handleCategorySelect('All Products')}>
-                      <X className="w-3 h-3" />
+                  <span className={filterChipClass}>
+                    {currentCategory}
+                    <button onClick={() => handleCategorySelect('All Products')} className={chipCloseClass} aria-label="Remove category filter">
+                      <X className="h-3 w-3" />
                     </button>
                   </span>
                 )}
                 {currentSubcategory && currentSubcategory !== 'All' && (
-                  <span className="px-2.5 py-1 bg-[#EAF1EB] text-[#2E6B48] font-medium rounded-full flex items-center gap-1">
-                    Subcategory: {currentSubcategory}
-                    <button onClick={() => handleSubcategorySelect('All')}>
-                      <X className="w-3 h-3" />
+                  <span className={filterChipClass}>
+                    {currentSubcategory}
+                    <button onClick={() => handleSubcategorySelect('All')} className={chipCloseClass} aria-label="Remove subcategory filter">
+                      <X className="h-3 w-3" />
                     </button>
                   </span>
                 )}
                 {currentSearch && (
-                  <span className="px-2.5 py-1 bg-[#EAF1EB] text-[#2E6B48] font-medium rounded-full flex items-center gap-1">
+                  <span className={filterChipClass}>
                     "{currentSearch}"
                     <button
                       onClick={() => {
@@ -345,22 +458,24 @@ export const ShopPage: React.FC = () => {
                         setSearchParams(p);
                         setSearchInput('');
                       }}
+                      className={chipCloseClass}
+                      aria-label="Remove search filter"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="h-3 w-3" />
                     </button>
                   </span>
                 )}
                 {inStockOnly && (
-                  <span className="px-2.5 py-1 bg-[#EAF1EB] text-[#2E6B48] font-medium rounded-full flex items-center gap-1">
+                  <span className={filterChipClass}>
                     In Stock Only
-                    <button onClick={() => setInStockOnly(false)}>
-                      <X className="w-3 h-3" />
+                    <button onClick={() => setInStockOnly(false)} className={chipCloseClass} aria-label="Remove in-stock filter">
+                      <X className="h-3 w-3" />
                     </button>
                   </span>
                 )}
                 <button
                   onClick={clearAllFilters}
-                  className="text-xs text-red-600 hover:underline ml-2 font-medium"
+                  className="ml-1 text-[11px] font-semibold text-[#A68962] underline-offset-4 hover:text-[#13382B] hover:underline"
                 >
                   Clear all
                 </button>
@@ -369,14 +484,19 @@ export const ShopPage: React.FC = () => {
 
             {/* Products Grid */}
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-80 bg-white rounded-2xl animate-pulse p-4 border border-[#EDE8E1]" />
+                  <div key={i} className="animate-pulse rounded-2xl border border-[#EDE8E1] bg-white p-4">
+                    <div className="aspect-square rounded-xl bg-[#F4F0EB]" />
+                    <div className="mt-4 h-3 w-1/3 rounded-full bg-[#F4F0EB]" />
+                    <div className="mt-3 h-4 w-3/4 rounded-full bg-[#F4F0EB]" />
+                    <div className="mt-3 h-4 w-1/4 rounded-full bg-[#F4F0EB]" />
+                  </div>
                 ))}
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
                   {products.map((product) => (
                     <ProductCard key={product._id} product={product} />
                   ))}
@@ -384,45 +504,57 @@ export const ShopPage: React.FC = () => {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="mt-12 flex justify-center items-center gap-2">
+                  <div className="mt-16 flex items-center justify-center gap-2 border-t border-[#EDE8E1] pt-8">
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage <= 1}
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EDE8E1] bg-white text-[#13382B] transition-colors hover:border-[#13382B] disabled:pointer-events-none disabled:opacity-40"
+                      aria-label="Previous page"
+                    >
+                      <ChevronDown className="h-4 w-4 rotate-90" />
+                    </button>
                     {[...Array(totalPages)].map((_, i) => {
                       const pageNum = i + 1;
                       return (
                         <button
                           key={pageNum}
-                          onClick={() => {
-                            const newParams = new URLSearchParams(searchParams);
-                            newParams.set('page', pageNum.toString());
-                            setSearchParams(newParams);
-                            window.scrollTo({ top: 300, behavior: 'smooth' });
-                          }}
-                          className={`w-9 h-9 rounded-full text-xs font-semibold transition-all ${
+                          onClick={() => goToPage(pageNum)}
+                          aria-current={currentPage === pageNum ? 'page' : undefined}
+                          className={`h-10 w-10 rounded-full text-xs font-semibold transition-all ${
                             currentPage === pageNum
                               ? 'bg-[#13382B] text-white shadow-md'
-                              : 'bg-white border border-[#EDE8E1] text-gray-700 hover:bg-gray-50'
+                              : 'border border-[#EDE8E1] bg-white text-[#56645D] hover:border-[#13382B] hover:text-[#13382B]'
                           }`}
                         >
                           {pageNum}
                         </button>
                       );
                     })}
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage >= totalPages}
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EDE8E1] bg-white text-[#13382B] transition-colors hover:border-[#13382B] disabled:pointer-events-none disabled:opacity-40"
+                      aria-label="Next page"
+                    >
+                      <ChevronDown className="h-4 w-4 -rotate-90" />
+                    </button>
                   </div>
                 )}
               </>
             ) : (
-              <div className="bg-white rounded-2xl p-12 text-center border border-[#EDE8E1] shadow-sm">
-                <div className="w-16 h-16 rounded-full bg-[#EAF1EB] text-[#13382B] flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-7 h-7" />
+              <div className="rounded-2xl border border-[#EDE8E1] bg-white px-6 py-16 text-center shadow-sm">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#EAF1EB] text-[#13382B]">
+                  <Search className="h-7 w-7" />
                 </div>
-                <h3 className="font-serif text-xl font-bold text-[#1A211D]">
+                <h3 className="font-serif text-2xl font-normal text-[#13382B]">
                   No Skincare Formulations Found
                 </h3>
-                <p className="text-xs text-gray-500 mt-2 max-w-sm mx-auto">
+                <p className="mx-auto mt-2 max-w-sm text-sm text-[#687770]">
                   We couldn't find any products matching your current filters. Try resetting or selecting another category.
                 </p>
                 <button
                   onClick={clearAllFilters}
-                  className="mt-6 px-6 py-2.5 bg-[#13382B] text-white text-xs font-semibold rounded-full hover:bg-[#1E4D3B] transition-colors"
+                  className="mt-7 rounded-full bg-[#13382B] px-7 py-3 text-xs font-semibold text-white transition-colors hover:bg-[#1E4D3B]"
                 >
                   Reset All Filters
                 </button>
@@ -434,3 +566,5 @@ export const ShopPage: React.FC = () => {
     </div>
   );
 };
+
+export default ShopPage;

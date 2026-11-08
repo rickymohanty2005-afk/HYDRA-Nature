@@ -19,6 +19,14 @@ import { useAppDispatch, useAppSelector } from '../store';
 import { logoutUser } from '../store/authSlice';
 import { toggleCartDrawer } from '../store/cartSlice';
 
+const navLinkClass = (isActive: boolean) =>
+  `relative py-1 text-[13px] tracking-wide transition-colors after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-[#1E9AA3] after:transition-all after:duration-300 ${
+    isActive ? 'text-[#04282B] font-medium after:w-full' : 'text-[#04282B]/70 hover:text-[#04282B] after:w-0 hover:after:w-full'
+  }`;
+
+const iconButtonClass =
+  'relative p-1.5 text-[#04282B] hover:text-[#1E9AA3] transition-colors rounded-full hover:bg-[#1E9AA3]/10';
+
 export const Navbar: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -79,23 +87,27 @@ export const Navbar: React.FC = () => {
     navigate('/');
   };
 
+  // On the home page the navbar floats over the hero and stays clear until the user scrolls
+  const isHome = location.pathname === '/';
+  const isTransparent = isHome && !isScrolled && !searchOpen && !mobileMenuOpen;
+
   return (
-    <header className="sticky top-0 z-40 w-full transition-all duration-300">
+    <header className={`${isHome ? 'fixed inset-x-0' : 'sticky'} top-0 z-40 w-full transition-all duration-300`}>
       {/* Top Botanical Announcement Bar */}
-      <div className="bg-[#3E5A3F] text-[#FAF8F5] text-xs py-2 px-4 transition-all">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="hidden sm:block text-[11px] tracking-wider text-[#A2B997]">
+      <div className="bg-[#04282B] text-[#FFFFFF] text-xs py-2 px-4 border-b border-[#04282B] transition-all">
+        <div className="max-w-[1440px] mx-auto sm:px-4 lg:px-8 flex items-center justify-between">
+          <div className="hidden sm:block text-[10px] tracking-[0.3em] text-[#7FDDE2]/80">
             NATURE • SCIENCE • RADIANCE
           </div>
 
-          <div className="mx-auto sm:mx-0 flex items-center gap-2 text-center text-xs tracking-wide">
-            <span>🌿 Free Shipping on Orders Above ₹999</span>
-            <span className="text-[#C5A880]">|</span>
-            <span className="text-[#E8DFD0]">Nature. Science. You.</span>
+          <div className="mx-auto sm:mx-0 flex items-center gap-2 text-center text-[11px] tracking-wider">
+            <span className="text-[#7FDDE2]">Free Shipping.</span>
+
+            <span className="text-[#FFFFFF]/85">Nature. Science. You.</span>
           </div>
 
           {/* Social Icons */}
-          <div className="hidden md:flex items-center gap-3 text-[#A2B997]">
+          <div className="hidden md:flex items-center gap-3 text-[#7FDDE2]/80">
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors" aria-label="Instagram">
               <Instagram className="w-3.5 h-3.5" />
             </a>
@@ -114,26 +126,54 @@ export const Navbar: React.FC = () => {
 
       {/* Main Navigation Bar */}
       <nav
-        className={`w-full transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-md py-3 border-b border-[#EDE8E1]'
-            : 'bg-[#FAF8F5]/90 backdrop-blur-sm py-4 border-b border-[#EDE8E1]'
+        className={`w-full text-[#04282B] transition-all duration-300 ${
+          isTransparent
+            ? 'bg-transparent border-b border-transparent py-4 lg:py-5'
+            : isScrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-[0_10px_30px_-12px_rgba(4,40,43,0.18)] border-b border-[#04282B]/[0.06] py-3'
+            : 'bg-white border-b border-[#04282B]/[0.08] py-4 lg:py-5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Mobile Hamburger Button */}
-          <div className="flex lg:hidden items-center">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+          {/* Left: Mobile Hamburger + Desktop Navigation Links */}
+          <div className="flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-[#13382B] hover:text-[#2E6B48] focus:outline-none"
+              className="lg:hidden -ml-2 p-2 text-[#04282B] hover:text-[#04282B] focus:outline-none"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
+
+            <div className="hidden lg:flex items-center gap-7 xl:gap-9">
+              <Link to="/" className={navLinkClass(location.pathname === '/')}>
+                Home
+              </Link>
+
+              <Link to="/shop" className={navLinkClass(location.pathname.startsWith('/shop'))}>
+                Shop
+              </Link>
+
+              <Link to="/about" className={navLinkClass(location.pathname === '/about')}>
+                About
+              </Link>
+
+              <Link to="/blog" className={navLinkClass(location.pathname.startsWith('/blog'))}>
+                Blog
+              </Link>
+
+              <Link to="/contact" className={navLinkClass(location.pathname === '/contact')}>
+                Contact
+              </Link>
+
+              <Link to="/career" className={navLinkClass(location.pathname === '/career')}>
+                Career
+              </Link>
+            </div>
           </div>
 
-          {/* Hydra Brand Wordmark & Emblem */}
-          <Link to="/" className="flex flex-shrink-0 items-center" aria-label="Hydra home">
+          {/* Center: Hydra Brand Wordmark & Emblem */}
+          <Link to="/" className="flex flex-shrink-0 items-center justify-center" aria-label="Hydra home">
             <img
               src="/images/home/Logo.png"
               alt="Hydra Professional Beauty"
@@ -141,93 +181,37 @@ export const Navbar: React.FC = () => {
             />
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center space-x-8 text-sm font-medium text-[#1A211D]">
-            <Link
-              to="/"
-              className={`hover:text-[#13382B] transition-colors ${
-                location.pathname === '/' ? 'text-[#13382B] font-semibold border-b-2 border-[#13382B] pb-1' : ''
-              }`}
-            >
-              Home
-            </Link>
-
-            <Link
-              to="/shop"
-              className={`hover:text-[#13382B] transition-colors ${
-                location.pathname.startsWith('/shop')
-                  ? 'text-[#13382B] font-semibold border-b-2 border-[#13382B] pb-1'
-                  : ''
-              }`}
-            >
-              Shop
-            </Link>
-
-            <Link
-              to="/about"
-              className={`hover:text-[#13382B] transition-colors ${
-                location.pathname === '/about' ? 'text-[#13382B] font-semibold border-b-2 border-[#13382B] pb-1' : ''
-              }`}
-            >
-              About
-            </Link>
-
-            <Link
-              to="/blog"
-              className={`hover:text-[#13382B] transition-colors ${
-                location.pathname.startsWith('/blog') ? 'text-[#13382B] font-semibold border-b-2 border-[#13382B] pb-1' : ''
-              }`}
-            >
-              Blog
-            </Link>
-
-            <Link
-              to="/contact"
-              className={`hover:text-[#13382B] transition-colors ${
-                location.pathname === '/contact' ? 'text-[#13382B] font-semibold border-b-2 border-[#13382B] pb-1' : ''
-              }`}
-            >
-              Contact
-            </Link>
-
-            <Link
-              to="/career"
-              className={`hover:text-[#13382B] transition-colors ${
-                location.pathname === '/career' ? 'text-[#13382B] font-semibold border-b-2 border-[#13382B] pb-1' : ''
-              }`}
-            >
-              Career
-            </Link>
-          </div>
-
           {/* Right Action Icons: Search, Account, Wishlist, Cart */}
-          <div className="flex items-center space-x-3 sm:space-x-5 text-[#13382B]">
-            {/* Search Toggle */}
+          <div className="flex items-center justify-end gap-1 sm:gap-3 lg:gap-4">
+            {/* Search Toggle — styled as an underlined field on desktop */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="p-1.5 hover:text-[#2E6B48] transition-colors rounded-full hover:bg-black/5"
+              className="group flex items-center gap-3 p-1.5 md:px-0 md:pb-2 md:pt-1 md:border-b md:border-[#04282B]/20 md:hover:border-[#1E9AA3] md:w-40 xl:w-56 text-[#04282B] hover:text-[#04282B] transition-colors"
               aria-label="Search products"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0" />
+              <span className="hidden md:inline text-[13px] text-[#04282B]/55 group-hover:text-[#04282B] transition-colors">
+                Search...
+              </span>
             </button>
 
             {/* User Account / Profile Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="p-1.5 hover:text-[#2E6B48] transition-colors rounded-full hover:bg-black/5 flex items-center gap-1"
+                className={`${iconButtonClass} flex items-center gap-1`}
                 aria-label="User Account"
               >
                 <User className="w-5 h-5" />
                 {user?.role === 'admin' && (
-                  <span className="hidden sm:inline-block text-[10px] bg-[#13382B] text-white px-1.5 py-0.5 rounded font-bold uppercase">
+                  <span className="hidden sm:inline-block text-[10px] bg-[#04282B] text-[#FFFFFF] px-1.5 py-0.5 rounded font-bold uppercase">
                     Admin
                   </span>
                 )}
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-[#EDE8E1] py-2 z-50">
+                <div className="absolute right-0 top-full mt-3 w-56 bg-white rounded-xl shadow-xl border border-[#EDE8E1] py-2 z-50">
                   {isAuthenticated && user ? (
                     <>
                       <div className="px-4 py-2 border-b border-gray-100">
@@ -238,7 +222,7 @@ export const Navbar: React.FC = () => {
                       {user.role === 'admin' && (
                         <Link
                           to="/admin"
-                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-[#13382B] hover:bg-[#EAF1EB]"
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-[#04282B] hover:bg-[#EAF1EB]"
                         >
                           <LayoutDashboard className="w-4 h-4" />
                           <span>Admin Dashboard</span>
@@ -284,7 +268,7 @@ export const Navbar: React.FC = () => {
                       <p className="text-xs text-gray-600 mb-2">Welcome to Hydra Skincare</p>
                       <Link
                         to="/auth"
-                        className="block w-full py-2 bg-[#13382B] text-white text-xs font-semibold rounded-lg hover:bg-[#1E4D3B] transition-colors"
+                        className="block w-full py-2 bg-[#04282B] text-white text-xs font-semibold rounded-lg hover:bg-[#1E9AA3] transition-colors"
                       >
                         Sign In / Register
                       </Link>
@@ -295,58 +279,59 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Wishlist Link */}
-            <Link
-              to="/wishlist"
-              className="relative p-1.5 hover:text-[#2E6B48] transition-colors rounded-full hover:bg-black/5"
-              aria-label="Wishlist"
-            >
+            <Link to="/wishlist" className={iconButtonClass} aria-label="Wishlist">
               <Heart className="w-5 h-5" />
               {wishlistItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#C5A880] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#04282B] text-[#FFFFFF] text-[10px] font-bold rounded-full flex items-center justify-center">
                   {wishlistItems.length}
                 </span>
               )}
             </Link>
 
-            {/* Shopping Bag / Cart */}
+            {/* Shopping Bag / Cart — "Bag (n)" style */}
             <button
               onClick={() => dispatch(toggleCartDrawer(true))}
-              className="relative p-1.5 hover:text-[#2E6B48] transition-colors rounded-full hover:bg-black/5"
+              className="group flex items-center gap-2 pl-1.5 text-[#04282B] hover:text-[#04282B] transition-colors"
               aria-label="Open Shopping Bag"
             >
-              <ShoppingBag className="w-5 h-5" />
-              {totalCartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#13382B] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                  {totalCartCount}
-                </span>
-              )}
+              <ShoppingBag className="w-5 h-5 sm:hidden" />
+              <span className="hidden sm:inline text-[13px] tracking-wide">Bag</span>
+              <span
+                className={`flex h-7 min-w-[1.75rem] sm:h-8 sm:min-w-[2rem] items-center justify-center rounded-full border px-1.5 text-[11px] sm:text-xs font-medium transition-colors ${
+                  totalCartCount > 0
+                    ? 'border-[#04282B] bg-[#04282B] text-[#FFFFFF]'
+                    : 'border-[#04282B]/30 group-hover:border-[#1E9AA3] group-hover:text-[#1E9AA3]'
+                }`}
+              >
+                {totalCartCount}
+              </span>
             </button>
           </div>
         </div>
 
         {/* Animated Search Drawer */}
         {searchOpen && (
-          <div className="border-t border-[#EDE8E1] bg-white px-4 py-3 shadow-inner">
-            <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto flex items-center gap-2">
-              <Search className="w-4 h-4 text-gray-400" />
+          <div className="mt-3 border-t border-[#04282B]/[0.08] bg-white px-4 py-4">
+            <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto flex items-center gap-3 border-b border-[#04282B]/20 focus-within:border-[#1E9AA3] pb-2">
+              <Search className="w-4 h-4 text-[#04282B]/80" />
               <input
                 type="text"
                 autoFocus
                 placeholder="Search natural serums, moisturizers, cleansers, or sunscreen..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 text-sm bg-transparent border-none focus:outline-none text-[#1A211D]"
+                className="flex-1 text-sm bg-transparent border-none focus:outline-none text-[#04282B] placeholder:text-[#04282B]/45"
               />
               <button
                 type="submit"
-                className="px-4 py-1.5 bg-[#13382B] text-white text-xs font-semibold rounded-full hover:bg-[#1E4D3B]"
+                className="px-4 py-1.5 bg-[#04282B] text-[#FFFFFF] text-xs font-semibold rounded-md hover:bg-[#1E9AA3]"
               >
                 Search
               </button>
               <button
                 type="button"
                 onClick={() => setSearchOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-600"
+                className="p-1 text-[#04282B]/80 hover:text-[#04282B]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -356,30 +341,30 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-[#EDE8E1] bg-[#FAF8F5] px-4 pt-3 pb-6 space-y-3">
-            <Link to="/" className="block py-2 text-sm font-semibold text-[#13382B]">
+          <div className="lg:hidden mt-3 border-t border-[#04282B]/[0.08] bg-white px-4 pt-3 pb-6 space-y-1">
+            <Link to="/" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Home
             </Link>
-            <Link to="/shop" className="block py-2 text-sm font-semibold text-[#13382B]">
+            <Link to="/shop" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Shop
             </Link>
-            <Link to="/about" className="block py-2 text-sm font-semibold text-[#13382B]">
+            <Link to="/about" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               About Us
             </Link>
-            <Link to="/blog" className="block py-2 text-sm font-semibold text-[#13382B]">
+            <Link to="/blog" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Blog
             </Link>
-            <Link to="/contact" className="block py-2 text-sm font-semibold text-[#13382B]">
+            <Link to="/contact" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Contact
             </Link>
-            <Link to="/career" className="block py-2 text-sm font-semibold text-[#13382B]">
+            <Link to="/career" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Career
             </Link>
             {!isAuthenticated && (
-              <div className="pt-2">
+              <div className="pt-3">
                 <Link
                   to="/auth"
-                  className="block w-full py-2.5 bg-[#13382B] text-white text-center text-xs font-semibold rounded-full"
+                  className="block w-full py-2.5 bg-[#04282B] text-[#FFFFFF] text-center text-xs font-semibold rounded-md hover:bg-[#1E9AA3] transition-colors"
                 >
                   Sign In / Register
                 </Link>
