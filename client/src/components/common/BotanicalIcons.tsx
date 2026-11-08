@@ -73,6 +73,26 @@ export const FreeShippingIcon: React.FC<IconProps> = ({ className }) => (
 /* Category icons                                                      */
 /* ------------------------------------------------------------------ */
 
+/*
+  Layered duotone set
+  - Soft body tint (TINT) + a stronger accent layer (ACCENT) for depth
+  - A small solid water drop is the shared Hydra signature
+*/
+const ACCENT = { fill: 'currentColor', fillOpacity: 0.35, stroke: 'none' } as const;
+const SOLID = { fill: 'currentColor', stroke: 'none' } as const;
+
+// Water drop whose tip sits at (x, y); s scales it
+const Drop: React.FC<{ x: number; y: number; s?: number }> = ({ x, y, s = 1 }) => (
+  <path
+    d={`M${x} ${y}C${x} ${y} ${x - 2.2 * s} ${y + 2.6 * s} ${x - 2.2 * s} ${y + 4.1 * s}C${x - 2.2 * s} ${
+      y + 5.3 * s
+    } ${x - 1.2 * s} ${y + 6.2 * s} ${x} ${y + 6.2 * s}C${x + 1.2 * s} ${y + 6.2 * s} ${x + 2.2 * s} ${
+      y + 5.3 * s
+    } ${x + 2.2 * s} ${y + 4.1 * s}C${x + 2.2 * s} ${y + 2.6 * s} ${x} ${y} ${x} ${y}Z`}
+    {...SOLID}
+  />
+);
+
 export const CategoryIcon: React.FC<{ name: string; className?: string }> = ({
   name,
   className = 'w-8 h-8 text-[#13382B]',
@@ -81,65 +101,78 @@ export const CategoryIcon: React.FC<{ name: string; className?: string }> = ({
     case 'face care':
       return (
         <Svg className={className}>
-          <path d="M16 5C11 5 8 9 8 14.5C8 20.5 11.5 25.5 16 25.5C20.5 25.5 24 20.5 24 14.5C24 9 21 5 16 5Z" {...TINT} />
-          <path d="M11.8 14.5C12.6 15.4 13.9 15.4 14.7 14.5" />
-          <path d="M17.3 14.5C18.1 15.4 19.4 15.4 20.2 14.5" />
-          <path d="M13.5 19.3C14.9 20.5 17.1 20.5 18.5 19.3" />
-          <path d="M26 3.5V7.5M24 5.5H28" />
+          <path d="M16 4.5C10.8 4.5 7.5 8.8 7.5 14.5C7.5 21 11.4 27 16 27C20.6 27 24.5 21 24.5 14.5C24.5 8.8 21.2 4.5 16 4.5Z" {...TINT} />
+          {/* hair swoop */}
+          <path d="M7.8 12.5C10.8 12.5 14.5 10.5 16.5 7C18 9.8 21 12 24.2 12.5" />
+          {/* closed eyes + smile */}
+          <path d="M11.5 16.2C12.3 17 13.7 17 14.5 16.2M17.5 16.2C18.3 17 19.7 17 20.5 16.2" />
+          <path d="M14 21.2C15.2 22 16.8 22 18 21.2" />
+          <Drop x={27} y={2.5} s={0.85} />
         </Svg>
       );
 
     case 'body care':
       return (
         <Svg className={className}>
-          <rect x="9" y="12" width="14" height="16" rx="4" {...TINT} />
-          <path d="M13 12V9H19V12" />
-          <path d="M16 9V5H21" />
-          <path d="M13 19H19" />
-          <path d="M13 22.5H17" />
+          {/* pump bottle */}
+          <rect x="10" y="13" width="12" height="15" rx="3.5" {...TINT} />
+          <path d="M13 13V10.5H19V13" />
+          <path d="M16 10.5V6.5M12.5 6.5H19.5L22 8.2" />
+          <rect x="12.5" y="17.5" width="7" height="6.5" rx="1.6" {...ACCENT} />
+          <path d="M14 20.75H18" />
+          <Drop x={6} y={4.5} s={0.8} />
         </Svg>
       );
 
     case 'hair care':
       return (
         <Svg className={className}>
-          <path d="M10 5C8 10 12 13 10 18C8.6 22 10 25 10 27" />
-          <path d="M16 4C14 9 18 12 16 17C14.6 21 16 25 16 28" {...TINT} stroke="currentColor" />
-          <path d="M22 5C20 10 24 13 22 18C20.6 22 22 25 22 27" />
+          {/* flowing strands */}
+          <path d="M5 10C8 7 11 13 14 10S20 7 23 10" />
+          <path d="M9 15C12 12 15 18 18 15S24 12 27 15" />
+          {/* wide-tooth comb */}
+          <rect x="5" y="19" width="22" height="4" rx="2" {...TINT} />
+          <path d="M8.5 23V27M12 23V27M15.5 23V27M19 23V27M22.5 23V27" />
+          <Drop x={27} y={3} s={0.8} />
         </Svg>
       );
 
     case 'skincare sets':
       return (
         <Svg className={className}>
+          <path d="M3.5 27.5H28.5" />
           {/* dropper bottle */}
-          <rect x="3.5" y="12" width="8" height="15" rx="2.2" {...TINT} />
-          <path d="M6 12V8.5H9V12" />
+          <rect x="5" y="15" width="7" height="12.5" rx="2" {...TINT} />
+          <path d="M7 15V12.5H10V15" />
+          <path d="M7.5 12.5V8.5C7.5 7.4 8 6.5 8.5 6.5C9 6.5 9.5 7.4 9.5 8.5V12.5" {...ACCENT} />
+          {/* tall tube */}
+          <path d="M14 27.5V11.5L15.5 8.5H18.5L20 11.5V27.5Z" {...TINT} />
+          <path d="M15.5 8.5V6H18.5V8.5M16 16H18" />
           {/* jar */}
-          <rect x="13.5" y="19" width="9" height="8" rx="2" {...TINT} />
-          <path d="M14.5 19V17H21.5V19" />
-          {/* tube */}
-          <path d="M24.5 27V14L26.5 11L28.5 14V27Z" {...TINT} />
+          <rect x="21.5" y="20" width="7" height="7.5" rx="2" {...TINT} />
+          <rect x="21" y="17.5" width="8" height="2.5" rx="1.2" {...ACCENT} />
         </Svg>
       );
 
     case 'natural care':
       return (
         <Svg className={className}>
-          <path d="M8 27C11 20 16.5 13.5 25 6" />
-          <path d="M13.5 21.5C9.5 21.8 7 19 7 15.5C11 15.5 13.7 17.5 13.5 21.5Z" {...TINT} />
-          <path d="M17.5 15C14.5 13.8 13.3 10.5 14.3 7.3C17.8 8 19.8 11 17.5 15Z" {...TINT} />
-          <path d="M22 11C23.5 14 26 15 28.5 14.5C28 11 25.5 9.5 22 11Z" {...TINT} />
+          {/* seedling rising from soil */}
+          <path d="M5 27.5C8 23.5 24 23.5 27 27.5Z" {...TINT} />
+          <path d="M16 24.5V13" />
+          <path d="M16 17C16 12.5 12.8 9.5 8 9.5C8 14 11.2 17 16 17Z" {...TINT} />
+          <path d="M16 13C16 8.5 19.2 5 24 5C24 9.5 20.8 13 16 13Z" fill="currentColor" fillOpacity={0.35} />
+          <Drop x={25.5} y={13} s={0.75} />
         </Svg>
       );
 
     case 'night care':
       return (
         <Svg className={className}>
-          <g transform="translate(2.8 4) scale(1.05)">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" {...TINT} />
-          </g>
-          <path d="M24.5 4.5V8.5M22.5 6.5H26.5" />
+          <path d="M20 5.5A11 11 0 1 0 26.5 21A9 9 0 0 1 20 5.5Z" {...TINT} />
+          {/* four-point star + dot */}
+          <path d="M24 6.5L24.8 8.7L27 9.5L24.8 10.3L24 12.5L23.2 10.3L21 9.5L23.2 8.7Z" {...SOLID} />
+          <circle cx="27.5" cy="15" r="0.9" {...SOLID} />
         </Svg>
       );
 
@@ -147,10 +180,11 @@ export const CategoryIcon: React.FC<{ name: string; className?: string }> = ({
     default:
       return (
         <Svg className={className}>
-          <circle cx="16" cy="16" r="11.5" {...TINT} />
-          <path d="M16 23V15.5" />
-          <path d="M16 15.5C16 12.5 14 10.5 11 10.5C11 13.5 12.8 15.5 16 15.5Z" />
-          <path d="M16 18C16 15 18 12.8 21.5 12.8C21.5 16 19.3 18 16 18Z" />
+          {/* certified seal */}
+          <circle cx="16" cy="16" r="12" {...TINT} />
+          <circle cx="16" cy="16" r="9" strokeWidth="1.2" strokeDasharray="1.5 2.5" />
+          <path d="M11.5 20.5C11.5 15 15 11.5 20.5 11.5C20.5 17 17 20.5 11.5 20.5Z" fill="currentColor" fillOpacity={0.35} />
+          <path d="M11.5 20.5L17 15" />
         </Svg>
       );
   }

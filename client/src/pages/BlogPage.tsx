@@ -3,6 +3,13 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Search, ArrowRight, Sparkles } from 'lucide-react';
 import { PREDEFINED_BLOGS, BlogItem } from '../data/blogsData';
 
+// Deep-ocean teal water, shared with the footer
+const HERO_WATER =
+  'radial-gradient(ellipse 70% 45% at 50% -5%, #1E9AA3 0%, rgba(30,154,163,0) 70%),' +
+  'radial-gradient(ellipse 45% 40% at 85% 10%, rgba(64,190,198,0.55) 0%, rgba(64,190,198,0) 70%),' +
+  'radial-gradient(ellipse 50% 50% at 10% 40%, rgba(11,85,96,0.9) 0%, rgba(11,85,96,0) 70%),' +
+  'linear-gradient(180deg, #0B5560 0%, #06373F 45%, #031F26 100%)';
+
 export const BlogPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentCategory = searchParams.get('category') || 'All';
@@ -35,17 +42,18 @@ export const BlogPage: React.FC = () => {
       {/* ──────────────────────────────────────────────────────────
           1. HEADER / ARTICLES TITLE BAR
          ────────────────────────────────────────────────────────── */}
-      <section className="pt-10 sm:pt-14 pb-8 max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#EDE8E1]">
+      <section className="relative isolate overflow-hidden bg-[#06373F] py-12 sm:py-16">
+        <div className="absolute inset-0 -z-10" style={{ background: HERO_WATER }} aria-hidden="true" />
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-[#3F6352] mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#C5A880]" />
+            <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-[#6FE4E8] mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#6FE4E8]" />
               <span>Hydra Derma Journal</span>
             </div>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-medium text-[#13382B] tracking-tight">
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-medium text-white tracking-tight">
               Articles
             </h1>
-            <p className="text-sm text-[#556B60] mt-2 max-w-xl font-sans">
+            <p className="text-sm text-[#D3EEEE] mt-2 max-w-xl font-sans">
               Dermatologist-backed skincare education, active ingredient breakdowns, and tropical sun defense strategies.
             </p>
           </div>
@@ -58,11 +66,13 @@ export const BlogPage: React.FC = () => {
               placeholder="Search articles or ingredients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white pl-10 pr-4 py-2.5 rounded-full text-xs sm:text-sm border border-[#EDE8E1] text-[#13382B] placeholder-[#9CAAA1] focus:outline-none focus:border-[#13382B] shadow-sm transition-all"
+              className="w-full bg-white pl-10 pr-4 py-2.5 rounded-full text-xs sm:text-sm border border-white/40 text-[#13382B] placeholder-[#9CAAA1] focus:outline-none focus:ring-2 focus:ring-[#6FE4E8] shadow-[0_12px_30px_-16px_rgba(2,20,25,0.8)] transition-all"
             />
           </div>
         </div>
+      </section>
 
+      <section className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         {/* 2. CATEGORY PILLS FILTER */}
         <div className="pt-6 flex items-center gap-2 overflow-x-auto scrollbar-none pb-2">
           {categories.map((cat) => (

@@ -3,6 +3,13 @@ import { Phone, Mail, MapPin, ArrowRight, CheckCircle2, ChevronDown, ChevronUp }
 
 const WEB3FORMS_ACCESS_KEY = 'c4703339-dfac-4280-9bfe-d11f69b2605a';
 
+// Deep-ocean teal water, shared with the footer
+const HERO_WATER =
+  'radial-gradient(ellipse 70% 45% at 50% -5%, #1E9AA3 0%, rgba(30,154,163,0) 70%),' +
+  'radial-gradient(ellipse 45% 40% at 85% 10%, rgba(64,190,198,0.55) 0%, rgba(64,190,198,0) 70%),' +
+  'radial-gradient(ellipse 50% 50% at 10% 40%, rgba(11,85,96,0.9) 0%, rgba(11,85,96,0) 70%),' +
+  'linear-gradient(180deg, #0B5560 0%, #06373F 45%, #031F26 100%)';
+
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -87,6 +94,24 @@ export const ContactPage: React.FC = () => {
 
   return (
     <div className="w-full bg-[#FAF8F5] pb-24">
+      {/* ── CONTACT HERO BANNER ───────────────────────────────────────── */}
+      <section className="relative isolate overflow-hidden bg-[#06373F] py-14 sm:py-20">
+        <div className="absolute inset-0 -z-10" style={{ background: HERO_WATER }} aria-hidden="true" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left">
+          <span className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#6FE4E8]">
+            <span className="h-px w-8 bg-[#6FE4E8]/70" />
+            Contact Hydra
+          </span>
+          <h1 className="mt-4 font-serif text-4xl font-medium leading-tight text-white sm:text-5xl lg:text-6xl">
+            We're here to <em className="text-[#6FE4E8]">help.</em>
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-[#D3EEEE] sm:text-base md:mx-0">
+            Questions about our formulations, your skin, or an existing order? Reach out and our team will
+            get back to you.
+          </p>
+        </div>
+      </section>
+
       {/* ── CONTACT MAIN SECTION ──────────────────────────────────────── */}
       <section className="py-14 sm:py-20 relative overflow-hidden">
         {/* Soft background glow */}
@@ -101,9 +126,9 @@ export const ContactPage: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-widest text-[#3F6352]">
                   Get In Touch
                 </span>
-                <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#13382B] mt-1">
+                <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#13382B] mt-1">
                   We'd love to hear from you. Let's connect!
-                </h1>
+                </h2>
                 <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-relaxed">
                   Have questions about our botanical formulations, skin compatibility, or an
                   existing order? Our dermatological consultants are here to guide you.

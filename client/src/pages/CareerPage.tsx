@@ -17,6 +17,13 @@ import {
 import { careerService } from '../services/careerService';
 import { Career } from '../types';
 
+// Deep-ocean teal water, shared with the footer
+const HERO_WATER =
+  'radial-gradient(ellipse 70% 45% at 50% -5%, #1E9AA3 0%, rgba(30,154,163,0) 70%),' +
+  'radial-gradient(ellipse 45% 40% at 85% 10%, rgba(64,190,198,0.55) 0%, rgba(64,190,198,0) 70%),' +
+  'radial-gradient(ellipse 50% 50% at 10% 40%, rgba(11,85,96,0.9) 0%, rgba(11,85,96,0) 70%),' +
+  'linear-gradient(180deg, #0B5560 0%, #06373F 45%, #031F26 100%)';
+
 export const CareerPage: React.FC = () => {
   const [careers, setCareers] = useState<Career[]>([]);
   const [loading, setLoading] = useState(true);
@@ -186,23 +193,24 @@ export const CareerPage: React.FC = () => {
   return (
     <div className="w-full bg-[#FAF8F5] pb-24 text-[#13382B]">
       {/* 1. CAREER HERO BANNER */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-[#F0ECE4] via-[#F4EFEB] to-[#EBE4D8] border-b border-[#EDE8E1] py-14 sm:py-20">
+      <section className="relative isolate overflow-hidden bg-[#06373F] py-14 sm:py-20">
+        <div className="absolute inset-0 -z-10" style={{ background: HERO_WATER }} aria-hidden="true" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-10">
           <div className="space-y-4 max-w-xl text-center md:text-left">
-            <span className="text-xs font-semibold tracking-widest text-[#3F6352] uppercase">
+            <span className="text-xs font-semibold tracking-widest text-[#6FE4E8] uppercase">
               Careers at Hydra
             </span>
-            <h1 className="font-serif text-3xl sm:text-5xl font-medium text-[#13382B] leading-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl font-medium text-white leading-tight">
               Join Our Team
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+            <p className="text-sm sm:text-base text-[#D3EEEE] leading-relaxed">
               Grow with Hydra. Be a part of our innovative journey redefining clean botanical
               dermatology across India and beyond.
             </p>
             <div className="pt-2">
               <a
                 href="#openings"
-                className="inline-flex items-center gap-2 px-7 py-3 bg-[#13382B] text-white rounded-full text-xs font-semibold hover:bg-[#1E4D3B] transition-colors shadow-md"
+                className="inline-flex items-center gap-2 px-7 py-3 bg-white text-[#031F26] rounded-full text-xs font-semibold hover:bg-[#D3EEEE] hover:shadow-[0_10px_30px_-10px_rgba(111,228,232,0.8)] transition-all shadow-md"
               >
                 <span>Explore Careers</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -210,13 +218,13 @@ export const CareerPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="relative w-56 sm:w-72 h-44 sm:h-56 rounded-3xl overflow-hidden shadow-xl border-4 border-white flex-shrink-0 flex items-center justify-center bg-white p-3">
+          <div className="relative w-56 sm:w-72 h-44 sm:h-56 rounded-3xl overflow-hidden shadow-[0_20px_50px_-20px_rgba(2,20,25,0.8)] border border-white/15 flex-shrink-0 flex items-center justify-center bg-white/[0.07] backdrop-blur-xl p-3">
             <img
               src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=700&q=80"
               alt="Hydra Collaborative Headquarters"
               className="w-full h-full object-cover rounded-2xl"
             />
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-[#13382B] shadow-sm">
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-[#031F26] shadow-sm">
               Build • Innovate • Grow
             </div>
           </div>

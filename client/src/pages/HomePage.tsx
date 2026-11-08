@@ -13,6 +13,10 @@ import {
   Image as ImageIcon,
   Search,
   Leaf,
+  Quote,
+  Mail,
+  BadgeCheck,
+  ArrowUpRight,
 } from 'lucide-react';
 import {
   NaturalIngredientsIcon,
@@ -36,6 +40,13 @@ const NIGHT_BENEFITS = [
   { icon: Clock, title: 'Softens fine lines', text: 'Visibly smoother over time.' },
   { icon: Droplets, title: 'Refines texture', text: 'Wake up to an even, rested glow.' },
 ];
+
+// Deep-ocean teal water, shared with the footer
+const BRAND_STORY_WATER =
+  'radial-gradient(ellipse 70% 45% at 50% -5%, #1E9AA3 0%, rgba(30,154,163,0) 70%),' +
+  'radial-gradient(ellipse 45% 40% at 85% 10%, rgba(64,190,198,0.55) 0%, rgba(64,190,198,0) 70%),' +
+  'radial-gradient(ellipse 50% 50% at 10% 40%, rgba(11,85,96,0.9) 0%, rgba(11,85,96,0) 70%),' +
+  'linear-gradient(180deg, #0B5560 0%, #06373F 45%, #031F26 100%)';
 
 export const HomePage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -168,7 +179,10 @@ export const HomePage: React.FC = () => {
          ------------------------------------------------------------------ */}
       <section className="bg-[#FAF8F5] py-10 sm:py-14 lg:py-20">
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative isolate overflow-hidden rounded-[28px] bg-[#0B0B0A] shadow-[0_30px_80px_-30px_rgba(19,56,43,0.55)] ring-1 ring-black/5 lg:min-h-[620px]">
+          <div className="relative isolate overflow-hidden rounded-[28px] bg-[#06373F] shadow-[0_30px_80px_-30px_rgba(3,31,38,0.7)] ring-1 ring-black/5 lg:min-h-[620px]">
+            {/* Background: deep teal water */}
+            <div className="absolute inset-0 -z-10" style={{ background: BRAND_STORY_WATER }} aria-hidden="true" />
+
             {/* Image: full-bleed on desktop (subject sits on the right, dark negative space behind the copy) */}
             <div className="relative aspect-[4/3] w-full sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
               <img
@@ -179,16 +193,17 @@ export const HomePage: React.FC = () => {
               />
               {/* Mobile: fade image into the copy below */}
               <div
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0B0B0A] to-transparent lg:hidden"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#06373F] to-transparent lg:hidden"
                 aria-hidden="true"
               />
-              {/* Desktop: keep the copy side rich and readable */}
+              {/* Desktop: teal water washes over the copy side and fades into the image */}
               <div
-                className="pointer-events-none absolute inset-0 hidden bg-gradient-to-r from-[#0B0B0A] via-[#0B0B0A]/70 via-35% to-transparent to-60% lg:block"
+                className="pointer-events-none absolute inset-0 hidden [mask-image:linear-gradient(to_right,black_0%,rgba(0,0,0,0.85)_35%,transparent_62%)] lg:block"
+                style={{ background: BRAND_STORY_WATER }}
                 aria-hidden="true"
               />
               <div
-                className="pointer-events-none absolute -left-32 top-1/2 hidden h-[480px] w-[480px] -translate-y-1/2 rounded-full bg-[#13382B]/60 blur-[120px] lg:block"
+                className="pointer-events-none absolute -left-32 top-1/2 hidden h-[480px] w-[480px] -translate-y-1/2 rounded-full bg-[#1E9AA3]/30 blur-[120px] lg:block"
                 aria-hidden="true"
               />
 
@@ -196,20 +211,20 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Copy */}
-            <div className="relative z-10 flex flex-col justify-center px-6 pb-10 pt-2 text-[#FAF8F5] sm:px-10 sm:pb-12 lg:min-h-[620px] lg:max-w-[560px] lg:px-14 lg:py-16">
-              <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#D8C6A7] sm:text-xs">
-                <span className="h-px w-8 bg-[#C5A880]" aria-hidden="true" />
+            <div className="relative z-10 flex flex-col justify-center px-6 pb-10 pt-2 text-white sm:px-10 sm:pb-12 lg:min-h-[620px] lg:max-w-[560px] lg:px-14 lg:py-16">
+              <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#6FE4E8] sm:text-xs">
+                <span className="h-px w-8 bg-[#6FE4E8]/70" aria-hidden="true" />
                 The Hydra Difference
               </p>
 
               <h2 className="font-serif text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl lg:text-[52px]">
                 Skincare, made simple.{' '}
-                <span className="bg-gradient-to-r from-[#E9D9BC] to-[#C5A880] bg-clip-text italic text-transparent">
+                <span className="bg-gradient-to-r from-[#BEFAFC] to-[#6FE4E8] bg-clip-text italic text-transparent">
                   Rooted in nature.
                 </span>
               </h2>
 
-              <p className="mt-5 max-w-md text-sm leading-7 text-white/75 sm:text-base">
+              <p className="mt-5 max-w-md text-sm leading-7 text-[#D3EEEE] sm:text-base">
                 Powered by Nature, Perfected by Science. We bring considered botanical ingredients and
                 thoughtful formulation together for rituals that feel beautifully uncomplicated.
               </p>
@@ -230,14 +245,14 @@ export const HomePage: React.FC = () => {
                 ].map(({ icon: Icon, title, text }) => (
                   <li
                     key={title}
-                    className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm transition-colors hover:border-[#C5A880]/40 hover:bg-white/[0.07]"
+                    className="flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_12px_30px_-16px_rgba(2,20,25,0.8)] backdrop-blur-xl transition-colors hover:border-white/30 hover:bg-white/[0.12]"
                   >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#C5A880]/15 text-[#D8C6A7] ring-1 ring-[#C5A880]/30">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#031F26] shadow-md">
                       <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
                     </span>
                     <div>
                       <h3 className="text-sm font-semibold text-white">{title}</h3>
-                      <p className="mt-1 text-xs leading-5 text-white/60">{text}</p>
+                      <p className="mt-1 text-xs leading-5 text-[#A9D4D6]">{text}</p>
                     </div>
                   </li>
                 ))}
@@ -245,7 +260,7 @@ export const HomePage: React.FC = () => {
 
               <Link
                 to="/about"
-                className="group mt-9 inline-flex w-fit items-center gap-3 rounded-full bg-[#C5A880] px-6 py-3 text-sm font-semibold text-[#13382B] transition-all hover:bg-[#D8C6A7] hover:shadow-[0_10px_30px_-10px_rgba(197,168,128,0.8)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D8C6A7]"
+                className="group mt-9 inline-flex w-fit items-center gap-3 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#031F26] transition-all hover:bg-[#D3EEEE] hover:shadow-[0_10px_30px_-10px_rgba(111,228,232,0.8)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#6FE4E8]"
               >
                 Meet the Hydra difference
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
@@ -419,79 +434,121 @@ export const HomePage: React.FC = () => {
       {/* ------------------------------------------------------------------
           4. NIGHT CREAM SPOTLIGHT — compact editorial teaser
          ------------------------------------------------------------------ */}
-      <section className="relative overflow-hidden bg-[#FAF8F5] py-16 sm:py-24">
-        {/* Soft ambient blob */}
-        <div
-          className="pointer-events-none absolute -bottom-32 -right-16 h-[460px] w-[460px] rounded-full bg-[#CFE0D2]/70 blur-3xl"
-          aria-hidden="true"
-        />
+      <section className="bg-[#FAF8F5] py-10 sm:py-14 lg:py-20">
+        <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
+          <div className="relative isolate overflow-hidden rounded-[28px] bg-[#06373F] px-6 py-12 text-white shadow-[0_30px_80px_-30px_rgba(3,31,38,0.7)] ring-1 ring-black/5 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
+            {/* Background: deep teal water + light shafts */}
+            <div className="absolute inset-0 -z-20" style={{ background: BRAND_STORY_WATER }} aria-hidden="true" />
+            <div
+              className="pointer-events-none absolute -bottom-40 -right-24 -z-10 h-[460px] w-[460px] rounded-full bg-[#1E9AA3]/25 blur-[110px]"
+              aria-hidden="true"
+            />
+            <div
+              className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,0.9)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.9)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_30%_50%,black,transparent_70%)]"
+              aria-hidden="true"
+            />
 
-        <div className="relative z-10 mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-10">
-            {/* Visual: arch frame + floating badge (left on desktop) */}
-            <div className="order-first lg:order-first lg:col-span-5">
-              <div className="relative mx-auto w-full max-w-[400px] px-4 sm:px-0">
-                <div
-                  className="absolute inset-0 translate-x-4 translate-y-4 rounded-[28px] border border-[#C5A880]/70"
-                  aria-hidden="true"
-                />
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-10">
+              {/* Visual: transparent product on a glowing podium */}
+              <div className="lg:col-span-5">
+                <div className="relative mx-auto w-full max-w-[420px]">
+                  {/* halo */}
+                  <div
+                    className="absolute left-1/2 top-[44%] aspect-square w-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(127,230,234,0.45)_0%,rgba(30,154,163,0.18)_45%,transparent_70%)]"
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="absolute left-1/2 top-[44%] aspect-square w-[74%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/15"
+                    aria-hidden="true"
+                  />
+                  {/* podium */}
+                  <div
+                    className="absolute bottom-[4%] left-1/2 h-[16%] w-[78%] -translate-x-1/2 rounded-[50%] bg-gradient-to-b from-white/25 to-white/[0.03] ring-1 ring-white/20 backdrop-blur-sm"
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="absolute bottom-[8%] left-1/2 h-[6%] w-[52%] -translate-x-1/2 rounded-[50%] bg-[#021419]/60 blur-md"
+                    aria-hidden="true"
+                  />
 
-                <div className="relative overflow-hidden rounded-[28px] bg-transparent ring-1 ring-[#C5A880]/40">
                   <img
                     src="/images/home/RadianceFaceWash.png"
                     alt="Hydra 24h Ultra Radiance face wash in a gold-capped white jar"
-                    className="block h-auto w-full max-w-full object-contain object-center"
+                    className="relative block h-auto w-full object-contain drop-shadow-[0_30px_40px_rgba(2,20,25,0.55)]"
                     loading="lazy"
                   />
-                </div>
 
-                <div className="absolute -left-1 top-[18%] flex items-center gap-2 rounded-full border border-white/70 bg-white/75 py-1.5 pl-2 pr-4 shadow-lg backdrop-blur-md sm:-left-8">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#C5A880] to-[#D9BE92] text-[#13382B]">
-                    <Star className="h-3.5 w-3.5 fill-current" />
-                  </span>
-                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#13382B]">Best Selling</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="lg:col-span-7 lg:pr-6">
-            
-
-              <h2 className="mt-4 font-serif text-[34px] font-medium leading-[1.1] tracking-tight text-[#13382B] sm:text-5xl lg:text-[54px]">
-                Hydra 24h Ultra Radiance <span className="italic font-normal text-[#2D634C]">Face Wash</span>
-              </h2>
-
-              <p className="mt-4 max-w-xl text-sm leading-7 text-[#4F655A] sm:text-base">
-                A rich overnight treatment designed to rejuvenate and restore your skin while you sleep.
-              </p>
-
-              {/* Ingredients as a single elegant line */}
-              <p className="mt-5 max-w-xl text-xs leading-6 text-[#5A6E63]">
-                <span className="font-semibold text-[#13382B]">With:</span>{' '}
-                {NIGHT_INGREDIENTS.join(' · ')}
-              </p>
-
-              {/* Benefits as a slim horizontal strip */}
-              <div className="mt-7 grid grid-cols-1 gap-4 border-y border-[#13382B]/10 py-6 sm:grid-cols-3 sm:gap-6">
-                {NIGHT_BENEFITS.map(({ icon: Icon, title, text }) => (
-                  <div key={title} className="flex flex-col items-start gap-2">
-                    <Icon className="h-4 w-4 text-[#2D634C]" aria-hidden="true" />
-                    <h3 className="text-sm font-semibold text-[#13382B]">{title}</h3>
-                    <p className="text-xs leading-5 text-[#5A6E63]">{text}</p>
+                  <div className="absolute left-0 top-[12%] flex items-center gap-2 rounded-full border border-white/20 bg-white/10 py-1.5 pl-2 pr-4 shadow-lg backdrop-blur-xl sm:-left-6">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#031F26]">
+                      <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                    </span>
+                    <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-white">Best Selling</span>
                   </div>
-                ))}
+                </div>
               </div>
 
-              {/* CTAs */}
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Link
-                  to="/shop?category=Face Care"
-                  className="group inline-flex items-center gap-2.5 rounded-full bg-[#13382B] px-8 py-3.5 text-xs font-semibold tracking-wide text-white shadow-lg transition-all hover:bg-[#1A4B3A] sm:text-sm"
-                >
-                  <span>Shop</span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                </Link>
+              {/* Content */}
+              <div className="lg:col-span-7 lg:pr-6">
+                <p className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#6FE4E8] sm:text-xs">
+                  <span className="h-px w-8 bg-[#6FE4E8]/70" aria-hidden="true" />
+                  Signature Formula
+                </p>
+
+                <h2 className="mt-4 font-serif text-[34px] font-medium leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[54px]">
+                  Hydra 24n Ultra Radiance{' '}
+                  <span className="bg-gradient-to-r from-[#BEFAFC] to-[#6FE4E8] bg-clip-text font-normal italic text-transparent">
+                    Face Wash
+                  </span>
+                </h2>
+
+                <p className="mt-4 max-w-xl text-sm leading-7 text-[#D3EEEE] sm:text-base">
+                  A rich overnight treatment designed to rejuvenate and restore your skin while you sleep.
+                </p>
+
+                {/* Ingredients as glass chips */}
+                <ul className="mt-5 flex max-w-xl flex-wrap gap-2" aria-label="Key ingredients">
+                  {NIGHT_INGREDIENTS.map((ing) => (
+                    <li
+                      key={ing}
+                      className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1 text-[11px] font-medium text-[#D3EEEE] backdrop-blur"
+                    >
+                      {ing}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Benefits */}
+                <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  {NIGHT_BENEFITS.map(({ icon: Icon, title, text }) => (
+                    <div
+                      key={title}
+                      className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-xl transition-colors hover:border-white/30 hover:bg-white/[0.12]"
+                    >
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#031F26]">
+                        <Icon className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <h3 className="mt-3 text-sm font-semibold text-white">{title}</h3>
+                      <p className="mt-1 text-xs leading-5 text-[#A9D4D6]">{text}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTAs */}
+                <div className="mt-8 flex flex-wrap items-center gap-4">
+                  <Link
+                    to="/shop?category=Face Care"
+                    className="group inline-flex items-center gap-2.5 rounded-full bg-white px-8 py-3.5 text-xs font-semibold tracking-wide text-[#031F26] shadow-lg transition-all hover:bg-[#D3EEEE] hover:shadow-[0_10px_30px_-10px_rgba(111,228,232,0.8)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#6FE4E8] sm:text-sm"
+                  >
+                    <span>Shop</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                  </Link>
+                  <Link
+                    to="/shop"
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-[#D3EEEE] underline-offset-4 transition-colors hover:text-white hover:underline sm:text-sm"
+                  >
+                    View all products
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -501,113 +558,171 @@ export const HomePage: React.FC = () => {
       {/* ------------------------------------------------------------------
           5. CATEGORIES + TESTIMONIAL + NEWSLETTER — unified editorial band
          ------------------------------------------------------------------ */}
-      <section className="border-y border-[#EDE8E1] bg-white py-12 sm:py-16">
+      <section className="bg-[#FAF8F5] py-14 sm:py-20">
         <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
-          {/* Category strip — inline icons + labels */}
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pb-10 border-b border-[#EDE8E1]">
+          {/* Heading */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#1E9AA3] sm:text-xs">
+                <span className="h-px w-8 bg-[#1E9AA3]/60" aria-hidden="true" />
+                Shop by Category
+              </p>
+              <h2 className="mt-3 font-serif text-3xl font-medium leading-tight tracking-tight text-[#04282B] sm:text-4xl">
+                Find your <em className="text-[#1E9AA3]">ritual.</em>
+              </h2>
+            </div>
+            <Link
+              to="/shop"
+              className="group inline-flex w-fit items-center gap-2 text-sm font-semibold text-[#04282B] transition-colors hover:text-[#1E9AA3]"
+            >
+              View all products
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+            </Link>
+          </div>
+
+          {/* Category tiles */}
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
             {categories.map((cat) => (
               <Link
                 key={cat.name}
                 to={cat.path}
-                className="group flex items-center gap-2 text-xs font-semibold text-[#13382B] transition-colors hover:text-[#2D634C]"
+                className="group relative flex flex-col items-center gap-3 rounded-2xl border border-[#04282B]/[0.08] bg-white px-4 py-6 text-center shadow-[0_1px_2px_rgba(4,40,43,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-[#1E9AA3]/40 hover:shadow-[0_18px_40px_-20px_rgba(6,55,63,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E9AA3]"
               >
-                <CategoryIcon name={cat.name} className="h-7 w-7 sm:h-8 sm:w-8 text-[#2D634C]" />
-                <span>{cat.name}</span>
+                <ArrowUpRight
+                  className="absolute right-3 top-3 h-4 w-4 text-[#1E9AA3] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  aria-hidden="true"
+                />
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#E6F5F5] transition-colors duration-300 group-hover:bg-gradient-to-br group-hover:from-[#1E9AA3] group-hover:to-[#06373F]">
+                  <CategoryIcon
+                    name={cat.name}
+                    className="h-7 w-7 text-[#0B5560] transition-colors duration-300 group-hover:text-white"
+                  />
+                </span>
+                <span className="text-xs font-semibold text-[#04282B] sm:text-sm">{cat.name}</span>
               </Link>
             ))}
           </div>
 
-          {/* Testimonial + Newsletter side-by-side */}
-          <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 sm:gap-8">
-            {/* Left Card: What Our Customers Say */}
-            <div className="bg-[#FAF7F2] rounded-3xl p-6 sm:p-8 border border-[#EDE8E1] shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[220px]">
-              <div className="space-y-3 z-10 max-w-sm">
-                <h3 className="font-serif text-lg sm:text-xl font-semibold text-[#13382B]">What Our Customers Say</h3>
-                <p className="text-xs sm:text-sm text-[#556B60] leading-relaxed">
-                  “Hydra products have completely transformed my skin. Natural, effective and truly premium!”
-                </p>
+          {/* Testimonial + Newsletter */}
+          <div className="mt-10 grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-5">
+            {/* Testimonial */}
+            <figure className="relative flex overflow-hidden rounded-[28px] border border-[#04282B]/[0.08] bg-white shadow-[0_20px_50px_-30px_rgba(6,55,63,0.35)] lg:col-span-3">
+              <div className="relative z-10 flex flex-1 flex-col justify-between gap-6 p-6 sm:p-9">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E6F5F5] text-[#1E9AA3]">
+                      <Quote className="h-5 w-5 fill-current" aria-hidden="true" />
+                    </span>
+                    <div className="flex items-center gap-0.5 text-amber-500" aria-label="Rated 5 out of 5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-current" aria-hidden="true" />
+                      ))}
+                    </div>
+                  </div>
+                  <blockquote className="mt-6 font-serif text-xl leading-snug text-[#04282B] sm:text-2xl">
+                    “Hydra products have completely transformed my skin. Natural, effective and truly premium!”
+                  </blockquote>
+                </div>
 
-                <div className="pt-2 flex items-center gap-3">
+                <figcaption className="flex items-center gap-3 border-t border-[#04282B]/[0.08] pt-5">
                   <img
                     src="/images/home/sneha_avatar.jpg"
                     alt="Sneha Patel"
-                    className="w-10 h-10 rounded-full object-cover border border-[#C5A880]"
+                    className="h-11 w-11 rounded-full object-cover ring-2 ring-[#1E9AA3]/30 ring-offset-2"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
                         'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80';
                     }}
                   />
                   <div>
-                    <h4 className="text-xs font-bold text-[#13382B]">Sneha Patel</h4>
-                    <div className="flex items-center text-amber-500 gap-0.5 mt-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-current" />
-                      ))}
-                    </div>
+                    <p className="text-sm font-semibold text-[#04282B]">Sneha Patel</p>
+                    <p className="flex items-center gap-1 text-xs text-[#1E9AA3]">
+                      <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                      Verified buyer
+                    </p>
                   </div>
-                </div>
+                </figcaption>
               </div>
 
-              <div className="absolute right-0 bottom-0 top-0 w-1/3 pointer-events-none flex items-center justify-end">
+              <div className="relative hidden w-[38%] shrink-0 sm:block">
                 <img
                   src="/images/home/testimonial_leaf.jpg"
-                  alt="Botanical Leaves"
-                  className="w-full h-full object-cover object-left opacity-90"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/images/home/testimonial_card.jpg';
                   }}
                 />
+                <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white to-transparent" aria-hidden="true" />
               </div>
-            </div>
+            </figure>
 
-            {/* Right Card: Join the Hydra Family */}
-            <div className="bg-[#EFE9DF] rounded-3xl p-6 sm:p-8 border border-[#EDE8E1] shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[220px]">
-              <div className="space-y-2 z-10 max-w-sm">
-                <h3 className="font-serif text-lg sm:text-xl font-semibold text-[#13382B]">Join the Hydra Family</h3>
-                <p className="text-xs text-[#556B60]">Get exclusive offers, skincare tips and more.</p>
+            {/* Newsletter */}
+            <div className="relative isolate flex flex-col justify-between overflow-hidden rounded-[28px] bg-[#06373F] p-6 text-white shadow-[0_30px_80px_-30px_rgba(3,31,38,0.7)] sm:p-9 lg:col-span-2">
+              <div className="absolute inset-0 -z-10" style={{ background: BRAND_STORY_WATER }} aria-hidden="true" />
+              <div
+                className="absolute -right-16 -top-16 -z-10 h-56 w-56 rounded-full bg-[#7FE6EA]/20 blur-3xl"
+                aria-hidden="true"
+              />
 
-                <form onSubmit={handleNewsletterSubmit} className="pt-3">
-                  <div className="flex items-center bg-white rounded-full border border-[#EDE8E1] p-1 shadow-sm">
-                    <input
-                      type="email"
-                      required
-                      placeholder="Enter your email address"
-                      value={newsletterEmail}
-                      onChange={(e) => setNewsletterEmail(e.target.value)}
-                      className="flex-1 min-w-0 bg-transparent px-4 py-2 text-xs text-[#13382B] placeholder-[#8E9E95] focus:outline-none"
-                    />
-                    <button
-                      type="submit"
-                      disabled={newsletterLoading}
-                      className="px-5 py-2 bg-[#13382B] text-white text-xs font-semibold rounded-full hover:bg-[#1E4D3B] transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-60"
-                    >
-                      <span>{newsletterLoading ? '...' : 'Subscribe'}</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                  {newsletterMessage && (
-                    <p
-                      className={`text-[11px] mt-2 font-medium ${
-                        newsletterIsError ? 'text-[#B91C1C]' : 'text-[#2D634C]'
-                      }`}
-                      role="status"
-                    >
-                      {newsletterMessage}
-                    </p>
-                  )}
-                </form>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-[#6FE4E8] ring-1 ring-white/20 backdrop-blur">
+                    <Mail className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="mt-5 font-serif text-2xl font-medium leading-tight sm:text-[28px]">
+                    Join the <em className="text-[#6FE4E8]">Hydra</em> family
+                  </h3>
+                  <p className="mt-2 max-w-xs text-sm leading-relaxed text-[#D3EEEE]">
+                    Get exclusive offers, skincare tips and more.
+                  </p>
+                </div>
+                <div className="hidden h-28 w-20 shrink-0 rotate-6 overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_20px_40px_-15px_rgba(2,20,25,0.9)] sm:block">
+                  <img
+                    src="/images/home/newsletter_bottle.jpg"
+                    alt="Hydra Serum bottle"
+                    className="h-full w-full rounded-xl object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/home/newsletter_card.jpg';
+                    }}
+                  />
+                </div>
               </div>
 
-              <div className="absolute right-3 bottom-0 top-0 w-28 pointer-events-none flex items-center justify-end">
-                <img
-                  src="/images/home/newsletter_bottle.jpg"
-                  alt="Hydra Serum bottle"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/home/newsletter_card.jpg';
-                  }}
-                />
-              </div>
+              <form onSubmit={handleNewsletterSubmit} className="mt-8">
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email address
+                </label>
+                <div className="flex items-center rounded-full border border-white/20 bg-white/10 p-1.5 backdrop-blur-xl transition-colors focus-within:border-[#6FE4E8]/70 focus-within:bg-white/[0.14]">
+                  <input
+                    id="newsletter-email"
+                    type="email"
+                    required
+                    placeholder="Enter your email address"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-white placeholder-[#A9D4D6] focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={newsletterLoading}
+                    className="group flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-[#031F26] shadow-sm transition-all hover:bg-[#D3EEEE] hover:shadow-[0_10px_30px_-10px_rgba(111,228,232,0.8)] disabled:opacity-60"
+                  >
+                    <span>{newsletterLoading ? '...' : 'Subscribe'}</span>
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                  </button>
+                </div>
+                {newsletterMessage ? (
+                  <p
+                    className={`mt-3 text-xs font-medium ${newsletterIsError ? 'text-[#FCA5A5]' : 'text-[#6FE4E8]'}`}
+                    role="status"
+                  >
+                    {newsletterMessage}
+                  </p>
+                ) : (
+                  <p className="mt-3 text-xs text-[#A9D4D6]">No spam, ever. Unsubscribe anytime.</p>
+                )}
+              </form>
             </div>
           </div>
         </div>

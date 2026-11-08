@@ -5,6 +5,13 @@ import { ProductCard } from '../components/common/ProductCard';
 import { productService, ProductQueryParams } from '../services/productService';
 import { Product } from '../types';
 
+// Deep-ocean teal water, shared with the footer
+const HERO_WATER =
+  'radial-gradient(ellipse 70% 45% at 50% -5%, #1E9AA3 0%, rgba(30,154,163,0) 70%),' +
+  'radial-gradient(ellipse 45% 40% at 85% 10%, rgba(64,190,198,0.55) 0%, rgba(64,190,198,0) 70%),' +
+  'radial-gradient(ellipse 50% 50% at 10% 40%, rgba(11,85,96,0.9) 0%, rgba(11,85,96,0) 70%),' +
+  'linear-gradient(180deg, #0B5560 0%, #06373F 45%, #031F26 100%)';
+
 const ShopPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -178,61 +185,59 @@ const ShopPage: React.FC = () => {
   return (
     <div className="w-full bg-[#FAF8F5] pb-24">
       {/* 1. SHOP HERO BANNER */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-[#F0ECE4] via-[#F4EFEB] to-[#EBE4D8] border-b border-[#EDE8E1] py-12 sm:py-16">
+      <section className="relative isolate overflow-hidden bg-[#06373F] py-12 sm:py-16">
+        <div className="absolute inset-0 -z-10" style={{ background: HERO_WATER }} aria-hidden="true" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
           <div className="space-y-5 text-center md:text-left">
             <nav
               aria-label="Breadcrumb"
-              className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#3F6352]"
+              className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#A9D4D6]"
             >
-              <span className="h-px w-8 bg-[#3F6352]" />
+              <span className="h-px w-8 bg-[#6FE4E8]/70" />
               <span>Home</span>
-              <span className="text-[#A68962]">/</span>
-              <span className={currentCategory === 'All Products' ? 'text-[#13382B]' : ''}>Shop</span>
+              <span className="text-[#6FE4E8]/60">/</span>
+              <span className={currentCategory === 'All Products' ? 'text-white' : ''}>Shop</span>
               {currentCategory !== 'All Products' && (
                 <>
-                  <span className="text-[#A68962]">/</span>
-                  <span className="text-[#13382B]">{currentCategory}</span>
+                  <span className="text-[#6FE4E8]/60">/</span>
+                  <span className="text-white">{currentCategory}</span>
                 </>
               )}
             </nav>
-            <h1 className="font-serif text-4xl font-normal leading-[1.05] text-[#13382B] sm:text-6xl">
+            <h1 className="font-serif text-4xl font-normal leading-[1.05] text-white sm:text-6xl">
               {currentCategory === 'All Products' ? (
                 <>
-                  Shop Our <em className="text-[#A68962]">Skincare</em>
+                  Shop Our <em className="text-[#6FE4E8]">Skincare</em>
                 </>
               ) : (
                 currentCategory
               )}
             </h1>
-            <p className="mx-auto max-w-md text-sm leading-relaxed text-[#56645D] sm:text-base md:mx-0">
+            <p className="mx-auto max-w-md text-sm leading-relaxed text-[#D3EEEE] sm:text-base md:mx-0">
               Discover clean, cellular formulations crafted with potent active botanicals and verified clinical purity.
             </p>
             <div className="flex items-center justify-center gap-6 pt-1 md:justify-start">
               <div>
-                <p className="font-serif text-2xl text-[#13382B]">{total}</p>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#687770]">Formulations</p>
+                <p className="font-serif text-2xl text-white">{total}</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#A9D4D6]">Formulations</p>
               </div>
-              <span className="h-8 w-px bg-[#E0D7C9]" />
+              <span className="h-8 w-px bg-white/20" />
               <div>
-                <p className="font-serif text-2xl text-[#13382B]">{categories.length}</p>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#687770]">Categories</p>
+                <p className="font-serif text-2xl text-white">{categories.length}</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#A9D4D6]">Categories</p>
               </div>
             </div>
           </div>
 
           <div className="relative mx-auto w-64 sm:w-80 md:mx-0">
-            <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/80 shadow-xl shadow-[#13382B]/10">
+            <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 shadow-[0_20px_50px_-20px_rgba(2,20,25,0.8)]">
               <img
                 src="/images/home/productpage.png"
                 alt="Hydra Skincare Formulation"
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-full border border-[#E8DFD0] bg-white px-4 py-2 shadow-lg">
-              <Sparkles className="h-3.5 w-3.5 text-[#A68962]" />
-              <span className="text-[11px] font-medium text-[#13382B]">Clean &amp; clinically tested</span>
-            </div>
+       
           </div>
         </div>
       </section>
