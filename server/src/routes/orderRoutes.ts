@@ -20,7 +20,8 @@ const router = Router();
 
 // ─── Shiprocket Webhook (no auth — public endpoint for Shiprocket push) ──────
 // Configure this URL in Shiprocket Dashboard → Settings → API → Webhooks
-// URL: https://yourwebsite.com/api/orders/webhook/shiprocket
+// URL: https://yourwebsite.com/api/orders/webhook/tracking-update
+router.post('/webhook/tracking-update', shiprocketWebhook);
 router.post('/webhook/shiprocket', shiprocketWebhook);
 
 // ─── Customer Authenticated Routes ───────────────────────────────────────────
