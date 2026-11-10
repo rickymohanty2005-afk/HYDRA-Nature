@@ -107,8 +107,8 @@ export const AdminProductsPage: React.FC = () => {
         current.map((item) => (item._id === product._id ? { ...item, [flag]: nextValue } : item))
       );
       showNotification(
-        `${product.name}: ${flag === 'isBestSeller' ? 'Best Seller' : 'Featured in Top Picks'} ${
-          nextValue ? 'enabled' : 'disabled'
+        `${product.name}: ${flag === 'isBestSeller' ? 'Best Seller' : 'Top Picks'} turned ${
+          nextValue ? 'ON' : 'OFF'
         }`
       );
     } catch (error) {
@@ -117,6 +117,30 @@ export const AdminProductsPage: React.FC = () => {
     } finally {
       setUpdatingFlags((current) => ({ ...current, [product._id]: false }));
     }
+  };
+
+  const handleQuickUpdateTag = async (product: Product, newTag: string) => {
+    const tagToSave = newTag === 'None' ? '' : newTag;
+    setUpdatingFlags((current) => ({ ...current, [`${product._id}-tag`]: true }));
+    try {
+      await productService.update(product._id, { tag: tagToSave });
+      setProducts((current) =>
+        current.map((item) => (item._id === product._id ? { ...item, tag: tagToSave } : item))
+      );
+      showNotification(
+        `${product.name}: Tag ${tagToSave ? `"${tagToSave}" (ON)` : 'turned OFF'}`
+      );
+    } catch (error) {
+      console.error('Failed to update tag:', error);
+      alert('Could not update tag badge.');
+    } finally {
+      setUpdatingFlags((current) => ({ ...current, [`${product._id}-tag`]: false }));
+    }
+  };
+
+  const handleToggleTag = async (product: Product) => {
+    const nextTag = product.tag ? '' : 'New';
+    await handleQuickUpdateTag(product, nextTag);
   };
 
   const handleFeaturedChange = (checked: boolean) => {
@@ -399,7 +423,7 @@ export const AdminProductsPage: React.FC = () => {
         originalPrice: Number(originalPrice || price),
         category: finalCategory,
         subcategory: finalSubcategory || undefined,
-        tag: finalTag || undefined,
+        tag: finalTag || '',
         images: images.filter(Boolean),
         stock: Number(stock),
         size: size.trim() || '50ml',
@@ -639,38 +663,88 @@ export const AdminProductsPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
-                        <div className="flex flex-wrap items-center gap-1">
-                          {p.tag && (
-                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#EAF1EB] text-[#2E6B48]">
-                              {p.tag}
-                            </span>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleToggleProductFlag(p, 'isBestSeller')}
-                            disabled={Boolean(updatingFlags[p._id])}
-                            aria-pressed={Boolean(p.isBestSeller)}
-                            className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-colors disabled:opacity-50 ${
-                              p.isBestSeller
-                                ? 'bg-amber-100 text-amber-800'
-                                : 'bg-gray-100 text-gray-500 hover:bg-amber-50 hover:text-amber-800'
-                            }`}
-                          >
-                            Best Seller {p.isBestSeller ? 'ON' : 'OFF'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleProductFlag(p, 'isFeatured')}
-                            disabled={Boolean(updatingFlags[p._id])}
-                            aria-pressed={Boolean(p.isFeatured)}
-                            className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-colors disabled:opacity-50 ${
-                              p.isFeatured
-                                ? 'bg-purple-100 text-purple-800'
-                                : 'bg-gray-100 text-gray-500 hover:bg-purple-50 hover:text-purple-800'
-                            }`}
-                          >
-                            Top Picks {p.isFeatured ? 'ON' : 'OFF'}
-                          </button>
+                        <div className="flex flex-col gap-1.5 min-w-[190px]">
+                          {/* Tag Badge Control (ON/OFF + Quick Switch) */}
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTag(p)}
+                              disabled={Boolean(updatingFlags[`${p._id}-tag`])}
+                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all flex items-center gap-1 border ${
+                                p.tag
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                                  : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200'
+                              }`}
+                              title={p.tag ? `Tag is ON ("${p.tag}"). Click to turn OFF` : 'Tag is OFF. Click to turn ON'}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full ${p.tag ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                              <span>{p.tag ? `Tag: ${p.tag}` : 'Tag: OFF'}</span>
+                            </button>
+
+                            <select
+                              value={p.tag || 'None'}
+                              onChange={(e) => handleQuickUpdateTag(p, e.target.value)}
+                              disabled={Boolean(updatingFlags[`${p._id}-tag`])}
+                              className="text-[9px] font-medium bg-white border border-gray-200 rounded-md px-1 py-0.5 text-gray-700 cursor-pointer focus:outline-none"
+                              title="Select Tag for this formulation"
+                            >
+                              <option value="None">None (OFF)</option>
+                              {COMMON_TAGS.map((t) => (
+                                <option key={t} value={t}>
+                                  {t}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Flags Row: Best Seller & Top Picks */}
+                          <div className="flex items-center gap-1">
+                            {/* Best Seller ON/OFF */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleProductFlag(p, 'isBestSeller')}
+                              disabled={Boolean(updatingFlags[p._id])}
+                              aria-pressed={Boolean(p.isBestSeller)}
+                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all flex items-center gap-1 border ${
+                                p.isBestSeller
+                                  ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 shadow-xs'
+                                  : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'
+                              }`}
+                              title={`Click to turn Best Seller ${p.isBestSeller ? 'OFF' : 'ON'}`}
+                            >
+                              <span>★ Best Seller</span>
+                              <span
+                                className={`px-1 py-0.2 rounded text-[8px] ${
+                                  p.isBestSeller ? 'bg-amber-200 text-amber-900' : 'bg-gray-200 text-gray-600'
+                                }`}
+                              >
+                                {p.isBestSeller ? 'ON' : 'OFF'}
+                              </span>
+                            </button>
+
+                            {/* Top Picks ON/OFF */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleProductFlag(p, 'isFeatured')}
+                              disabled={Boolean(updatingFlags[p._id])}
+                              aria-pressed={Boolean(p.isFeatured)}
+                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all flex items-center gap-1 border ${
+                                p.isFeatured
+                                  ? 'bg-purple-50 text-purple-900 border-purple-300 hover:bg-purple-100 shadow-xs'
+                                  : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'
+                              }`}
+                              title={`Click to turn Top Picks ${p.isFeatured ? 'OFF' : 'ON'}`}
+                            >
+                              <span>✦ Top Picks</span>
+                              <span
+                                className={`px-1 py-0.2 rounded text-[8px] ${
+                                  p.isFeatured ? 'bg-purple-200 text-purple-900' : 'bg-gray-200 text-gray-600'
+                                }`}
+                              >
+                                {p.isFeatured ? 'ON' : 'OFF'}
+                              </span>
+                            </button>
+                          </div>
                         </div>
                       </td>
                       <td className="py-3.5 px-4">
@@ -903,19 +977,26 @@ export const AdminProductsPage: React.FC = () => {
               {/* Tag & Stock */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Special Tag Badge</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-gray-700">Special Tag Badge</label>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                      tag && tag !== 'None' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {tag && tag !== 'None' ? `Tag: ON (${tag})` : 'Tag: OFF'}
+                    </span>
+                  </div>
                   <select
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
                     className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl bg-white"
                   >
-                    <option value="None">None</option>
+                    <option value="None">None (OFF - Hide Tag Badge)</option>
                     {COMMON_TAGS.map((t) => (
                       <option key={t} value={t}>
-                        {t}
+                        {t} (ON)
                       </option>
                     ))}
-                    <option value="Custom">+ Custom Tag...</option>
+                    <option value="Custom">+ Custom Tag... (ON)</option>
                   </select>
                   {tag === 'Custom' && (
                     <input
@@ -1176,46 +1257,90 @@ export const AdminProductsPage: React.FC = () => {
                 />
               </div>
 
-              {/* Toggles: Active, Best Seller, Featured */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-[#EDE8E1] bg-white cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="checkbox"
-                    checked={isActive}
-                    onChange={(e) => setIsActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
-                  />
-                  <div>
-                    <p className="text-xs font-semibold text-gray-900">Active in Store</p>
-                    <p className="text-[10px] text-gray-400">Visible to customers</p>
-                  </div>
-                </label>
+              {/* Toggles: Active, Best Seller, Featured (Storefront Flags) */}
+              <div className="pt-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-2">
+                  Storefront Visibility & Flags (Attached to Shop Card)
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label
+                    className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
+                      isActive ? 'border-emerald-300 bg-emerald-50/50' : 'border-gray-200 bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={(e) => setIsActive(e.target.checked)}
+                      className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
+                    />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-gray-900">Active in Store</p>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                            isActive ? 'bg-emerald-200 text-emerald-800' : 'bg-gray-200 text-gray-600'
+                          }`}
+                        >
+                          {isActive ? 'ON' : 'OFF'}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">Live on storefront catalog</p>
+                    </div>
+                  </label>
 
-                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-[#EDE8E1] bg-white cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="checkbox"
-                    checked={isBestSeller}
-                    onChange={(e) => setIsBestSeller(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
-                  />
-                  <div>
-                    <p className="text-xs font-semibold text-gray-900">Best Seller</p>
-                    <p className="text-[10px] text-gray-400">Mark as a bestseller</p>
-                  </div>
-                </label>
+                  <label
+                    className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
+                      isBestSeller ? 'border-amber-300 bg-amber-50/50' : 'border-gray-200 bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isBestSeller}
+                      onChange={(e) => setIsBestSeller(e.target.checked)}
+                      className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
+                    />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-gray-900">★ Best Seller</p>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                            isBestSeller ? 'bg-amber-200 text-amber-900' : 'bg-gray-200 text-gray-600'
+                          }`}
+                        >
+                          {isBestSeller ? 'ON' : 'OFF'}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">Attaches luxury Best Seller badge</p>
+                    </div>
+                  </label>
 
-                <label className="flex items-center gap-2.5 p-3 rounded-xl border border-[#EDE8E1] bg-white cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="checkbox"
-                    checked={isFeatured}
-                    onChange={(e) => handleFeaturedChange(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
-                  />
-                  <div>
-                    <p className="text-xs font-semibold text-gray-900">Featured in Top Picks</p>
-                    <p className="text-[10px] text-gray-400">Maximum {MAX_FEATURED_PRODUCTS} products</p>
-                  </div>
-                </label>
+                  <label
+                    className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
+                      isFeatured ? 'border-purple-300 bg-purple-50/50' : 'border-gray-200 bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isFeatured}
+                      onChange={(e) => handleFeaturedChange(e.target.checked)}
+                      className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
+                    />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-gray-900">✦ Top Picks</p>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                            isFeatured ? 'bg-purple-200 text-purple-900' : 'bg-gray-200 text-gray-600'
+                          }`}
+                        >
+                          {isFeatured ? 'ON' : 'OFF'}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-gray-500">Attaches Top Pick badge</p>
+                    </div>
+                  </label>
+                </div>
               </div>
 
               {formError && (

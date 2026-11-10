@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   Heart,
   ShoppingBag,
   Check,
@@ -41,6 +43,33 @@ const NIGHT_BENEFITS = [
   { icon: Droplets, title: 'Refines texture', text: 'Wake up to an even, rested glow.' },
 ];
 
+const TESTIMONIALS = [
+  {
+    name: 'Sneha Patel',
+    quote: 'Hydra products have completely transformed my skin. Natural, effective and truly premium!',
+    avatar: '/images/home/sneha_avatar.jpg',
+    verified: true,
+  },
+  {
+    name: 'Priya S.',
+    quote: 'Absolutely love the quality! The product looks beautiful and feels premium. Highly recommended!',
+  },
+  {
+    name: 'Rahul M.',
+    quote: 'Great shopping experience. Smooth ordering process, excellent packaging, and fast delivery.',
+  },
+  {
+    name: 'Ananya R.',
+    quote: 'The quality exceeded my expectations. Everything looks elegant and perfectly designed.',
+  },
+  {
+    name: 'Arjun K.',
+    quote: 'Amazing product and excellent service. I will definitely shop here again!',
+  },
+];
+
+const TESTIMONIAL_AUTOPLAY_MS = 7000;
+
 // Deep-ocean teal water, shared with the footer
 const BRAND_STORY_WATER =
   'radial-gradient(ellipse 70% 45% at 50% -5%, #1E9AA3 0%, rgba(30,154,163,0) 70%),' +
@@ -52,6 +81,9 @@ export const HomePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const wishlistItems = useAppSelector((state) => state.wishlist.items);
 
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [testimonialHovered, setTestimonialHovered] = useState(false);
+  const [testimonialFocused, setTestimonialFocused] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [topPicksLoading, setTopPicksLoading] = useState(true);
   const [topPicksError, setTopPicksError] = useState(false);
@@ -61,6 +93,26 @@ export const HomePage: React.FC = () => {
   const [newsletterMessage, setNewsletterMessage] = useState('');
   const [newsletterIsError, setNewsletterIsError] = useState(false);
   const [newsletterLoading, setNewsletterLoading] = useState(false);
+
+  useEffect(() => {
+    if (testimonialHovered || testimonialFocused) return;
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    const timeout = window.setTimeout(
+      () => setActiveTestimonial((index) => (index + 1) % TESTIMONIALS.length),
+      TESTIMONIAL_AUTOPLAY_MS
+    );
+    return () => window.clearTimeout(timeout);
+  }, [activeTestimonial, testimonialHovered, testimonialFocused]);
+
+  const goToTestimonial = (index: number) => {
+    setActiveTestimonial((index + TESTIMONIALS.length) % TESTIMONIALS.length);
+  };
+
+  const handleTestimonialKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') goToTestimonial(activeTestimonial - 1);
+    if (e.key === 'ArrowRight') goToTestimonial(activeTestimonial + 1);
+  };
 
   useEffect(() => {
     const fetchTopPicks = async () => {
@@ -606,42 +658,106 @@ export const HomePage: React.FC = () => {
           {/* Testimonial + Newsletter */}
           <div className="mt-10 grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-5">
             {/* Testimonial */}
-            <figure className="relative flex overflow-hidden rounded-[28px] border border-[#04282B]/[0.08] bg-white shadow-[0_20px_50px_-30px_rgba(6,55,63,0.35)] lg:col-span-3">
+            <figure
+              className="relative flex overflow-hidden rounded-[28px] border border-[#04282B]/[0.08] bg-white shadow-[0_20px_50px_-30px_rgba(6,55,63,0.35)] lg:col-span-3"
+              role="region"
+              aria-roledescription="carousel"
+              aria-label="Customer testimonials"
+              onMouseEnter={() => setTestimonialHovered(true)}
+              onMouseLeave={() => setTestimonialHovered(false)}
+              onFocus={() => setTestimonialFocused(true)}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setTestimonialFocused(false);
+              }}
+              onKeyDown={handleTestimonialKeyDown}
+            >
               <div className="relative z-10 flex flex-1 flex-col justify-between gap-6 p-6 sm:p-9">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E6F5F5] text-[#1E9AA3]">
-                      <Quote className="h-5 w-5 fill-current" aria-hidden="true" />
-                    </span>
-                    <div className="flex items-center gap-0.5 text-amber-500" aria-label="Rated 5 out of 5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-current" aria-hidden="true" />
-                      ))}
+                <div
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label={`Slide ${activeTestimonial + 1} of ${TESTIMONIALS.length}: ${TESTIMONIALS[activeTestimonial].name}`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E6F5F5] text-[#1E9AA3]">
+                        <Quote className="h-5 w-5 fill-current" aria-hidden="true" />
+                      </span>
+                      {TESTIMONIALS[activeTestimonial].verified && (
+                        <div className="flex items-center gap-0.5 text-amber-500" aria-label="Rated 5 out of 5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="h-4 w-4 fill-current" aria-hidden="true" />
+                          ))}
+                        </div>
+                      )}
                     </div>
+                    <blockquote className="mt-6 font-serif text-xl leading-snug text-[#04282B] sm:text-2xl">
+                      {TESTIMONIALS[activeTestimonial].quote}
+                    </blockquote>
                   </div>
-                  <blockquote className="mt-6 font-serif text-xl leading-snug text-[#04282B] sm:text-2xl">
-                    “Hydra products have completely transformed my skin. Natural, effective and truly premium!”
-                  </blockquote>
+
+                  <figcaption className="mt-6 flex items-center gap-3 border-t border-[#04282B]/[0.08] pt-5">
+                    {TESTIMONIALS[activeTestimonial].avatar && (
+                      <img
+                        src={TESTIMONIALS[activeTestimonial].avatar}
+                        alt={TESTIMONIALS[activeTestimonial].name}
+                        className="h-11 w-11 rounded-full object-cover ring-2 ring-[#1E9AA3]/30 ring-offset-2"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = '/images/home/testimonial_card.jpg';
+                        }}
+                      />
+                    )}
+                    <div>
+                      <p className="text-sm font-semibold text-[#04282B]">
+                        {TESTIMONIALS[activeTestimonial].name}
+                      </p>
+                      {TESTIMONIALS[activeTestimonial].verified && (
+                        <p className="flex items-center gap-1 text-xs text-[#1E9AA3]">
+                          <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                          Verified buyer
+                        </p>
+                      )}
+                    </div>
+                  </figcaption>
                 </div>
 
-                <figcaption className="flex items-center gap-3 border-t border-[#04282B]/[0.08] pt-5">
-                  <img
-                    src="/images/home/sneha_avatar.jpg"
-                    alt="Sneha Patel"
-                    className="h-11 w-11 rounded-full object-cover ring-2 ring-[#1E9AA3]/30 ring-offset-2"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80';
-                    }}
-                  />
-                  <div>
-                    <p className="text-sm font-semibold text-[#04282B]">Sneha Patel</p>
-                    <p className="flex items-center gap-1 text-xs text-[#1E9AA3]">
-                      <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                      Verified buyer
-                    </p>
+                <div className="flex items-center justify-between gap-3" role="group" aria-label="Testimonial controls">
+                  <button
+                    type="button"
+                    onClick={() => goToTestimonial(activeTestimonial - 1)}
+                    aria-label="Previous testimonial"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#04282B]/15 bg-white text-[#04282B] transition-colors hover:border-[#1E9AA3] hover:bg-[#1E9AA3] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E9AA3]"
+                  >
+                    <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                  <div className="flex items-center justify-center gap-2" role="group" aria-label="Choose a testimonial">
+                    {TESTIMONIALS.map((testimonial, index) => (
+                      <button
+                        key={testimonial.name}
+                        type="button"
+                        onClick={() => goToTestimonial(index)}
+                        aria-label={`Show testimonial ${index + 1}: ${testimonial.name}`}
+                        aria-current={activeTestimonial === index ? 'true' : undefined}
+                        className="flex h-8 w-5 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E9AA3]"
+                      >
+                        <span
+                          className={`h-2 w-2 rounded-full transition-colors ${
+                            activeTestimonial === index ? 'bg-[#1E9AA3]' : 'bg-[#04282B]/20'
+                          }`}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    ))}
                   </div>
-                </figcaption>
+                  <button
+                    type="button"
+                    onClick={() => goToTestimonial(activeTestimonial + 1)}
+                    aria-label="Next testimonial"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#04282B] text-white transition-colors hover:bg-[#1E9AA3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1E9AA3]"
+                  >
+                    <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                </div>
               </div>
 
               <div className="relative hidden w-[38%] shrink-0 sm:block">

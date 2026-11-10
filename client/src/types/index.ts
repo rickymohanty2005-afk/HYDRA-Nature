@@ -215,9 +215,12 @@ export interface Coupon {
   discountValue: number;
   minOrderValue: number;
   maxDiscount?: number;
+  maxUses: number;
   expiresAt: string;
   isActive: boolean;
   usageCount: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApiResponse<T = any> {

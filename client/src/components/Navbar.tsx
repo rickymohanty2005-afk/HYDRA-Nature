@@ -13,6 +13,7 @@ import {
   Instagram,
   Youtube,
   Linkedin,
+  Facebook,
 } from 'lucide-react';
 
 import { useAppDispatch, useAppSelector } from '../store';
@@ -108,17 +109,20 @@ export const Navbar: React.FC = () => {
 
           {/* Social Icons */}
           <div className="hidden md:flex items-center gap-3 text-[#7FDDE2]/80">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors" aria-label="Instagram">
+            <a href="https://www.instagram.com/hydra24n?xtok=ZDB5MHNxZm9pdmEz" target="_blank" rel="noreferrer" className="hover:text-white transition-colors" aria-label="Instagram">
               <Instagram className="w-3.5 h-3.5" />
             </a>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors" aria-label="YouTube">
+            <a href="https://youtube.com/@hydra24n?si=JfSpDw6Z4-sw432J" target="_blank" rel="noreferrer" className="hover:text-white transition-colors" aria-label="YouTube">
               <Youtube className="w-3.5 h-3.5" />
             </a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors" aria-label="LinkedIn">
+            {/* <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors" aria-label="LinkedIn">
               <Linkedin className="w-3.5 h-3.5" />
             </a>
             <a href="https://twitter.com" target="_blank" rel="noreferrer" className="hover:text-white transition-colors text-[10px] font-bold" aria-label="X">
               𝕏
+            </a> */}
+            <a href="https://share.google.com/EVvTaNy0JJHQrcBSc" target="_blank" rel="noreferrer" className="hover:text-white transition-colors" aria-label="Facebook">
+              <Facebook className="w-3.5 h-3.5" />
             </a>
           </div>
         </div>

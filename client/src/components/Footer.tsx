@@ -46,9 +46,9 @@ const paymentMethods = [
 
 const socialLinks = [
   { href: 'https://linkedin.com', label: 'LinkedIn', icon: Linkedin },
-  { href: 'https://facebook.com', label: 'Facebook', icon: Facebook },
-  { href: 'https://instagram.com', label: 'Instagram', icon: Instagram },
-  { href: 'https://youtube.com', label: 'YouTube', icon: Youtube },
+  { href: 'https://share.google/EVvTaNy0JJHQrcBSc', label: 'Facebook', icon: Facebook },
+  { href: 'https://www.instagram.com/hydra24n?xtok=ZDB5MHNxZm9pdmEz', label: 'Instagram', icon: Instagram },
+  { href: 'https://youtube.com/@hydra24n?si=JfSpDw6Z4-sw432J', label: 'YouTube', icon: Youtube },
 ];
 
 const contactItems = [

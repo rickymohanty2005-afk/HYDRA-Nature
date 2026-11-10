@@ -27,6 +27,7 @@ const ShopPage: React.FC = () => {
   const currentSubcategory = searchParams.get('subcategory') || 'All';
   const currentSearch = searchParams.get('search') || '';
   const currentSort = searchParams.get('sort') || 'popular';
+  const currentFlag = searchParams.get('flag') || 'all';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
   const [searchInput, setSearchInput] = useState(currentSearch);
@@ -96,6 +97,11 @@ const ShopPage: React.FC = () => {
         if (currentSearch) {
           params.search = currentSearch;
         }
+        if (currentFlag === 'bestseller') {
+          params.bestseller = true;
+        } else if (currentFlag === 'featured') {
+          params.featured = true;
+        }
         if (inStockOnly) {
           params.inStock = true;
         }
@@ -112,7 +118,7 @@ const ShopPage: React.FC = () => {
     };
 
     fetchProducts();
-  }, [currentCategory, currentSubcategory, currentSearch, currentSort, currentPage, inStockOnly]);
+  }, [currentCategory, currentSubcategory, currentSearch, currentSort, currentFlag, currentPage, inStockOnly]);
 
   const handleCategorySelect = (categoryName: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -156,6 +162,17 @@ const ShopPage: React.FC = () => {
     setSearchParams(newParams);
   };
 
+  const handleFlagSelect = (flag: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (flag === 'all' || currentFlag === flag) {
+      newParams.delete('flag');
+    } else {
+      newParams.set('flag', flag);
+    }
+    newParams.set('page', '1');
+    setSearchParams(newParams);
+  };
+
   const clearAllFilters = () => {
     setSearchParams(new URLSearchParams());
     setSearchInput('');
@@ -166,6 +183,7 @@ const ShopPage: React.FC = () => {
     currentCategory !== 'All Products' ||
     !!currentSearch ||
     (!!currentSubcategory && currentSubcategory !== 'All') ||
+    currentFlag !== 'all' ||
     inStockOnly;
 
   const goToPage = (pageNum: number) => {
@@ -271,28 +289,35 @@ const ShopPage: React.FC = () => {
 
         {/* Top Control Bar */}
         <div className="mb-8 flex flex-col gap-4 rounded-2xl border border-[#EDE8E1] bg-white p-3 shadow-sm md:flex-row md:items-center md:justify-between">
-          {/* Dynamic Subcategory Pills */}
-          <div className="flex w-full items-center gap-1 overflow-x-auto scrollbar-none md:w-auto">
-            {subcategories.map((sub) => {
-              const isSelected =
-                (currentSubcategory === sub) ||
-                (currentSubcategory === '' && sub === 'All') ||
-                (!currentSubcategory && sub === 'All');
+          {/* Dynamic Subcategory & Flag Pills */}
+          <div className="flex w-full items-center gap-2 overflow-x-auto scrollbar-none md:w-auto">
+            {/* Quick Flag Badges / Filters */}
+            <div className="flex items-center gap-1.5 border-r border-[#EDE8E1] pr-2.5">
+              <button
+                onClick={() => handleFlagSelect('bestseller')}
+                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1 transition-all ${
+                  currentFlag === 'bestseller'
+                    ? 'bg-amber-100 text-amber-900 border border-amber-300 shadow-xs'
+                    : 'bg-[#FAF8F5] text-amber-800/80 hover:bg-amber-50 border border-transparent'
+                }`}
+                title="Filter by formulations with Best Seller badge attached"
+              >
+                <span>★ Best Sellers</span>
+              </button>
+              <button
+                onClick={() => handleFlagSelect('featured')}
+                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1 transition-all ${
+                  currentFlag === 'featured'
+                    ? 'bg-purple-100 text-purple-900 border border-purple-300 shadow-xs'
+                    : 'bg-[#FAF8F5] text-purple-800/80 hover:bg-purple-50 border border-transparent'
+                }`}
+                title="Filter by formulations with Top Pick badge attached"
+              >
+                <span>✦ Top Picks</span>
+              </button>
+            </div>
 
-              return (
-                <button
-                  key={sub}
-                  onClick={() => handleSubcategorySelect(sub)}
-                  className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-medium transition-all ${
-                    isSelected
-                      ? 'bg-[#13382B] text-white shadow-sm'
-                      : 'text-[#56645D] hover:bg-[#FAF8F5] hover:text-[#13382B]'
-                  }`}
-                >
-                  {sub}
-                </button>
-              );
-            })}
+        
           </div>
 
           {/* Search & Sort Controls */}
@@ -465,6 +490,30 @@ const ShopPage: React.FC = () => {
                       }}
                       className={chipCloseClass}
                       aria-label="Remove search filter"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                {currentFlag === 'bestseller' && (
+                  <span className={filterChipClass}>
+                    ★ Best Sellers
+                    <button
+                      onClick={() => handleFlagSelect('all')}
+                      className={chipCloseClass}
+                      aria-label="Remove best seller filter"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                {currentFlag === 'featured' && (
+                  <span className={filterChipClass}>
+                    ✦ Top Picks
+                    <button
+                      onClick={() => handleFlagSelect('all')}
+                      className={chipCloseClass}
+                      aria-label="Remove top picks filter"
                     >
                       <X className="h-3 w-3" />
                     </button>

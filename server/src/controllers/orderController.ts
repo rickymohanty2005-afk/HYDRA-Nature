@@ -43,7 +43,11 @@ export const createRazorpayOrder = async (
         isActive: true,
         expiresAt: { $gt: new Date() },
       });
-      if (coupon && subtotal >= coupon.minOrderValue) {
+      if (
+        coupon &&
+        subtotal >= coupon.minOrderValue &&
+        (!coupon.maxUses || coupon.usageCount < coupon.maxUses)
+      ) {
         if (coupon.discountType === 'percentage') {
           discount = (subtotal * coupon.discountValue) / 100;
           if (coupon.maxDiscount && discount > coupon.maxDiscount) {
@@ -189,8 +193,13 @@ export const verifyPaymentAndCreateOrder = async (
       const coupon = await Coupon.findOne({
         code: couponCode.toUpperCase(),
         isActive: true,
+        expiresAt: { $gt: new Date() },
       });
-      if (coupon && subtotal >= coupon.minOrderValue) {
+      if (
+        coupon &&
+        subtotal >= coupon.minOrderValue &&
+        (!coupon.maxUses || coupon.usageCount < coupon.maxUses)
+      ) {
         if (coupon.discountType === 'percentage') {
           discount = (subtotal * coupon.discountValue) / 100;
           if (coupon.maxDiscount && discount > coupon.maxDiscount) {
@@ -346,8 +355,13 @@ export const createCODOrder = async (
       const coupon = await Coupon.findOne({
         code: couponCode.toUpperCase(),
         isActive: true,
+        expiresAt: { $gt: new Date() },
       });
-      if (coupon && subtotal >= coupon.minOrderValue) {
+      if (
+        coupon &&
+        subtotal >= coupon.minOrderValue &&
+        (!coupon.maxUses || coupon.usageCount < coupon.maxUses)
+      ) {
         if (coupon.discountType === 'percentage') {
           discount = (subtotal * coupon.discountValue) / 100;
           if (coupon.maxDiscount && discount > coupon.maxDiscount) {
@@ -1209,7 +1223,11 @@ export const shiprocketWebhook = async (
     } = req.body;
 
     if (!awb) {
-      res.status(400).json({ error: 'AWB number is required in webhook payload' });
+      console.warn('[Shiprocket Webhook] Received a connection check without an AWB number');
+      res.status(200).json({
+        success: true,
+        message: 'Webhook received successfully',
+      });
       return;
     }
 

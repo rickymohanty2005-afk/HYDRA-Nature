@@ -1,20 +1,260 @@
+
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
   <head>
+    <!-- ==========================================
+         CORE HTML & MOBILE OPTIMIZATION
+    =========================================== -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2313382B'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 10.5c-1.93 0-3.5-1.57-3.5-3.5 0-1.07.49-2.03 1.25-2.67.57.94 1.58 1.67 2.25 1.67s1.68-.73 2.25-1.67c.76.64 1.25 1.6 1.25 2.67 0 1.93-1.57 3.5-3.5 3.5z'/%3E%3C/svg%3E" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HYDRA — Nature. Science. Radiance. Premium Skincare</title>
-    <meta name="description" content="Hydra Skincare - We believe in the power of nature and the science of skincare. Discover clean, pure, and scientifically proven formulations." />
-    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Razorpay Checkout SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <meta name="theme-color" content="#13382B" />
+    <meta name="color-scheme" content="light" />
+
+    <!-- ==========================================
+         PRIMARY SEO META TAGS
+    =========================================== -->
+    <title>
+      HYDRA24n | Professional Skincare & Beauty Products India
+    </title>
+
+    <meta
+      name="description"
+      content="Discover HYDRA24n Professional Beauty skincare, facial kits, face creams, serums and daily skincare essentials. Explore nature-inspired formulations in India."
+    />
+
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <meta name="googlebot" content="index, follow" />
+
+    <meta
+      name="author"
+      content="Zulynz Beauty Global Private Limited"
+    />
+
+    <meta
+      name="application-name"
+      content="HYDRA24n Professional Beauty"
+    />
+
+    <meta
+      name="apple-mobile-web-app-title"
+      content="HYDRA24n"
+    />
+
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Canonical URL - Homepage only -->
+    <link
+      rel="canonical"
+      href="https://www.hydra24n.com/"
+    />
+
+    <!-- ==========================================
+         FAVICON & BRAND ICONS
+    =========================================== -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.svg"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      href="/apple-touch-icon.png"
+    />
+
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- ==========================================
+         OPEN GRAPH - FACEBOOK / WHATSAPP / LINKEDIN
+    =========================================== -->
+    <meta property="og:type" content="website" />
+
+    <meta
+      property="og:site_name"
+      content="HYDRA24n Professional Beauty"
+    />
+
+    <meta
+      property="og:title"
+      content="HYDRA24n | Professional Skincare & Beauty"
+    />
+
+    <meta
+      property="og:description"
+      content="Explore HYDRA24n Professional Beauty. Discover skincare essentials, facial kits and thoughtfully formulated beauty products."
+    />
+
+    <meta
+      property="og:url"
+      content="https://www.hydra24n.com/"
+    />
+
+    <meta
+      property="og:image"
+      content="https://www.hydra24n.com/images/seo/hydra24n-og.jpg"
+    />
+
+    <meta
+      property="og:image:width"
+      content="1200"
+    />
+
+    <meta
+      property="og:image:height"
+      content="630"
+    />
+
+    <meta
+      property="og:image:alt"
+      content="HYDRA24n Professional Beauty skincare collection"
+    />
+
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- ==========================================
+         TWITTER / X CARD
+    =========================================== -->
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+
+    <meta
+      name="twitter:title"
+      content="HYDRA24n | Professional Skincare India"
+    />
+
+    <meta
+      name="twitter:description"
+      content="Discover nature-inspired skincare essentials, facial kits and professional beauty products from HYDRA24n."
+    />
+
+    <meta
+      name="twitter:image"
+      content="https://www.hydra24n.com/images/seo/hydra24n-og.jpg"
+    />
+
+    <meta
+      name="twitter:image:alt"
+      content="HYDRA24n skincare products"
+    />
+
+    <!-- ==========================================
+         PERFORMANCE & GOOGLE FONTS
+    =========================================== -->
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ==========================================
+         STRUCTURED DATA - ORGANIZATION
+    =========================================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "https://www.hydra24n.com/#organization",
+      "name": "Zulynz Beauty Global Private Limited",
+      "alternateName": "HYDRA24n Professional Beauty",
+      "url": "https://www.hydra24n.com/",
+      "logo": "https://www.hydra24n.com/images/logo.png",
+      "description": "HYDRA24n Professional Beauty offers skincare and beauty products including facial kits, face creams, serums and daily skincare essentials.",
+      "email": "care@hydra24n.com",
+      "telephone": "+91-8117969889",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Ghatikia, Kalinga Nagar",
+        "addressLocality": "Bhubaneswar",
+        "addressRegion": "Odisha",
+        "postalCode": "751029",
+        "addressCountry": "IN"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+91-8117969889",
+        "email": "care@hydra24n.com",
+        "contactType": "customer support",
+        "availableLanguage": ["English", "Hindi"]
+      }
+    }
+    </script>
+
+    <!-- ==========================================
+         STRUCTURED DATA - WEBSITE
+    =========================================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://www.hydra24n.com/#website",
+      "name": "HYDRA24n Professional Beauty",
+      "url": "https://www.hydra24n.com/",
+      "publisher": {
+        "@id": "https://www.hydra24n.com/#organization"
+      },
+      "inLanguage": "en-IN"
+    }
+    </script>
+
+    <!-- ==========================================
+         STRUCTURED DATA - ONLINE STORE
+    =========================================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      "@id": "https://www.hydra24n.com/#store",
+      "name": "HYDRA24n Professional Beauty",
+      "url": "https://www.hydra24n.com/",
+      "description": "Online skincare and professional beauty product store in India.",
+      "currenciesAccepted": "INR",
+      "areaServed": {
+        "@type": "Country",
+        "name": "India"
+      },
+      "parentOrganization": {
+        "@id": "https://www.hydra24n.com/#organization"
+      }
+    }
+    </script>
+
+    <!-- ==========================================
+         RAZORPAY CHECKOUT
+    =========================================== -->
+    <script
+      src="https://checkout.razorpay.com/v1/checkout.js"
+      defer
+    ></script>
+
   </head>
-  <body class="bg-[#FAF8F5] text-[#1A211D] font-sans antialiased selection:bg-[#13382B] selection:text-white min-h-screen">
+
+  <body
+    class="bg-[#FAF8F5] text-[#1A211D] font-sans antialiased selection:bg-[#13382B] selection:text-white min-h-screen"
+  >
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <script
+      type="module"
+      src="/src/main.tsx"
+    ></script>
   </body>
 </html>
