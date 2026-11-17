@@ -11,6 +11,9 @@ import {
   AlertCircle,
   ThumbsUp,
   RefreshCw,
+  Camera,
+  ZoomIn,
+  X,
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { getImageUrl } from '../../utils/imageUrl';
@@ -34,6 +37,7 @@ interface ReviewItem {
   rating: number;
   title: string;
   comment: string;
+  images?: string[];
   isApproved: boolean;
   createdAt: string;
 }
@@ -60,6 +64,7 @@ export const AdminReviewsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'product-wise' | 'list'>('product-wise');
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const fetchReviews = async () => {
     try {
@@ -492,6 +497,7 @@ export const AdminReviewsPage: React.FC = () => {
                       actionLoading={actionLoadingId === rev._id}
                       onToggleApprove={() => handleToggleApprove(rev._id, rev.isApproved)}
                       onDelete={() => handleDelete(rev._id)}
+                      onPreviewImage={setPreviewImage}
                     />
                   ))}
                 </div>
@@ -510,8 +516,41 @@ export const AdminReviewsPage: React.FC = () => {
               actionLoading={actionLoadingId === rev._id}
               onToggleApprove={() => handleToggleApprove(rev._id, rev.isApproved)}
               onDelete={() => handleDelete(rev._id)}
+              onPreviewImage={setPreviewImage}
             />
           ))}
+        </div>
+      )}
+
+      {/* Review Image Preview Lightbox */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="bg-white rounded-3xl overflow-hidden max-w-2xl w-full shadow-2xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 bg-[#FAF8F5] border-b border-[#EDE8E1] flex items-center justify-between">
+              <span className="text-xs font-serif font-bold text-[#13382B] flex items-center gap-1.5">
+                <Camera className="w-3.5 h-3.5 text-[#2E6B48]" /> Customer Uploaded Photo
+              </span>
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="p-1.5 rounded-full text-gray-500 hover:bg-gray-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4 flex items-center justify-center bg-[#F7F5F0] max-h-[75vh] overflow-auto">
+              <img
+                src={previewImage}
+                alt="Customer photo enlarged"
+                className="max-w-full max-h-[70vh] object-contain rounded-2xl shadow-sm"
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -524,6 +563,7 @@ interface ReviewCardProps {
   actionLoading?: boolean;
   onToggleApprove: () => void;
   onDelete: () => void;
+  onPreviewImage?: (imgUrl: string) => void;
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({
@@ -532,6 +572,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   actionLoading = false,
   onToggleApprove,
   onDelete,
+  onPreviewImage,
 }) => {
   return (
     <div
@@ -618,6 +659,38 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
             {review.comment}
           </p>
         </div>
+
+        {/* Attached Customer Photos */}
+        {review.images && review.images.length > 0 && (
+          <div className="pt-2 border-t border-gray-100">
+            <p className="text-[10px] font-bold text-[#3F6352] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Camera className="w-3 h-3 text-[#2E6B48]" />
+              <span>Customer Photos ({review.images.length})</span>
+            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              {review.images.map((img, idx) => {
+                const fullUrl = getImageUrl(img);
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => onPreviewImage?.(fullUrl)}
+                    className="w-14 h-14 rounded-xl border border-[#EDE8E1] bg-[#FAF8F5] overflow-hidden cursor-pointer hover:border-[#13382B] hover:shadow-sm transition-all relative group flex-shrink-0"
+                    title="Click to view full image"
+                  >
+                    <img
+                      src={fullUrl}
+                      alt={`Review photo ${idx + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <ZoomIn className="w-3.5 h-3.5 text-white" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Action Buttons: Approve / Unapprove and Delete */}

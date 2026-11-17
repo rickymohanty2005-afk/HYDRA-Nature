@@ -16,6 +16,9 @@ import {
   ArrowRight,
   Trash2,
   Clock,
+  ZoomIn,
+  X,
+  Camera,
 } from 'lucide-react';
 import { productService } from '../services/productService';
 import { reviewService } from '../services/reviewService';
@@ -28,6 +31,9 @@ import { getImageUrl } from '../utils/imageUrl';
 
 const FALLBACK_PRODUCT_IMAGE =
   'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
+
+// 2.jpeg is an exact duplicate of 1.jpeg, so it is skipped
+const TRUSTED_LOGOS = [1, 3, 4, 5, 6, 7, 8, 9].map((n) => `/images/trustedlogo/${n}.jpeg`);
 
 export const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -54,9 +60,17 @@ export const ProductDetailsPage: React.FC = () => {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewTitle, setReviewTitle] = useState('');
   const [reviewComment, setReviewComment] = useState('');
+  const [reviewImages, setReviewImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewMessage, setReviewMessage] = useState('');
   const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
+  const [selectedClinicalImage, setSelectedClinicalImage] = useState<{
+    src: string;
+    title: string;
+    desc: string;
+  } | null>(null);
 
   const isInWishlist = product ? wishlistItems.some((i) => i._id === product._id) : false;
 
@@ -183,8 +197,60 @@ export const ProductDetailsPage: React.FC = () => {
       setReviewRating(userExistingReview.rating || 5);
       setReviewTitle(userExistingReview.title || '');
       setReviewComment(userExistingReview.comment || '');
+      setExistingImages(userExistingReview.images || []);
+      setReviewImages([]);
+      setImagePreviews([]);
+    } else {
+      setReviewRating(5);
+      setReviewTitle('');
+      setReviewComment('');
+      setExistingImages([]);
+      setReviewImages([]);
+      setImagePreviews([]);
     }
     setShowReviewForm(!showReviewForm);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+
+    const availableSlots = 5 - (existingImages.length + reviewImages.length);
+    if (availableSlots <= 0) {
+      alert('You can attach a maximum of 5 photos per review.');
+      return;
+    }
+
+    const validFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (const file of files.slice(0, availableSlots)) {
+      if (!file.type.startsWith('image/')) {
+        alert(`${file.name} is not a valid image file.`);
+        continue;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`${file.name} exceeds the 10MB limit.`);
+        continue;
+      }
+      validFiles.push(file);
+      newPreviews.push(URL.createObjectURL(file));
+    }
+
+    setReviewImages((prev) => [...prev, ...validFiles]);
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+  };
+
+  const handleRemoveNewImage = (index: number) => {
+    setReviewImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleRemoveExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -193,16 +259,26 @@ export const ProductDetailsPage: React.FC = () => {
       navigate('/auth');
       return;
     }
+    if (!product) return;
 
     setReviewSubmitting(true);
     setReviewMessage('');
 
     try {
-      const res = await reviewService.create(product._id, {
-        rating: reviewRating,
-        title: reviewTitle,
-        comment: reviewComment,
+      const formData = new FormData();
+      formData.append('rating', String(reviewRating));
+      formData.append('title', reviewTitle);
+      formData.append('comment', reviewComment);
+
+      if (existingImages.length > 0) {
+        formData.append('images', JSON.stringify(existingImages));
+      }
+
+      reviewImages.forEach((file) => {
+        formData.append('images', file);
       });
+
+      const res = await reviewService.create(product._id, formData);
 
       setReviewMessage(
         res.message ||
@@ -210,13 +286,16 @@ export const ProductDetailsPage: React.FC = () => {
       );
       setReviewTitle('');
       setReviewComment('');
+      setReviewImages([]);
+      setImagePreviews([]);
+      setExistingImages([]);
       setShowReviewForm(false);
 
       // Refresh reviews
       const updatedRevs = await reviewService.getByProduct(product._id);
       setReviews(updatedRevs || []);
     } catch (err: any) {
-      setReviewMessage(err.message || 'Failed to submit review');
+      setReviewMessage(err.response?.data?.message || err.message || 'Failed to submit review');
     } finally {
       setReviewSubmitting(false);
     }
@@ -448,6 +527,41 @@ export const ProductDetailsPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Tested & Trusted Logo Carousel / Strip */}
+            <div className="pt-4 border-t border-[#EDE8E1]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#13382B] flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#2E6B48]" />
+                  Tested & Trusted Standards
+                </span>
+           
+              </div>
+              <div className="bg-[#FAF8F5] border border-[#EDE8E1] rounded-2xl p-2.5 shadow-sm">
+                <div
+                  className="marquee-pause relative overflow-hidden py-1"
+                  style={{
+                    maskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
+                  }}
+                >
+                  <div className="animate-marquee-ltr flex w-max items-center">
+                    {[...TRUSTED_LOGOS, ...TRUSTED_LOGOS].map((src, i) => (
+                      <img
+                        key={i}
+                        src={src}
+                        alt={i < TRUSTED_LOGOS.length ? 'Trusted certification seal' : ''}
+                        aria-hidden={i >= TRUSTED_LOGOS.length}
+                        loading="lazy"
+                        draggable={false}
+                        className="mx-2 sm:mx-2.5 h-11 w-11 sm:h-12 sm:w-12 shrink-0 rounded-full object-cover ring-1 ring-[#EDE8E1] shadow-sm transition-transform duration-300 hover:scale-110"
+                      />
+                    ))}
+                  </div>
+                </div>
+           
+              </div>
+            </div>
+
             {/* Trust Assurances */}
             <div className="grid grid-cols-3 gap-2 pt-4 border-t border-[#EDE8E1] text-center">
               <div className="p-2.5 bg-white rounded-xl border border-[#EDE8E1]">
@@ -573,19 +687,29 @@ export const ProductDetailsPage: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => setShowReviewForm(!showReviewForm)}
-              className="px-5 py-2.5 bg-[#13382B] text-white rounded-full text-xs font-semibold hover:bg-[#1E4D3B] transition-colors"
+              onClick={handleOpenReviewForm}
+              className="px-5 py-2.5 bg-[#13382B] text-white rounded-full text-xs font-semibold hover:bg-[#1E4D3B] transition-colors shadow-sm flex items-center gap-2"
             >
-              {showReviewForm ? 'Close Form' : 'Write a Review'}
+              <Camera className="w-3.5 h-3.5" />
+              <span>
+                {showReviewForm
+                  ? 'Close Form'
+                  : userExistingReview
+                  ? 'Edit Your Review'
+                  : 'Write a Review & Add Photos'}
+              </span>
             </button>
           </div>
 
           {/* Review Submission Form Drawer */}
           {showReviewForm && (
             <div className="bg-white rounded-2xl p-6 border border-[#EDE8E1] shadow-md mb-8 max-w-2xl">
-              <h3 className="font-serif text-lg font-bold text-[#13382B] mb-4">
-                Share Your Skincare Experience
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-serif text-lg font-bold text-[#13382B]">
+                  {userExistingReview ? 'Update Your Skincare Review' : 'Share Your Skincare Experience'}
+                </h3>
+                <span className="text-[11px] text-gray-500 font-medium">Verified Patrons</span>
+              </div>
               <form onSubmit={handleReviewSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">
@@ -637,20 +761,106 @@ export const ProductDetailsPage: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex justify-end gap-2">
+                {/* Upload Photos Section */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-gray-700">
+                      Upload Photos (Optional — Up to 5 images)
+                    </label>
+                    <span className="text-[10px] text-gray-400 font-medium">
+                      {existingImages.length + reviewImages.length} / 5 photos
+                    </span>
+                  </div>
+
+                  {/* Previews of existing and newly selected photos */}
+                  {(existingImages.length > 0 || imagePreviews.length > 0) && (
+                    <div className="flex flex-wrap gap-2.5 mb-3">
+                      {/* Existing images */}
+                      {existingImages.map((img, idx) => (
+                        <div
+                          key={`existing-${idx}`}
+                          className="relative w-16 h-16 rounded-xl border border-[#EDE8E1] bg-[#FAF8F5] overflow-hidden group shadow-xs"
+                        >
+                          <img
+                            src={getImageUrl(img)}
+                            alt="Existing attachment"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveExistingImage(idx)}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600/90 text-white flex items-center justify-center hover:bg-red-700 transition-colors shadow-sm"
+                            title="Remove photo"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* New local preview images */}
+                      {imagePreviews.map((url, idx) => (
+                        <div
+                          key={`new-${idx}`}
+                          className="relative w-16 h-16 rounded-xl border border-[#2E6B48]/50 bg-[#EAF1EB] overflow-hidden group shadow-xs"
+                        >
+                          <img
+                            src={url}
+                            alt="New review upload preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveNewImage(idx)}
+                            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600/90 text-white flex items-center justify-center hover:bg-red-700 transition-colors shadow-sm"
+                            title="Remove photo"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Dropzone / Upload button if under limit */}
+                  {existingImages.length + reviewImages.length < 5 && (
+                    <label className="border-2 border-dashed border-[#EDE8E1] hover:border-[#13382B]/40 rounded-xl p-3.5 flex items-center justify-center gap-2.5 cursor-pointer bg-[#FAF8F5] hover:bg-[#F5F2EB] transition-colors">
+                      <Camera className="w-4 h-4 text-[#2E6B48]" />
+                      <span className="text-xs font-medium text-[#13382B]">
+                        Click to add photos of your skin / product results
+                      </span>
+                      <span className="text-[10px] text-gray-400">(JPEG, PNG, WEBP max 10MB)</span>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
                   <button
                     type="button"
                     onClick={() => setShowReviewForm(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-full text-xs font-semibold text-gray-700"
+                    className="px-4 py-2 border border-gray-300 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={reviewSubmitting}
-                    className="px-6 py-2 bg-[#13382B] text-white rounded-full text-xs font-semibold hover:bg-[#1E4D3B] disabled:opacity-50"
+                    className="px-6 py-2 bg-[#13382B] text-white rounded-full text-xs font-semibold hover:bg-[#1E4D3B] disabled:opacity-50 flex items-center gap-2"
                   >
-                    {reviewSubmitting ? 'Submitting...' : 'Post Review'}
+                    {reviewSubmitting ? (
+                      <>
+                        <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      <span>{userExistingReview ? 'Update Review' : 'Post Review'}</span>
+                    )}
                   </button>
                 </div>
               </form>
@@ -658,7 +868,7 @@ export const ProductDetailsPage: React.FC = () => {
           )}
 
           {reviewMessage && (
-            <div className="p-4 mb-6 bg-[#EAF1EB] text-[#2E6B48] rounded-xl text-xs font-medium">
+            <div className="p-4 mb-6 bg-[#EAF1EB] text-[#2E6B48] rounded-xl text-xs font-medium border border-[#C5DBCB]">
               {reviewMessage}
             </div>
           )}
@@ -669,39 +879,125 @@ export const ProductDetailsPage: React.FC = () => {
               {reviews.map((rev) => (
                 <div
                   key={rev._id}
-                  className="bg-white p-5 rounded-2xl border border-[#EDE8E1] shadow-sm space-y-3"
+                  className="bg-white p-5 rounded-2xl border border-[#EDE8E1] shadow-sm space-y-3 flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[#EAF1EB] text-[#13382B] font-bold text-xs flex items-center justify-center">
-                        {rev.user?.name?.charAt(0) || 'U'}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-[#EAF1EB] text-[#13382B] font-bold text-xs flex items-center justify-center">
+                          {rev.user?.name?.charAt(0) || 'U'}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="text-xs font-bold text-[#1A211D]">
+                              {rev.user?.name || 'Hydra Customer'}
+                            </p>
+                            {user && (rev.user?._id === user._id || (rev.user as any)?.email === user.email) && (
+                              <span className="text-[9px] bg-[#13382B] text-white px-1.5 py-0.5 rounded-full font-semibold">
+                                You
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] text-emerald-700 font-medium">Verified Buyer</span>
+                            {!rev.isApproved && (
+                              <span className="text-[9px] text-amber-800 bg-amber-100 font-bold px-1.5 py-0.5 rounded-full">
+                                Pending Approval
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs font-bold text-[#1A211D]">{rev.user?.name || 'Hydra Customer'}</p>
-                        <span className="text-[10px] text-emerald-700 font-medium">Verified Buyer</span>
+                      <div className="flex items-center text-amber-500">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3.5 h-3.5 ${
+                              i < rev.rating ? 'fill-current' : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
                       </div>
                     </div>
-                    <div className="flex items-center text-amber-500">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < rev.rating ? 'fill-current' : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
+
+                    <h4 className="font-serif text-sm font-semibold text-[#1A211D]">{rev.title}</h4>
+                    <p className="text-xs text-gray-600 leading-relaxed">{rev.comment}</p>
+
+                    {/* Customer Review Photos */}
+                    {rev.images && rev.images.length > 0 && (
+                      <div className="pt-2 border-t border-gray-100/80">
+                        <p className="text-[10px] font-bold text-[#3F6352] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                          <Camera className="w-3 h-3 text-[#2E6B48]" />
+                          <span>Customer Photos ({rev.images.length})</span>
+                        </p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {rev.images.map((img, idx) => {
+                            const fullUrl = getImageUrl(img);
+                            return (
+                              <div
+                                key={idx}
+                                onClick={() => setSelectedClinicalImage({
+                                  src: fullUrl,
+                                  title: `Customer Photo — ${rev.title}`,
+                                  desc: `Uploaded by ${rev.user?.name || 'Hydra Customer'}`
+                                })}
+                                className="w-14 h-14 rounded-xl border border-[#EDE8E1] bg-[#FAF8F5] overflow-hidden cursor-pointer hover:border-[#13382B] hover:shadow-sm transition-all relative group flex-shrink-0"
+                                title="Click to view full image"
+                              >
+                                <img
+                                  src={fullUrl}
+                                  alt={`Review photo ${idx + 1}`}
+                                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                  <ZoomIn className="w-3.5 h-3.5 text-white" />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <h4 className="font-serif text-sm font-semibold text-[#1A211D]">{rev.title}</h4>
-                  <p className="text-xs text-gray-600 leading-relaxed">{rev.comment}</p>
-                  <p className="text-[10px] text-gray-400">
-                    {new Date(rev.createdAt).toLocaleDateString('en-IN', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </p>
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100 text-[10px] text-gray-400">
+                    <span>
+                      {new Date(rev.createdAt).toLocaleDateString('en-IN', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                    {user && (rev.user?._id === user._id || (rev.user as any)?.email === user.email) && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReviewRating(rev.rating || 5);
+                            setReviewTitle(rev.title || '');
+                            setReviewComment(rev.comment || '');
+                            setExistingImages(rev.images || []);
+                            setReviewImages([]);
+                            setImagePreviews([]);
+                            setShowReviewForm(true);
+                          }}
+                          className="text-[#2E6B48] hover:underline font-semibold"
+                        >
+                          Edit
+                        </button>
+                        <span>•</span>
+                        <button
+                          type="button"
+                          disabled={deletingReviewId === rev._id}
+                          onClick={() => handleDeleteReview(rev._id)}
+                          className="text-red-500 hover:underline font-semibold flex items-center gap-0.5"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -712,6 +1008,228 @@ export const ProductDetailsPage: React.FC = () => {
               </p>
             </div>
           )}
+        </section>
+
+        {/* Clinically Tested Section */}
+        <section id="clinically-tested-section" className="mt-20 pt-14 border-t border-[#EDE8E1]">
+          {/* Header & Badges */}
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF1EB] text-[#2E6B48] text-xs font-bold tracking-wider uppercase mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
+              Clinically Tested & Dermatologist Supervised
+            </div>
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#13382B]">
+              Clinically Tested & Certified Safe
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 mt-2.5 leading-relaxed">
+              RayGlow Advanced Skincare was screened by <strong>independent accredited laboratories</strong> — 
+              FARE Labs (NABL-accredited, TC-5503) & Wave Analytical Labs for steroids and heavy metals, 
+              and dermatologically patch-tested in-vivo by Mascot Spincontrol (ISO 9001, Bureau Veritas).
+            </p>
+
+            {/* Clinical Highlights Strip */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 mt-5">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#EAF1EB] text-[#2E6B48] text-xs font-semibold flex items-center gap-1.5 border border-[#C5DBCB]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E6B48]" /> Steroid-free
+              </span>
+              <span className="px-3.5 py-1.5 rounded-full bg-[#EAF1EB] text-[#2E6B48] text-xs font-semibold flex items-center gap-1.5 border border-[#C5DBCB]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E6B48]" /> 4 heavy metals not detected
+              </span>
+              <span className="px-3.5 py-1.5 rounded-full bg-[#FAF8F5] text-[#13382B] text-xs font-semibold flex items-center gap-1.5 border border-[#EDE8E1]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E6B48]" /> Dermatologically tested
+              </span>
+              <span className="px-3.5 py-1.5 rounded-full bg-[#EAF1EB] text-[#2E6B48] text-xs font-semibold flex items-center gap-1.5 border border-[#C5DBCB]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E6B48]" /> Non-irritant to varied skin
+              </span>
+            </div>
+          </div>
+
+          {/* 1. First Section: ad.png Clinical Showcase Banner */}
+          <div className="mb-10 rounded-3xl overflow-hidden border border-[#EDE8E1] bg-white shadow-sm hover:shadow-md transition-all group">
+            <div
+              className="relative cursor-pointer overflow-hidden bg-[#FAF8F5]"
+              onClick={() => setSelectedClinicalImage({
+                src: '/images/home/ad.png',
+                title: 'Hydra Clinical Formulation Showcase',
+                desc: 'Independent laboratory screened & certified skincare formulation.'
+              })}
+            >
+              <img
+                src="/images/home/ad.png"
+                alt="Hydra Skincare Clinical Campaign"
+                className="w-full h-auto object-cover max-h-[500px] transition-transform duration-500 group-hover:scale-[1.01]"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <span className="px-4 py-2 bg-white/95 backdrop-blur-sm text-[#13382B] text-xs font-bold rounded-full shadow-lg flex items-center gap-2">
+                  <ZoomIn className="w-4 h-4 text-[#2E6B48]" /> Click to Enlarge Clinical Showcase
+                </span>
+              </div>
+            </div>
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-[#FAF8F5] via-white to-[#FAF8F5] border-t border-[#EDE8E1] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-600">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#2E6B48]"></span>
+                <span className="font-semibold text-[#13382B]">100% Clean Formulation</span>
+                <span className="text-gray-400">•</span>
+                <span>Clinically Validated on Varied Skin Types</span>
+              </div>
+              <span className="text-[11px] text-[#2E6B48] font-semibold bg-[#EAF1EB] px-3 py-1 rounded-full">
+                Laboratory Certified
+              </span>
+            </div>
+          </div>
+
+          {/* 2 & 3. Second and Third Sections: Lab Reports & Irritation / Safety Analysis */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            {/* Second Section: Verified Lab Reports */}
+            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EDE8E1] shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EDE8E1]">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2E6B48]">
+                      Independent Laboratories
+                    </span>
+                    <h3 className="font-serif text-lg sm:text-xl font-bold text-[#13382B]">
+                      Verified Lab Reports
+                    </h3>
+                  </div>
+                  <span className="text-xs bg-[#EAF1EB] text-[#2E6B48] font-bold px-3 py-1 rounded-full border border-[#C5DBCB]">
+                    4 Verified Reports
+                  </span>
+                </div>
+
+                <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                  Multi-facility testing across NABL-accredited and ISO-certified research centers ensuring 
+                  complete absence of steroids and heavy metals, plus in-vivo patch evaluation.
+                </p>
+
+                <div
+                  className="relative rounded-2xl overflow-hidden border border-[#EDE8E1] bg-[#FAF8F5] cursor-pointer group mb-4"
+                  onClick={() => setSelectedClinicalImage({
+                    src: '/images/home/clinical-reports.jpg',
+                    title: 'Verified Independent Lab Reports',
+                    desc: 'Official test reports from Mascot Spincontrol, FARE Labs, and Wave Analytical Labs.'
+                  })}
+                >
+                  <img
+                    src="/images/home/clinical-reports.jpg"
+                    alt="Verified Lab Reports - Mascot Spincontrol, FARE Labs, Wave Analytical Labs"
+                    className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <span className="px-3.5 py-1.5 bg-white/95 backdrop-blur-sm text-[#13382B] text-xs font-bold rounded-full shadow flex items-center gap-1.5">
+                      <ZoomIn className="w-3.5 h-3.5 text-[#2E6B48]" /> Click to Inspect Certificates
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-700">
+                  <div className="p-2.5 rounded-xl bg-[#FAF8F5] border border-[#EDE8E1]">
+                    <p className="font-bold text-[#13382B]">Mascot Spincontrol</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">ISO 9001 In-Vivo Clinical Patch Testing</p>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-[#FAF8F5] border border-[#EDE8E1]">
+                    <p className="font-bold text-[#13382B]">FARE Labs (NABL)</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">Accredited TC-5503 Heavy Metal Detection</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Third Section: Irritation Score & Safety Profile */}
+            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EDE8E1] shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EDE8E1]">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2E6B48]">
+                      IS 4011:2018 Protocol
+                    </span>
+                    <h3 className="font-serif text-lg sm:text-xl font-bold text-[#13382B]">
+                      Dermatologically tested on real skin
+                    </h3>
+                  </div>
+                  <span className="text-xs bg-[#2E6B48] text-white font-bold px-3 py-1 rounded-full shadow-sm whitespace-nowrap">
+                    Non-Irritant
+                  </span>
+                </div>
+
+                {/* Irritation score */}
+                <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-2xl bg-[#FAF8F5] border border-[#EDE8E1] mb-4">
+                  <div className="shrink-0 text-center">
+                    <div className="font-serif font-bold text-[#13382B] leading-none">
+                      <span className="text-4xl sm:text-5xl">0.3</span>
+                      <span className="text-lg sm:text-xl text-gray-400"> / 4</span>
+                    </div>
+                    <div className="mt-2 h-1.5 w-24 rounded-full bg-[#EDE8E1] overflow-hidden">
+                      <div className="h-full rounded-full bg-[#2E6B48]" style={{ width: '7.5%' }} />
+                    </div>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-bold text-[#13382B] mb-1">
+                      Mean irritation score — rated Non-Irritant
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed">
+                      Scored 0.3 out of 4 in a dermatologist-supervised patch test — well within the gentle range.
+                      The lower the score, the gentler on skin.
+                    </p>
+                  </div>
+                </div>
+
+                <ul className="space-y-2 mb-5">
+                  {[
+                    <>
+                      <strong className="text-[#13382B]">24 human volunteers</strong> (12 male + 12 female), aged 18–56, all skin types.
+                    </>,
+                    <>
+                      <strong className="text-[#13382B]">Dermatologist-supervised</strong>, Ethics Committee-approved protocol (IS 4011:2018).
+                    </>,
+                    <>
+                      <strong className="text-[#13382B]">Clinically & dermatologically tested</strong> — Non-Irritant to varied skin.
+                    </>,
+                  ].map((line, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-gray-600 leading-relaxed">
+                      <CheckCircle2 className="w-4 h-4 text-[#2E6B48] shrink-0 mt-px" />
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Safety */}
+                <div className="pt-4 border-t border-[#EDE8E1] mb-4">
+                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#13382B] flex items-center gap-1.5 mb-3">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#2E6B48]" />
+                    Safety — zero harmful substances
+                  </h4>
+                  <ul className="space-y-2">
+                    {[
+                      ['Steroid-free.', 'Steroids tested — absent (Wave Analytical Labs).'],
+                      ['Heavy metals not detected.', 'Confirmed by two independent labs.'],
+                      ['Clean formula.', 'No hormones, no toxins, no shortcuts.'],
+                    ].map(([title, text]) => (
+                      <li key={title} className="flex items-start gap-2 text-xs text-gray-600 leading-relaxed">
+                        <CheckCircle2 className="w-4 h-4 text-[#2E6B48] shrink-0 mt-px" />
+                        <span>
+                          <strong className="text-[#13382B]">{title}</strong> {text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Heavy metals */}
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2">
+                  Heavy metals
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[11px]">
+                  {['Lead', 'Mercury', 'Cadmium', 'Arsenic'].map((metal) => (
+                    <div key={metal} className="p-2 rounded-xl bg-emerald-50/80 border border-emerald-100">
+                      <span className="block text-[10px] text-gray-500 font-medium">{metal}</span>
+                      <span className="font-bold text-emerald-800">Not detected</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Related Products */}
@@ -726,6 +1244,44 @@ export const ProductDetailsPage: React.FC = () => {
               ))}
             </div>
           </section>
+        )}
+
+        {/* Clinical Image Lightbox Modal */}
+        {selectedClinicalImage && (
+          <div
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+            onClick={() => setSelectedClinicalImage(null)}
+          >
+            <div
+              className="bg-white rounded-3xl overflow-hidden max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100 bg-[#FAF8F5]">
+                <div>
+                  <h3 className="font-serif text-base sm:text-lg font-bold text-[#13382B]">
+                    {selectedClinicalImage.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {selectedClinicalImage.desc}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedClinicalImage(null)}
+                  className="p-2 rounded-full hover:bg-gray-200 text-gray-600 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-3 sm:p-5 overflow-auto flex items-center justify-center bg-[#F7F5F0] max-h-[calc(92vh-90px)]">
+                <img
+                  src={selectedClinicalImage.src}
+                  alt={selectedClinicalImage.title}
+                  className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-md"
+                />
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

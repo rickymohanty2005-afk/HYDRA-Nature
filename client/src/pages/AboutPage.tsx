@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Leaf, FlaskConical, Shield, HeartHandshake, Award } from 'lucide-react';
 
 const STATS = [
-  { value: '2021', label: 'Founded' },
+  { value: '2026', label: 'Founded' },
   { value: '100%', label: 'Cruelty-Free & Vegan' },
   { value: '72h', label: 'Continuous Hydration' },
   { value: '99.4%', label: 'Vitamins Preserved' },
@@ -159,15 +159,10 @@ export const AboutPage: React.FC = () => {
           {/* Image collage */}
           <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
             <div className="aspect-[4/5] w-[78%] overflow-hidden rounded-2xl lg:aspect-auto lg:h-[min(56svh,540px)]">
-              <img src="/images/home/care_model.png" alt="Hydra skincare care ritual" className="h-full w-full object-cover" />
+              <img src="/images/home/Woman.png" alt="Hydra skincare care ritual" className="h-full w-full object-cover" />
             </div>
-            <div className="absolute bottom-[-8%] right-0 aspect-square w-[50%] overflow-hidden rounded-2xl border-[6px] border-[#FAF8F5] shadow-xl">
-              <img src="/images/home/petri_dropper.jpg" alt="Formulation research in the Hydra lab" className="h-full w-full object-cover" />
-            </div>
-            <div className="absolute left-[62%] top-8 hidden rounded-full bg-[#0C241B] px-5 py-5 text-center text-white shadow-xl sm:block">
-              <p className="font-serif text-2xl leading-none text-[#C5A880]">3</p>
-              <p className="mt-1 text-[9px] uppercase tracking-[0.2em] text-white/70">Years R&amp;D</p>
-            </div>
+        
+        
           </div>
 
           <div className="space-y-6 lg:space-y-5">
@@ -177,7 +172,7 @@ export const AboutPage: React.FC = () => {
             </h2>
             <p className="text-sm leading-relaxed text-[#56645D] sm:text-base">
               Founded with a rebel spirit against toxic preservatives and artificial optical fillers, Hydra was
-              born in 2021 from a simple yet revolutionary conviction: skincare should neither harm your body's
+              born in 2026 from a simple yet revolutionary conviction: skincare should neither harm your body's
               endocrine system nor strip the planet's ecosystems.
             </p>
             <p className="text-sm leading-relaxed text-[#56645D] sm:text-base">
@@ -271,7 +266,7 @@ export const AboutPage: React.FC = () => {
               </h2>
               <div className="mt-8 overflow-hidden rounded-2xl border border-white/15 shadow-[0_30px_80px_-30px_rgba(2,20,25,0.8)]">
                 <img
-                  src="/images/home/banner_nature.jpg"
+                  src="/images/home/Bottle-Ritual.png"
                   alt="Botanicals used in Hydra formulations"
                   className="aspect-[16/10] w-full object-cover lg:aspect-auto lg:h-[min(36svh,340px)]"
                 />
@@ -321,7 +316,7 @@ export const AboutPage: React.FC = () => {
         <section className="bg-[#FAF8F5] px-4 pb-20 sm:px-8 sm:pb-28 lg:pb-14">
           <div className="relative isolate mx-auto max-w-[1376px] overflow-hidden rounded-3xl bg-[#06373F] shadow-[0_30px_80px_-30px_rgba(3,31,38,0.7)]">
             <img
-              src="/images/home/Hydra%20Skincare%20banner%203.png"
+              src="/images/home/Hydra24n.png"
               alt=""
               className="absolute inset-0 h-full w-full object-cover object-right"
             />

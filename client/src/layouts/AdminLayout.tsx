@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   X,
+  Receipt,
 } from 'lucide-react';
 
 import { useAppDispatch, useAppSelector } from '../store';
@@ -72,6 +73,7 @@ export const AdminLayout: React.FC = () => {
     { name: 'Product Reviews', path: '/admin/reviews', icon: MessageSquare },
     { name: 'Careers & Hiring', path: '/admin/careers', icon: Briefcase },
     { name: 'Coupons & Promos', path: '/admin/coupons', icon: Tag },
+     { name: 'Store Visit Invoices', path: '/admin/visit-invoices', icon: Receipt },
   ];
 
   return (
@@ -177,12 +179,13 @@ export const AdminLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-[#EAF1EB] text-[#2E6B48] text-xs font-medium rounded-full">
-              <span className="w-2 h-2 rounded-full bg-[#2E6B48] animate-pulse" />
-              Live Server
-            </span>
-            <div className="w-8 h-8 rounded-full bg-[#13382B] text-white text-xs font-bold flex items-center justify-center">
-              {user?.name?.charAt(0) || 'A'}
+           
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-[#C5A880] shadow-sm flex items-center justify-center">
+              <img
+                src="/images/home/Logo.png"
+                alt="Hydra logo"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </header>

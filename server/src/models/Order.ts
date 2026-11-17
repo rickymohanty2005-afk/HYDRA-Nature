@@ -1,5 +1,15 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { IAddress } from './User';
+import {
+  ACTORS,
+  Actor,
+  ORDER_STATUSES,
+  OrderStatus,
+  PAYMENT_STATUSES,
+  PaymentStatus,
+  normalizeOrderStatus,
+  normalizePaymentStatus,
+} from '../constants/orderStatus';
 
 export interface IOrderItem {
   productId: mongoose.Types.ObjectId;
@@ -10,44 +20,62 @@ export interface IOrderItem {
   size?: string;
 }
 
+export interface ITrackingEvent {
+  status: string;
+  message: string;
+  actor?: Actor;
+  timestamp: Date;
+}
+
 export interface IOrder extends Document {
   orderNumber: string;
   user: mongoose.Types.ObjectId;
   items: IOrderItem[];
   shippingAddress: IAddress;
+  /** Checkout channel: online gateway or cash on delivery */
   paymentMethod: 'razorpay' | 'cod' | 'card';
-  paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
+  paymentStatus: PaymentStatus;
   paymentDetails?: {
     razorpayOrderId?: string;
     razorpayPaymentId?: string;
     razorpaySignature?: string;
+    /** Instrument actually used on the gateway: upi | card | netbanking | wallet | emi | paylater */
+    method?: string;
+    paidAt?: Date;
+    attempts?: number;
+    lastAttemptAt?: Date;
+    failureReason?: string;
+    /** Every Razorpay order id ever issued for this order (retries) — used for reconciliation */
+    gatewayOrderHistory?: string[];
   };
+  /** Online orders must be paid before this time or they are auto-cancelled & restocked */
+  paymentExpiresAt?: Date;
   subtotal: number;
   shippingFee: number;
   discount: number;
   couponCode?: string;
   tax: number;
   total: number;
-  status:
-    | 'ORDER_PLACED'
-    | 'ORDER_CONFIRMED'
-    | 'SHIPROCKET_CREATED'
-    | 'PICKUP_SCHEDULED'
-    | 'PICKED_UP'
-    | 'IN_TRANSIT'
-    | 'OUT_FOR_DELIVERY'
-    | 'DELIVERED'
-    | 'Pending'
-    | 'Processing'
-    | 'Shipped'
-    | 'Delivered'
-    | 'Cancelled';
+  status: OrderStatus;
   trackingNumber?: string;
-  trackingHistory: {
-    status: string;
-    message: string;
-    timestamp: Date;
-  }[];
+  trackingHistory: ITrackingEvent[];
+  cancellation?: {
+    reason?: string;
+    note?: string;
+    cancelledBy?: Actor;
+    cancelledAt?: Date;
+  };
+  refund?: {
+    refundId?: string;
+    amount?: number;
+    status?: 'pending' | 'processed' | 'failed';
+    initiatedAt?: Date;
+    processedAt?: Date;
+    failureReason?: string;
+  };
+  /** Idempotency guards */
+  stockRestored?: boolean;
+  couponReleased?: boolean;
   shiprocket?: {
     shiprocketOrderId?: string;
     shipmentId?: string;
@@ -109,14 +137,21 @@ const OrderSchema = new Schema<IOrder>(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'completed', 'failed', 'refunded'],
+      enum: PAYMENT_STATUSES,
       default: 'pending',
     },
     paymentDetails: {
       razorpayOrderId: String,
       razorpayPaymentId: String,
       razorpaySignature: String,
+      method: String,
+      paidAt: Date,
+      attempts: { type: Number, default: 0 },
+      lastAttemptAt: Date,
+      failureReason: String,
+      gatewayOrderHistory: [String],
     },
+    paymentExpiresAt: { type: Date },
     subtotal: { type: Number, required: true },
     shippingFee: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
@@ -125,31 +160,34 @@ const OrderSchema = new Schema<IOrder>(
     total: { type: Number, required: true },
     status: {
       type: String,
-      enum: [
-        'ORDER_PLACED',
-        'ORDER_CONFIRMED',
-        'SHIPROCKET_CREATED',
-        'PICKUP_SCHEDULED',
-        'PICKED_UP',
-        'IN_TRANSIT',
-        'OUT_FOR_DELIVERY',
-        'DELIVERED',
-        'Pending',
-        'Processing',
-        'Shipped',
-        'Delivered',
-        'Cancelled',
-      ],
-      default: 'ORDER_PLACED',
+      enum: ORDER_STATUSES,
+      default: 'placed',
     },
     trackingNumber: { type: String },
     trackingHistory: [
       {
         status: String,
         message: String,
+        actor: { type: String, enum: ACTORS, default: 'system' },
         timestamp: { type: Date, default: Date.now },
       },
     ],
+    cancellation: {
+      reason: String,
+      note: String,
+      cancelledBy: { type: String, enum: ACTORS },
+      cancelledAt: Date,
+    },
+    refund: {
+      refundId: String,
+      amount: Number,
+      status: { type: String, enum: ['pending', 'processed', 'failed'] },
+      initiatedAt: Date,
+      processedAt: Date,
+      failureReason: String,
+    },
+    stockRestored: { type: Boolean, default: false },
+    couponReleased: { type: Boolean, default: false },
     shiprocket: {
       shiprocketOrderId: String,
       shipmentId: String,
@@ -176,6 +214,20 @@ const OrderSchema = new Schema<IOrder>(
   }
 );
 
+/**
+ * Defensive normalisation — guarantees legacy values (e.g. "ORDER_CONFIRMED",
+ * "completed") can never be persisted again, even by older code paths.
+ */
+OrderSchema.pre('validate', function (next) {
+  this.status = normalizeOrderStatus(this.status);
+  this.paymentStatus = normalizePaymentStatus(this.paymentStatus);
+  next();
+});
+
 OrderSchema.index({ user: 1, createdAt: -1 });
+OrderSchema.index({ status: 1, createdAt: -1 });
+OrderSchema.index({ 'paymentDetails.razorpayOrderId': 1 });
+OrderSchema.index({ paymentStatus: 1, paymentExpiresAt: 1 });
+OrderSchema.index({ trackingNumber: 1 });
 
 export const Order = mongoose.model<IOrder>('Order', OrderSchema);

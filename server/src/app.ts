@@ -10,6 +10,7 @@ import { disableConsoleInProduction } from './utils/disableConsole';
 import { connectDB } from './config/db';
 import { ensureAdminUser } from './utils/adminInit';
 import { errorHandler, notFoundHandler } from './middleware/error';
+import { migrateLegacyOrderStatuses, startPaymentExpiryJob } from './services/orderLifecycleService';
 
 // Override verbose console methods in production mode (preserves console.error for critical crash reports)
 disableConsoleInProduction({ preserveError: true });
@@ -142,6 +143,9 @@ export const startServer = async () => {
     await connectDB();
     // Verify default admin exists without running mock seeds in production
     await ensureAdminUser();
+    // Migrate legacy order statuses and start periodic payment expiry cleanup
+    await migrateLegacyOrderStatuses();
+    startPaymentExpiryJob();
 
     const server = app.listen(PORT, () => {
       console.log(`===============================================`);

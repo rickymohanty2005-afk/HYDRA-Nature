@@ -42,10 +42,12 @@ import AdminCareersPage from './pages/admin/AdminCareersPage';
 import AdminCouponsPage from './pages/admin/AdminCouponsPage';
 
 import AdminReviewsPage from './pages/admin/AdminReviewsPage';
+import Adminvisitinvoice from './pages/admin/Adminvisitinvoice';
 
 // Route Guards
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRoute from './components/common/AdminRoute';
+import { WhatsAppButton } from './components/common/whatsappbuttom';
 
 const NotFound: React.FC = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-hydra-cream">
@@ -112,6 +114,7 @@ const App: React.FC = () => {
             <Route index element={<AdminDashboardPage />} />
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="visit-invoices" element={<Adminvisitinvoice />} />
             <Route path="customers" element={<AdminCustomersPage />} />
             <Route path="careers" element={<AdminCareersPage />} />
             <Route path="coupons" element={<AdminCouponsPage />} />
@@ -122,6 +125,7 @@ const App: React.FC = () => {
         {/* ─── Catch-all ─── */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <WhatsAppButton />
     </BrowserRouter>
   );
 };

@@ -53,3 +53,21 @@
   box-shadow: 0 20px 35px -10px rgba(19, 56, 43, 0.1);
   border-color: rgba(197, 168, 128, 0.6);
 }
+
+/* Trusted logo marquee (left -> right) */
+@keyframes marquee-ltr {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+.animate-marquee-ltr {
+  animation: marquee-ltr 22s linear infinite;
+}
+
+.marquee-pause:hover .animate-marquee-ltr {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-ltr { animation: none; }
+}

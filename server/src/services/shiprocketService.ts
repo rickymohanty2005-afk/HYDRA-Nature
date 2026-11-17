@@ -358,6 +358,35 @@ class ShiprocketService {
     return this.createFullShipment(order);
   }
 
+  // ─── Cancel Order (void manifest before pickup) ───────────────────────────
+
+  /**
+   * Cancels a Shiprocket order. POST /orders/cancel  { ids: [shiprocketOrderId] }
+   * Returns true when cancelled (or when the order was only simulated).
+   */
+  async cancelOrder(shiprocketOrderId: string): Promise<boolean> {
+    if (!shiprocketOrderId) return false;
+    if (shiprocketOrderId.startsWith('SR_ORD_')) return true; // simulated shipment
+
+    const token = await this.getAuthToken();
+    if (!token) return false;
+
+    try {
+      const { ok, data, status } = await this.apiRequest<any>('POST', '/orders/cancel', {
+        ids: [Number(shiprocketOrderId) || shiprocketOrderId],
+      });
+      if (!ok) {
+        console.warn(`[Shiprocket] cancelOrder failed (${status}): ${JSON.stringify(data)}`);
+        return false;
+      }
+      console.info(`[Shiprocket] Order ${shiprocketOrderId} cancelled.`);
+      return true;
+    } catch (err) {
+      console.warn('[Shiprocket] cancelOrder error:', err);
+      return false;
+    }
+  }
+
   // ─── Live AWB Tracking ─────────────────────────────────────────────────────
 
   /**
@@ -432,16 +461,15 @@ class ShiprocketService {
       },
     ];
 
-    if (order.status === 'PICKED_UP' || order.status === 'IN_TRANSIT' || order.status === 'DELIVERED' || order.status === 'Delivered') {
+    const isShippedOrBeyond = order.status === 'shipped' || order.status === 'delivered';
+
+    if (isShippedOrBeyond) {
       activities.push({
         date: new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString(),
         status: 'PICKED_UP',
         activity: `[SIMULATION] Handed over to ${selectedCourier} courier logistics partner.`,
         location: 'Bandra Hub, Mumbai',
       });
-    }
-
-    if (order.status === 'IN_TRANSIT' || order.status === 'DELIVERED' || order.status === 'Delivered') {
       activities.push({
         date: new Date(now.getTime() + 6 * 60 * 60 * 1000).toISOString(),
         status: 'IN_TRANSIT',
@@ -450,7 +478,7 @@ class ShiprocketService {
       });
     }
 
-    if (order.status === 'DELIVERED' || order.status === 'Delivered') {
+    if (order.status === 'delivered') {
       activities.push({
         date: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
         status: 'DELIVERED',

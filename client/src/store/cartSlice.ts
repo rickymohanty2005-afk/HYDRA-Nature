@@ -21,6 +21,15 @@ const loadSavedCart = (): CartItem[] => {
   }
 };
 
+const loadSavedCoupon = (): { code: string | null; discount: number } => {
+  try {
+    const saved = localStorage.getItem('hydra_coupon');
+    return saved ? JSON.parse(saved) : { code: null, discount: 0 };
+  } catch {
+    return { code: null, discount: 0 };
+  }
+};
+
 const calculateTotals = (items: CartItem[], discount: number = 0) => {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingFee = 0; // Free express shipping on all orders
@@ -31,12 +40,13 @@ const calculateTotals = (items: CartItem[], discount: number = 0) => {
 };
 
 const initialItems = loadSavedCart();
-const initialTotals = calculateTotals(initialItems, 0);
+const initialCoupon = loadSavedCoupon();
+const initialTotals = calculateTotals(initialItems, initialCoupon.discount);
 
 const initialState: CartState = {
   items: initialItems,
-  couponCode: null,
-  discount: 0,
+  couponCode: initialCoupon.code,
+  discount: initialCoupon.discount,
   subtotal: initialTotals.subtotal,
   shippingFee: initialTotals.shippingFee,
   tax: initialTotals.tax,
@@ -46,6 +56,14 @@ const initialState: CartState = {
 
 const saveCartToStorage = (items: CartItem[]) => {
   localStorage.setItem('hydra_cart', JSON.stringify(items));
+};
+
+const saveCouponToStorage = (code: string | null, discount: number) => {
+  if (code) {
+    localStorage.setItem('hydra_coupon', JSON.stringify({ code, discount }));
+  } else {
+    localStorage.removeItem('hydra_coupon');
+  }
 };
 
 const cartSlice = createSlice({
@@ -112,6 +130,7 @@ const cartSlice = createSlice({
     applyCoupon: (state, action: PayloadAction<{ code: string; discount: number }>) => {
       state.couponCode = action.payload.code;
       state.discount = action.payload.discount;
+      saveCouponToStorage(state.couponCode, state.discount);
 
       const totals = calculateTotals(state.items, state.discount);
       state.subtotal = totals.subtotal;
@@ -123,6 +142,7 @@ const cartSlice = createSlice({
     removeCoupon: (state) => {
       state.couponCode = null;
       state.discount = 0;
+      saveCouponToStorage(null, 0);
 
       const totals = calculateTotals(state.items, 0);
       state.subtotal = totals.subtotal;
@@ -140,6 +160,7 @@ const cartSlice = createSlice({
       state.tax = 0;
       state.total = 0;
       localStorage.removeItem('hydra_cart');
+      localStorage.removeItem('hydra_coupon');
     },
 
     toggleCartDrawer: (state, action: PayloadAction<boolean | undefined>) => {

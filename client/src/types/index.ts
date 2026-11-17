@@ -74,16 +74,22 @@ export interface OrderItem {
 export interface Order {
   _id: string;
   orderNumber: string;
-  user: string | { _id: string; name: string; email: string };
+  user: string | { _id: string; name: string; email: string; phone?: string };
   items: OrderItem[];
   shippingAddress: Address;
-  paymentMethod: 'razorpay' | 'cod' | 'card';
-  paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
+  paymentMethod: 'razorpay' | 'cod' | 'card' | 'upi' | 'netbanking' | string;
+  paymentStatus: 'pending' | 'paid' | 'completed' | 'failed' | 'refunded' | string;
   paymentDetails?: {
     razorpayOrderId?: string;
     razorpayPaymentId?: string;
     razorpaySignature?: string;
+    method?: string;
+    paidAt?: string;
+    attempts?: number;
+    lastAttemptAt?: string;
+    failureReason?: string;
   };
+  paymentExpiresAt?: string;
   subtotal: number;
   shippingFee: number;
   discount: number;
@@ -91,6 +97,12 @@ export interface Order {
   tax: number;
   total: number;
   status:
+    | 'placed'
+    | 'confirmed'
+    | 'processing'
+    | 'shipped'
+    | 'delivered'
+    | 'cancelled'
     | 'ORDER_PLACED'
     | 'ORDER_CONFIRMED'
     | 'SHIPROCKET_CREATED'
@@ -109,8 +121,23 @@ export interface Order {
   trackingHistory?: {
     status: string;
     message: string;
+    actor?: 'customer' | 'admin' | 'system' | string;
     timestamp: string;
   }[];
+  cancellation?: {
+    reason?: string;
+    note?: string;
+    cancelledBy?: 'customer' | 'admin' | 'system' | string;
+    cancelledAt?: string;
+  };
+  refund?: {
+    refundId?: string;
+    amount?: number;
+    status?: 'pending' | 'processed' | 'failed' | string;
+    initiatedAt?: string;
+    processedAt?: string;
+    failureReason?: string;
+  };
   shiprocket?: {
     shiprocketOrderId?: string;
     shipmentId?: string;
@@ -119,6 +146,8 @@ export interface Order {
     currentStatus?: string;
     trackingUrl?: string;
     etd?: string;
+    pickupScheduledDate?: string;
+    pickupTokenNumber?: string;
     activities?: {
       date: string;
       status: string;
@@ -143,6 +172,7 @@ export interface Review {
   rating: number;
   title: string;
   comment: string;
+  images?: string[];
   verifiedPurchase: boolean;
   isApproved: boolean;
   createdAt: string;
@@ -221,6 +251,38 @@ export interface Coupon {
   usageCount: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface StoreVisitItem {
+  product?: string | { _id: string; name: string; images?: string[]; price: number };
+  name: string;
+  sku?: string;
+  size?: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+}
+
+export interface StoreVisitInvoice {
+  _id: string;
+  invoiceNumber: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  customerAddress?: string;
+  storeLocation: string;
+  items: StoreVisitItem[];
+  subtotal: number;
+  discountAmount: number;
+  taxRate: number;
+  taxAmount: number;
+  totalAmount: number;
+  paymentMethod: 'cash' | 'upi' | 'card' | 'netbanking';
+  paymentStatus: 'paid' | 'pending';
+  notes?: string;
+  servedByName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ApiResponse<T = any> {

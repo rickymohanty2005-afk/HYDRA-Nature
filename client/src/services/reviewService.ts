@@ -7,9 +7,26 @@ export const reviewService = {
     return res.data.data;
   },
 
-  create: async (productId: string, data: { rating: number; title: string; comment: string }) => {
-    const res = await api.post(`/reviews/${productId}`, data);
+  create: async (
+    productId: string,
+    data: { rating: number; title: string; comment: string; images?: string[] } | FormData
+  ) => {
+    const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+    const res = await api.post(`/reviews/${productId}`, data, {
+      headers: isFormData
+        ? { 'Content-Type': 'multipart/form-data' }
+        : { 'Content-Type': 'application/json' },
+    });
     return res.data;
+  },
+
+  uploadImages: async (files: File[]): Promise<string[]> => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+    const res = await api.post('/reviews/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data.relativeUrls || res.data.imageUrls || [];
   },
 
   delete: async (reviewId: string) => {

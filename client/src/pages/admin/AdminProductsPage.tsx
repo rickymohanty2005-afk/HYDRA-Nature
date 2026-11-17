@@ -8,10 +8,7 @@ import {
   X,
   Upload,
   Eye,
-  Check,
   AlertCircle,
-  Sparkles,
-  Layers,
   Image as ImageIcon,
   CheckCircle2,
   Package,
@@ -30,6 +27,15 @@ const COMMON_TAGS = ['Best Seller', 'New', 'Trending', 'Organic', 'Limited'];
 const MAX_FEATURED_PRODUCTS = 4;
 
 type ProductFlag = 'isBestSeller' | 'isFeatured';
+
+/* ── Shared UI class strings (presentation only) ── */
+const labelCls = 'mb-1.5 block text-[13px] font-medium text-[#13382B]';
+const hintCls = 'mt-1 text-[12px] text-stone-500';
+const inputCls =
+  'w-full rounded-[10px] border border-[#E2DBD1] bg-white px-3.5 py-2.5 text-[13px] text-stone-800 placeholder:text-stone-400 transition-colors focus:border-[#13382B] focus:outline-none focus:ring-2 focus:ring-[#13382B]/10';
+const selectCls = `${inputCls} cursor-pointer appearance-none bg-[url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")] bg-[length:12px] bg-[right_0.9rem_center] bg-no-repeat pr-9`;
+const sectionTitleCls = 'font-serif text-[17px] font-semibold text-[#13382B]';
+const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#13382B]/40 focus-visible:ring-offset-1';
 
 export const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -55,9 +61,11 @@ export const AdminProductsPage: React.FC = () => {
   const [tag, setTag] = useState<string>('New');
   const [customTag, setCustomTag] = useState('');
 
-  // Images state: Starts completely EMPTY (NO predefined photo!)
+  // Images state: starts completely empty (no predefined photo)
   const [images, setImages] = useState<string[]>([]);
   const [imageUrlInput, setImageUrlInput] = useState('');
+  const [imageUrlError, setImageUrlError] = useState('');
+  const [checkingImageUrl, setCheckingImageUrl] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadStatusText, setUploadStatusText] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -127,9 +135,7 @@ export const AdminProductsPage: React.FC = () => {
       setProducts((current) =>
         current.map((item) => (item._id === product._id ? { ...item, tag: tagToSave } : item))
       );
-      showNotification(
-        `${product.name}: Tag ${tagToSave ? `"${tagToSave}" (ON)` : 'turned OFF'}`
-      );
+      showNotification(`${product.name}: Tag ${tagToSave ? `"${tagToSave}" (ON)` : 'turned OFF'}`);
     } catch (error) {
       console.error('Failed to update tag:', error);
       alert('Could not update tag badge.');
@@ -163,7 +169,7 @@ export const AdminProductsPage: React.FC = () => {
     setTimeout(() => setSuccessToast(''), 3000);
   };
 
-  // Open modal for NEW formulation - NO predefined photo attached!
+  // Open modal for a NEW product — no predefined photo attached
   const openCreateModal = () => {
     setEditingProduct(null);
     setName('');
@@ -178,9 +184,10 @@ export const AdminProductsPage: React.FC = () => {
     setTag('New');
     setCustomTag('');
 
-    // Crucial: images starts 100% EMPTY - No predefined/hardcoded photo!
+    // Images start empty — no predefined/hardcoded photo
     setImages([]);
     setImageUrlInput('');
+    setImageUrlError('');
 
     setStock(50);
     setSize('50ml');
@@ -195,7 +202,7 @@ export const AdminProductsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Open modal for EDITING existing formulation
+  // Open modal for EDITING an existing product
   const openEditModal = (p: Product) => {
     setEditingProduct(p);
     setName(p.name);
@@ -237,6 +244,7 @@ export const AdminProductsPage: React.FC = () => {
     // Load actual product images or empty if none
     setImages(p.images && p.images.length > 0 ? p.images : []);
     setImageUrlInput('');
+    setImageUrlError('');
     setStock(p.stock !== undefined ? p.stock : 50);
     setSize(p.size || '50ml');
     setSelectedSkinTypes(p.skinType && p.skinType.length > 0 ? p.skinType : ['All Skin Types']);
@@ -258,12 +266,12 @@ export const AdminProductsPage: React.FC = () => {
       return;
     }
 
-    // Instant local preview so images display IMMEDIATELY to the admin without delay!
+    // Instant local preview so images display immediately
     const localPreviews = fileArray.map((f) => URL.createObjectURL(f));
     setImages((prev) => [...prev, ...localPreviews]);
 
     setUploadingImage(true);
-    setUploadStatusText(`Uploading ${fileArray.length} formulation photo${fileArray.length > 1 ? 's' : ''}...`);
+    setUploadStatusText(`Uploading ${fileArray.length} photo${fileArray.length > 1 ? 's' : ''}…`);
 
     try {
       let uploadedUrls: string[] = [];
@@ -281,17 +289,17 @@ export const AdminProductsPage: React.FC = () => {
       }
 
       if (uploadedUrls.length > 0) {
-        // Swap out the temporary blob preview URLs with permanent stored URLs from Multer
+        // Swap the temporary blob preview URLs for the permanent stored URLs
         setImages((prev) => {
           const withoutPreviews = prev.filter((img) => !localPreviews.includes(img));
           return [...withoutPreviews, ...uploadedUrls];
         });
-        showNotification(`Successfully stored ${uploadedUrls.length} formulation photo(s)!`);
+        showNotification(`${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''} uploaded`);
       }
     } catch (err: any) {
       // Revert temporary previews on error
       setImages((prev) => prev.filter((img) => !localPreviews.includes(img)));
-      alert(err.message || 'Image upload failed. Please ensure the backend server is running on port 5012.');
+      alert(err.message || 'Image upload failed. Please make sure the backend server is running on port 5012.');
     } finally {
       setUploadingImage(false);
       setUploadStatusText('');
@@ -335,21 +343,107 @@ export const AdminProductsPage: React.FC = () => {
     const selected = images[index];
     const filtered = images.filter((_, i) => i !== index);
     setImages([selected, ...filtered]);
-    showNotification('Set as primary cover photo!');
+    showNotification('Cover photo updated');
   };
 
-  // Remove an image from gallery
+  // Remove an image from the gallery
   const handleRemoveImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
   };
 
-  // Add external image URL
-  const handleAddImageUrl = () => {
-    if (imageUrlInput.trim()) {
-      setImages([...images, imageUrlInput.trim()]);
-      setImageUrlInput('');
-      showNotification('Image URL added to gallery!');
+  // Convert common share links into direct image links
+  const normalizeImageUrl = (raw: string): string => {
+    let url = raw.trim();
+    if (!url) return '';
+    if (url.startsWith('//')) url = `https:${url}`;
+    if (/^www\./i.test(url)) url = `https://${url}`;
+
+    // Google Drive: /file/d/<id>/view or open?id=<id>  ->  direct thumbnail link
+    const driveMatch =
+      url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/i) ||
+      url.match(/drive\.google\.com\/(?:open|uc)\?(?:.*&)?id=([^&#]+)/i);
+    if (driveMatch) return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
+
+    // Dropbox: force raw file instead of preview page
+    if (/dropbox\.com\//i.test(url)) {
+      try {
+        const u = new URL(url);
+        u.searchParams.delete('dl');
+        u.searchParams.set('raw', '1');
+        return u.toString();
+      } catch {
+        return url;
+      }
     }
+
+    // GitHub blob page -> raw file
+    const gh = url.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/(.+)$/i);
+    if (gh) return `https://raw.githubusercontent.com/${gh[1]}/${gh[2]}/${gh[3]}`;
+
+    return url;
+  };
+
+  // Verify the URL actually loads as an image in the browser
+  const verifyImageLoads = (src: string, timeoutMs = 12000): Promise<boolean> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      const timer = window.setTimeout(() => {
+        img.src = '';
+        resolve(false);
+      }, timeoutMs);
+      img.onload = () => {
+        window.clearTimeout(timer);
+        resolve(img.naturalWidth > 0);
+      };
+      img.onerror = () => {
+        window.clearTimeout(timer);
+        resolve(false);
+      };
+      img.referrerPolicy = 'no-referrer';
+      img.src = src;
+    });
+
+  // Add external image URL. Returns the added URL (or null if rejected).
+  const handleAddImageUrl = async (): Promise<string | null> => {
+    setImageUrlError('');
+    const url = normalizeImageUrl(imageUrlInput);
+    if (!url) {
+      setImageUrlError('Paste an image URL first.');
+      return null;
+    }
+
+    const isDataImage = /^data:image\//i.test(url);
+    const isRelativeUpload = url.startsWith('/uploads/') || url.startsWith('uploads/');
+    if (!isDataImage && !isRelativeUpload) {
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw new Error();
+      } catch {
+        setImageUrlError('That is not a valid link. It must start with http:// or https://');
+        return null;
+      }
+    }
+
+    if (images.includes(url)) {
+      setImageUrlError('This image is already in the gallery.');
+      return null;
+    }
+
+    setCheckingImageUrl(true);
+    const ok = await verifyImageLoads(getImageUrl(url));
+    setCheckingImageUrl(false);
+
+    if (!ok) {
+      setImageUrlError(
+        'Couldn’t load an image from this link. Use a direct image address (right-click the image → “Copy image address”), not a web page link.'
+      );
+      return null;
+    }
+
+    setImages((prev) => (prev.includes(url) ? prev : [...prev, url]));
+    setImageUrlInput('');
+    showNotification('Image added to gallery');
+    return url;
   };
 
   const handleToggleSkinType = (type: string) => {
@@ -367,9 +461,9 @@ export const AdminProductsPage: React.FC = () => {
       const newActive = !p.isActive;
       await productService.update(p._id, { isActive: newActive });
       setProducts(products.map((item) => (item._id === p._id ? { ...item, isActive: newActive } : item)));
-      showNotification(`Formulation is now ${newActive ? 'Active' : 'Draft / Inactive'}`);
+      showNotification(`${p.name} is now ${newActive ? 'active' : 'a draft'}`);
     } catch (err) {
-      alert('Failed to update product status');
+      alert('Failed to update product status.');
     }
   };
 
@@ -378,9 +472,9 @@ export const AdminProductsPage: React.FC = () => {
       try {
         await productService.delete(id);
         setProducts(products.filter((p) => p._id !== id));
-        showNotification('Formulation deleted successfully');
+        showNotification('Product deleted');
       } catch (err) {
-        alert('Failed to delete formulation');
+        alert('Failed to delete product.');
       }
     }
   };
@@ -391,14 +485,28 @@ export const AdminProductsPage: React.FC = () => {
     setFormError('');
 
     try {
-      // Validation: ensure at least one real formulation photo is uploaded!
-      if (images.length === 0) {
-        throw new Error('Please upload at least one product photo for this formulation before publishing.');
+      // Auto-attach a pasted-but-not-attached image URL so it isn't lost
+      let finalImages = images.filter((img) => img && !img.startsWith('blob:'));
+      if (imageUrlInput.trim()) {
+        const added = await handleAddImageUrl();
+        if (!added) {
+          throw new Error('The image URL you pasted could not be loaded. Fix or clear it before saving.');
+        }
+        if (!finalImages.includes(added)) finalImages = [...finalImages, added];
+      }
+
+      if (uploadingImage) {
+        throw new Error('Please wait for image uploads to finish before saving.');
+      }
+
+      // Validation: ensure at least one real product photo is uploaded
+      if (finalImages.length === 0) {
+        throw new Error('Add at least one product photo before publishing.');
       }
 
       const finalCategory = category === 'Custom' ? customCategory.trim() : category;
       if (!finalCategory) {
-        throw new Error('Please specify a category for this formulation.');
+        throw new Error('Enter a category for this product.');
       }
 
       let finalSubcategory = '';
@@ -424,7 +532,7 @@ export const AdminProductsPage: React.FC = () => {
         category: finalCategory,
         subcategory: finalSubcategory || undefined,
         tag: finalTag || '',
-        images: images.filter(Boolean),
+        images: finalImages,
         stock: Number(stock),
         size: size.trim() || '50ml',
         skinType: selectedSkinTypes,
@@ -438,16 +546,16 @@ export const AdminProductsPage: React.FC = () => {
 
       if (editingProduct) {
         await productService.update(editingProduct._id, payload);
-        showNotification('Formulation updated successfully!');
+        showNotification('Changes saved');
       } else {
         await productService.create(payload);
-        showNotification('New formulation created and stored successfully!');
+        showNotification('Product created and published');
       }
 
       await fetchProducts();
       setIsModalOpen(false);
     } catch (err: any) {
-      setFormError(err.message || 'Error saving formulation');
+      setFormError(err.message || 'Could not save this product.');
     } finally {
       setFormSubmitting(false);
     }
@@ -475,136 +583,154 @@ export const AdminProductsPage: React.FC = () => {
 
   const activeCount = products.filter((p) => p.isActive !== false).length;
   const draftCount = products.length - activeCount;
+  const lowStockCount = products.filter((p) => p.stock <= 10).length;
+  const featuredCount = products.filter((p) => p.isFeatured).length;
+  const discountPct =
+    originalPrice > price && originalPrice > 0 ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   return (
-    <div className="space-y-6">
-      {/* Toast Notification */}
+    <div className="space-y-6 text-stone-800 antialiased">
+      {/* Toast notification */}
       {successToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#13382B] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-semibold animate-fade-in border border-[#EDE8E1]/20">
-          <CheckCircle2 className="w-4 h-4 text-[#A2B997]" />
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 right-6 z-[60] flex max-w-sm items-center gap-3 rounded-2xl bg-[#13382B] py-3 pl-4 pr-5 text-[13px] font-medium text-white shadow-[0_18px_40px_-12px_rgba(19,56,43,0.55)] animate-fade-in"
+        >
+          <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-[#A2B997]" />
           <span>{successToast}</span>
         </div>
       )}
 
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* ── Page header ── */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="font-serif text-2xl font-bold text-[#13382B]">Products Catalog</h2>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#EAF1EB] text-[#2E6B48]">
-              {products.length} Formulations
-            </span>
-          </div>
-          <p className="text-xs text-gray-500 mt-1">
-            Real-time dynamic skincare formulation management. Upload photography and save directly into MongoDB.
+          <h2 className="font-serif text-[28px] font-semibold leading-tight text-[#13382B]">Products</h2>
+          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-stone-500">
+            Manage your catalogue, product photos, pricing and storefront badges.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#13382B] text-white rounded-xl text-xs font-semibold hover:bg-[#1E4D3B] transition-colors shadow-sm self-start sm:self-auto"
+          className={`inline-flex items-center gap-2 self-start rounded-full bg-[#13382B] py-2.5 pl-4 pr-5 text-[13px] font-semibold text-white shadow-[0_8px_20px_-10px_rgba(19,56,43,0.7)] transition-colors hover:bg-[#1E4D3B] sm:self-auto ${focusRing}`}
         >
-          <Plus className="w-4 h-4" />
-          <span>Add New Formulation</span>
+          <Plus className="h-4 w-4" />
+          Add product
         </button>
-      </div>
+      </header>
 
-      {/* Stat Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-[#EDE8E1] shadow-sm">
-          <p className="text-[11px] text-gray-500 font-medium">Total Formulations</p>
-          <p className="font-serif text-xl font-bold text-[#13382B] mt-1">{products.length}</p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl border border-[#EDE8E1] shadow-sm">
-          <p className="text-[11px] text-gray-500 font-medium">Active in Store</p>
-          <p className="font-serif text-xl font-bold text-emerald-700 mt-1">{activeCount}</p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl border border-[#EDE8E1] shadow-sm">
-          <p className="text-[11px] text-gray-500 font-medium">Draft / Inactive</p>
-          <p className="font-serif text-xl font-bold text-amber-600 mt-1">{draftCount}</p>
-        </div>
-        <div className="bg-white p-4 rounded-2xl border border-[#EDE8E1] shadow-sm">
-          <p className="text-[11px] text-gray-500 font-medium">Low Stock (&le;10)</p>
-          <p className="font-serif text-xl font-bold text-red-600 mt-1">
-            {products.filter((p) => p.stock <= 10).length}
-          </p>
-        </div>
-      </div>
+      {/* ── Summary strip ── */}
+      <section
+        aria-label="Catalogue summary"
+        className="grid grid-cols-2 divide-[#EDE8E1] overflow-hidden rounded-2xl border border-[#EDE8E1] bg-white sm:grid-cols-4 sm:divide-x"
+      >
+        {[
+          { label: 'Total products', value: products.length, tone: 'text-[#13382B]' },
+          { label: 'Active in store', value: activeCount, tone: 'text-emerald-700' },
+          { label: 'Drafts', value: draftCount, tone: 'text-amber-700' },
+          { label: 'Low stock (≤ 10)', value: lowStockCount, tone: lowStockCount > 0 ? 'text-red-600' : 'text-[#13382B]' },
+        ].map((s, i) => (
+          <div
+            key={s.label}
+            className={`px-5 py-4 ${i < 2 ? 'border-b border-[#EDE8E1] sm:border-b-0' : ''} ${i % 2 === 0 ? 'border-r border-[#EDE8E1] sm:border-r-0' : ''}`}
+          >
+            <p className="text-[12px] text-stone-500">{s.label}</p>
+            <p className={`mt-1 font-serif text-[26px] font-semibold leading-none tabular-nums ${s.tone}`}>{s.value}</p>
+          </div>
+        ))}
+      </section>
 
-      {/* Search & Filter Toolbar */}
-      <div className="bg-white p-4 rounded-2xl border border-[#EDE8E1] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-80">
-          <input
-            type="text"
-            placeholder="Search by name, subtitle, category..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-[#FAF8F5] border border-[#EDE8E1] rounded-xl focus:outline-none focus:border-[#13382B]"
-          />
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-        </div>
+      {/* ── Products table card ── */}
+      <section className="overflow-hidden rounded-3xl border border-[#EDE8E1] bg-white">
+        {/* Toolbar */}
+        <div className="flex flex-col gap-3 border-b border-[#EDE8E1] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:w-80">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+            <input
+              type="search"
+              aria-label="Search products"
+              placeholder="Search name, subtitle or category"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`${inputCls} bg-[#FAF8F5] pl-10`}
+            />
+          </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-xs text-gray-600 w-full sm:w-auto justify-end">
-          <div className="flex items-center gap-1.5">
-            <span>Category:</span>
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            <label className="sr-only" htmlFor="category-filter">
+              Category
+            </label>
             <select
+              id="category-filter"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#FAF8F5] border border-[#EDE8E1] rounded-xl text-xs text-gray-800 focus:outline-none cursor-pointer"
+              className={`${selectCls} w-auto min-w-[160px] bg-[#FAF8F5] py-2`}
             >
-              <option value="All">All Categories</option>
+              <option value="All">All categories</option>
               {availableCategories.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
               ))}
             </select>
-          </div>
 
-          <div className="flex items-center gap-1.5">
-            <span>Status:</span>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="px-3 py-1.5 bg-[#FAF8F5] border border-[#EDE8E1] rounded-xl text-xs text-gray-800 focus:outline-none cursor-pointer"
-            >
-              <option value="All">All Statuses</option>
-              <option value="Active">Active Only</option>
-              <option value="Inactive">Drafts Only</option>
-            </select>
+            {/* Status filter as segmented control */}
+            <div role="group" aria-label="Status filter" className="inline-flex rounded-full border border-[#E2DBD1] bg-[#FAF8F5] p-0.5">
+              {(['All', 'Active', 'Inactive'] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setStatusFilter(s)}
+                  aria-pressed={statusFilter === s}
+                  className={`rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-colors ${focusRing} ${
+                    statusFilter === s ? 'bg-[#13382B] text-white shadow-sm' : 'text-stone-600 hover:text-[#13382B]'
+                  }`}
+                >
+                  {s === 'Inactive' ? 'Drafts' : s}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Products Table */}
-      <div className="bg-white rounded-3xl border border-[#EDE8E1] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[960px] text-left text-[13px]">
             <thead>
-              <tr className="border-b border-gray-100 bg-[#FAF8F5] text-gray-500 font-semibold uppercase text-[10px]">
-                <th className="py-3.5 px-6">Formulation</th>
-                <th className="py-3.5 px-4">Category</th>
-                <th className="py-3.5 px-4">Pricing</th>
-                <th className="py-3.5 px-4">Stock</th>
-                <th className="py-3.5 px-4">Tags & Flags</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-6 text-right">Actions</th>
+              <tr className="bg-[#FAF8F5] text-[12px] font-medium text-stone-500">
+                <th scope="col" className="px-6 py-3 font-medium">Product</th>
+                <th scope="col" className="px-4 py-3 font-medium">Category</th>
+                <th scope="col" className="px-4 py-3 font-medium">Price</th>
+                <th scope="col" className="px-4 py-3 font-medium">Stock</th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Badges
+                  <span className="ml-1.5 font-normal text-stone-400">
+                    (Top Picks {featuredCount}/{MAX_FEATURED_PRODUCTS})
+                  </span>
+                </th>
+                <th scope="col" className="px-4 py-3 font-medium">Status</th>
+                <th scope="col" className="px-6 py-3 text-right font-medium">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[#F1ECE5]">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-gray-400">
-                    Loading formulations catalog...
+                  <td colSpan={7} className="py-16 text-center text-stone-400">
+                    <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin text-[#13382B]" />
+                    Loading products…
                   </td>
                 </tr>
               ) : filteredProducts.length > 0 ? (
                 filteredProducts.map((p) => {
                   const hasPhoto = p.images && p.images.length > 0 && p.images[0];
                   return (
-                    <tr key={p._id} className="hover:bg-gray-50/60 transition-colors">
-                      <td className="py-3.5 px-6">
-                        <div className="flex items-center gap-3">
+                    <tr key={p._id} className="align-middle transition-colors hover:bg-[#FCFBF9]">
+                      {/* Product */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3.5">
                           {hasPhoto ? (
                             <img
                               src={getImageUrl(p.images[0])}
@@ -613,82 +739,92 @@ export const AdminProductsPage: React.FC = () => {
                                 (e.target as HTMLImageElement).src =
                                   'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
                               }}
-                              className="w-12 h-12 object-contain rounded-xl bg-[#FAF8F5] p-1 border border-[#EDE8E1] flex-shrink-0"
+                              className="h-14 w-14 flex-shrink-0 rounded-xl border border-[#EDE8E1] bg-[#FAF8F5] object-contain p-1"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 flex flex-col items-center justify-center text-gray-400 flex-shrink-0">
-                              <ImageIcon className="w-4 h-4" />
-                              <span className="text-[8px] mt-0.5">No photo</span>
+                            <div className="flex h-14 w-14 flex-shrink-0 flex-col items-center justify-center rounded-xl border border-dashed border-[#D9D0C4] bg-[#FAF8F5] text-stone-400">
+                              <ImageIcon className="h-4 w-4" />
+                              <span className="mt-0.5 text-[10px]">No photo</span>
                             </div>
                           )}
                           <div className="min-w-0">
-                            <p className="font-serif font-bold text-gray-900 line-clamp-1">{p.name}</p>
-                            <p className="text-[11px] text-gray-400 line-clamp-1">{p.subtitle || p.size}</p>
-                            <span className="text-[10px] text-gray-400 font-mono">/{p.slug}</span>
+                            <p className="line-clamp-1 font-serif text-[15px] font-semibold text-stone-900">{p.name}</p>
+                            <p className="line-clamp-1 text-[12px] text-stone-500">{p.subtitle || p.size}</p>
+                            <p className="mt-0.5 line-clamp-1 text-[11px] text-stone-400">/{p.slug}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4">
-                        <span className="font-medium text-gray-700">{p.category}</span>
-                        {p.subcategory && (
-                          <p className="text-[10px] text-gray-400 font-sans mt-0.5">{p.subcategory}</p>
-                        )}
+
+                      {/* Category */}
+                      <td className="px-4 py-4">
+                        <p className="font-medium text-stone-700">{p.category}</p>
+                        {p.subcategory && <p className="mt-0.5 text-[12px] text-stone-400">{p.subcategory}</p>}
                       </td>
-                      <td className="py-3.5 px-4">
-                        <div className="font-serif font-bold text-[#13382B]">
-                          ₹{p.price.toLocaleString('en-IN')}
-                        </div>
+
+                      {/* Price */}
+                      <td className="px-4 py-4 tabular-nums">
+                        <p className="font-semibold text-[#13382B]">₹{p.price.toLocaleString('en-IN')}</p>
                         {p.originalPrice > p.price && (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] text-gray-400 line-through">
+                          <div className="mt-0.5 flex items-center gap-1.5">
+                            <span className="text-[12px] text-stone-400 line-through">
                               ₹{p.originalPrice.toLocaleString('en-IN')}
                             </span>
-                            <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
+                            <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-700">
                               {p.discountPercentage || Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)}% off
                             </span>
                           </div>
                         )}
                       </td>
-                      <td className="py-3.5 px-4">
+
+                      {/* Stock */}
+                      <td className="px-4 py-4">
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-medium tabular-nums ${
                             p.stock <= 0
-                              ? 'bg-red-100 text-red-800'
+                              ? 'bg-red-50 text-red-700'
                               : p.stock <= 10
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-emerald-100 text-emerald-800'
+                              ? 'bg-amber-50 text-amber-800'
+                              : 'bg-[#EAF1EB] text-[#2E6B48]'
                           }`}
                         >
-                          {p.stock <= 0 ? 'Out of Stock' : `${p.stock} units`}
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              p.stock <= 0 ? 'bg-red-500' : p.stock <= 10 ? 'bg-amber-500' : 'bg-[#2E6B48]'
+                            }`}
+                          />
+                          {p.stock <= 0 ? 'Out of stock' : `${p.stock} units`}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4">
-                        <div className="flex flex-col gap-1.5 min-w-[190px]">
-                          {/* Tag Badge Control (ON/OFF + Quick Switch) */}
-                          <div className="flex items-center gap-1">
+
+                      {/* Badges */}
+                      <td className="px-4 py-4">
+                        <div className="flex min-w-[230px] flex-col gap-2">
+                          {/* Tag badge: on/off + quick switch */}
+                          <div className="flex items-center gap-1.5">
                             <button
                               type="button"
                               onClick={() => handleToggleTag(p)}
                               disabled={Boolean(updatingFlags[`${p._id}-tag`])}
-                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all flex items-center gap-1 border ${
+                              aria-pressed={Boolean(p.tag)}
+                              title={p.tag ? `Tag is on ("${p.tag}"). Click to turn off.` : 'Tag is off. Click to turn on.'}
+                              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors disabled:opacity-60 ${focusRing} ${
                                 p.tag
-                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                                  : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200'
+                                  ? 'border-[#B9D1BE] bg-[#EAF1EB] text-[#13382B] hover:bg-[#DFEBE1]'
+                                  : 'border-[#E2DBD1] bg-white text-stone-500 hover:bg-[#FAF8F5]'
                               }`}
-                              title={p.tag ? `Tag is ON ("${p.tag}"). Click to turn OFF` : 'Tag is OFF. Click to turn ON'}
                             >
-                              <span className={`w-1.5 h-1.5 rounded-full ${p.tag ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                              <span>{p.tag ? `Tag: ${p.tag}` : 'Tag: OFF'}</span>
+                              <span className={`h-1.5 w-1.5 rounded-full ${p.tag ? 'bg-[#2E6B48]' : 'bg-stone-300'}`} />
+                              {p.tag ? p.tag : 'No tag'}
                             </button>
 
                             <select
                               value={p.tag || 'None'}
                               onChange={(e) => handleQuickUpdateTag(p, e.target.value)}
                               disabled={Boolean(updatingFlags[`${p._id}-tag`])}
-                              className="text-[9px] font-medium bg-white border border-gray-200 rounded-md px-1 py-0.5 text-gray-700 cursor-pointer focus:outline-none"
-                              title="Select Tag for this formulation"
+                              aria-label={`Change tag for ${p.name}`}
+                              className="cursor-pointer rounded-lg border border-[#E2DBD1] bg-white px-1.5 py-1 text-[11px] text-stone-600 focus:border-[#13382B] focus:outline-none disabled:opacity-60"
                             >
-                              <option value="None">None (OFF)</option>
+                              <option value="None">No tag</option>
                               {COMMON_TAGS.map((t) => (
                                 <option key={t} value={t}>
                                   {t}
@@ -697,98 +833,104 @@ export const AdminProductsPage: React.FC = () => {
                             </select>
                           </div>
 
-                          {/* Flags Row: Best Seller & Top Picks */}
-                          <div className="flex items-center gap-1">
-                            {/* Best Seller ON/OFF */}
+                          {/* Best Seller & Top Picks */}
+                          <div className="flex items-center gap-1.5">
                             <button
                               type="button"
                               onClick={() => handleToggleProductFlag(p, 'isBestSeller')}
                               disabled={Boolean(updatingFlags[p._id])}
                               aria-pressed={Boolean(p.isBestSeller)}
-                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all flex items-center gap-1 border ${
+                              title={`Click to turn Best Seller ${p.isBestSeller ? 'off' : 'on'}`}
+                              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors disabled:opacity-60 ${focusRing} ${
                                 p.isBestSeller
-                                  ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 shadow-xs'
-                                  : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'
+                                  ? 'border-[#E3CFA9] bg-[#F7F0E3] text-[#7A5A2B] hover:bg-[#F1E6D2]'
+                                  : 'border-[#E2DBD1] bg-white text-stone-400 hover:bg-[#FAF8F5] hover:text-stone-600'
                               }`}
-                              title={`Click to turn Best Seller ${p.isBestSeller ? 'OFF' : 'ON'}`}
                             >
-                              <span>★ Best Seller</span>
-                              <span
-                                className={`px-1 py-0.2 rounded text-[8px] ${
-                                  p.isBestSeller ? 'bg-amber-200 text-amber-900' : 'bg-gray-200 text-gray-600'
-                                }`}
-                              >
-                                {p.isBestSeller ? 'ON' : 'OFF'}
-                              </span>
+                              <Star className={`h-3 w-3 ${p.isBestSeller ? 'fill-[#C5A880] text-[#C5A880]' : ''}`} />
+                              Best Seller
                             </button>
 
-                            {/* Top Picks ON/OFF */}
                             <button
                               type="button"
                               onClick={() => handleToggleProductFlag(p, 'isFeatured')}
                               disabled={Boolean(updatingFlags[p._id])}
                               aria-pressed={Boolean(p.isFeatured)}
-                              className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all flex items-center gap-1 border ${
+                              title={`Click to turn Top Picks ${p.isFeatured ? 'off' : 'on'}`}
+                              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors disabled:opacity-60 ${focusRing} ${
                                 p.isFeatured
-                                  ? 'bg-purple-50 text-purple-900 border-purple-300 hover:bg-purple-100 shadow-xs'
-                                  : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'
+                                  ? 'border-[#D7C9DF] bg-[#F3EEF6] text-[#5B3E6B] hover:bg-[#ECE4F1]'
+                                  : 'border-[#E2DBD1] bg-white text-stone-400 hover:bg-[#FAF8F5] hover:text-stone-600'
                               }`}
-                              title={`Click to turn Top Picks ${p.isFeatured ? 'OFF' : 'ON'}`}
                             >
-                              <span>✦ Top Picks</span>
-                              <span
-                                className={`px-1 py-0.2 rounded text-[8px] ${
-                                  p.isFeatured ? 'bg-purple-200 text-purple-900' : 'bg-gray-200 text-gray-600'
-                                }`}
-                              >
-                                {p.isFeatured ? 'ON' : 'OFF'}
-                              </span>
+                              <span aria-hidden="true">✦</span>
+                              Top Picks
                             </button>
+
+                            {updatingFlags[p._id] && <Loader2 className="h-3.5 w-3.5 animate-spin text-stone-400" />}
                           </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4">
+
+                      {/* Status (switch) */}
+                      <td className="px-4 py-4">
                         <button
+                          type="button"
+                          role="switch"
+                          aria-checked={p.isActive !== false}
                           onClick={() => handleToggleActiveStatus(p)}
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-colors flex items-center gap-1 ${
-                            p.isActive !== false
-                              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                          }`}
                           title="Click to toggle store visibility"
+                          className={`group inline-flex items-center gap-2 rounded-full ${focusRing}`}
                         >
                           <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              p.isActive !== false ? 'bg-emerald-500' : 'bg-gray-400'
+                            className={`relative h-5 w-9 rounded-full transition-colors ${
+                              p.isActive !== false ? 'bg-[#2E6B48]' : 'bg-stone-300'
                             }`}
-                          />
-                          <span>{p.isActive !== false ? 'Active' : 'Draft'}</span>
+                          >
+                            <span
+                              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                                p.isActive !== false ? 'translate-x-[18px]' : 'translate-x-0.5'
+                              }`}
+                            />
+                          </span>
+                          <span
+                            className={`text-[12px] font-medium ${p.isActive !== false ? 'text-[#2E6B48]' : 'text-stone-500'}`}
+                          >
+                            {p.isActive !== false ? 'Active' : 'Draft'}
+                          </span>
                         </button>
                       </td>
-                      <td className="py-3.5 px-6 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+
+                      {/* Actions */}
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
                           <Link
                             to={`/shop/${p.slug || p._id}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1.5 text-gray-400 hover:text-[#13382B] rounded-lg hover:bg-gray-100 transition-colors"
-                            title="View Live Store Page"
+                            aria-label={`View ${p.name} in store`}
+                            title="View live store page"
+                            className={`rounded-lg p-2 text-stone-400 transition-colors hover:bg-[#FAF8F5] hover:text-[#13382B] ${focusRing}`}
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="h-4 w-4" />
                           </Link>
                           <button
+                            type="button"
                             onClick={() => openEditModal(p)}
-                            className="p-1.5 text-gray-500 hover:text-[#13382B] rounded-lg hover:bg-gray-100 transition-colors"
+                            aria-label={`Edit ${p.name}`}
                             title="Edit"
+                            className={`rounded-lg p-2 text-stone-500 transition-colors hover:bg-[#FAF8F5] hover:text-[#13382B] ${focusRing}`}
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="h-4 w-4" />
                           </button>
                           <button
+                            type="button"
                             onClick={() => handleDelete(p._id, p.name)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                            aria-label={`Delete ${p.name}`}
                             title="Delete"
+                            className={`rounded-lg p-2 text-stone-400 transition-colors hover:bg-red-50 hover:text-red-600 ${focusRing}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
@@ -797,575 +939,619 @@ export const AdminProductsPage: React.FC = () => {
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-gray-400">
-                    No formulations found matching your criteria.
+                  <td colSpan={7} className="py-16 text-center">
+                    <Package className="mx-auto mb-3 h-8 w-8 text-stone-300" />
+                    <p className="text-[14px] font-medium text-stone-700">No products match these filters</p>
+                    <p className="mt-1 text-[13px] text-stone-500">
+                      Try a different search or category, or add a new product.
+                    </p>
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
 
-      {/* Add / Edit Product Modal */}
+        {!loading && (
+          <div className="border-t border-[#EDE8E1] px-6 py-3 text-[12px] text-stone-500">
+            Showing {filteredProducts.length} of {products.length} products
+          </div>
+        )}
+      </section>
+
+      {/* ── Add / Edit product modal ── */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 border border-[#EDE8E1] shadow-2xl relative my-8">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-6 right-6 p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="mb-6">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#2E6B48]">
-                Inventory Formulation
-              </span>
-              <h3 className="font-serif text-2xl font-bold text-[#13382B]">
-                {editingProduct ? 'Edit Formulation' : 'Add New Formulation'}
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E211A]/60 p-3 backdrop-blur-sm sm:p-6">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="product-modal-title"
+            className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-[#EDE8E1] bg-white shadow-[0_40px_80px_-30px_rgba(14,33,26,0.6)]"
+          >
+            {/* Modal header */}
+            <div className="flex items-start justify-between gap-4 border-b border-[#EDE8E1] px-6 py-5 sm:px-8">
+              <div>
+                <h3 id="product-modal-title" className="font-serif text-[22px] font-semibold text-[#13382B]">
+                  {editingProduct ? 'Edit product' : 'Add a new product'}
+                </h3>
+                <p className="mt-0.5 text-[13px] text-stone-500">
+                  {editingProduct ? editingProduct.name : 'Fields marked * are required.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                aria-label="Close"
+                className={`rounded-full p-2 text-stone-400 transition-colors hover:bg-[#FAF8F5] hover:text-stone-700 ${focusRing}`}
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
-            <form onSubmit={handleFormSubmit} className="space-y-5 max-h-[75vh] overflow-y-auto pr-2">
-              {/* Product Name */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Product Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Hydra Celestial Barrier Glaze"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl focus:outline-none focus:border-[#13382B]"
-                />
-              </div>
+            <form onSubmit={handleFormSubmit} className="flex min-h-0 flex-1 flex-col">
+              <div className="flex-1 space-y-8 overflow-y-auto px-6 py-6 sm:px-8">
+                {/* ── Details ── */}
+                <fieldset className="space-y-4">
+                  <legend className={`${sectionTitleCls} mb-3`}>Details</legend>
 
-              {/* Subtitle / Highlights */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Subtitle / Botanical Highlights
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Micro-Algae • Botanical Ceramides • Niacinamide"
-                  value={subtitle}
-                  onChange={(e) => setSubtitle(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl focus:outline-none focus:border-[#13382B]"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Full Description *
-                </label>
-                <textarea
-                  rows={3}
-                  required
-                  placeholder="Describe active cellular mechanisms, texture, and proven skin results..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl focus:outline-none focus:border-[#13382B]"
-                />
-              </div>
-
-              {/* Pricing & Volume */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Selling Price (₹) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min={0}
-                    value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Original Price (₹) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min={0}
-                    value={originalPrice}
-                    onChange={(e) => setOriginalPrice(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl"
-                  />
-                  {originalPrice > price && (
-                    <p className="text-[10px] text-emerald-700 mt-0.5">
-                      {Math.round(((originalPrice - price) / originalPrice) * 100)}% discount badge
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Volume / Size
-                  </label>
-                  <input
-                    type="text"
-                    value={size}
-                    onChange={(e) => setSize(e.target.value)}
-                    placeholder="e.g. 50ml or 100ml"
-                    className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl"
-                  />
-                </div>
-              </div>
-
-              {/* Category & Subcategory */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Category *</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl bg-white"
-                  >
-                    {COMMON_CATEGORIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                    <option value="Custom">+ Custom Category...</option>
-                  </select>
-                  {category === 'Custom' && (
+                  <div>
+                    <label htmlFor="pf-name" className={labelCls}>
+                      Product name *
+                    </label>
                     <input
+                      id="pf-name"
                       type="text"
                       required
-                      placeholder="Enter new category name..."
-                      value={customCategory}
-                      onChange={(e) => setCustomCategory(e.target.value)}
-                      className="mt-2 w-full px-3.5 py-1.5 text-xs border border-emerald-300 rounded-xl"
+                      placeholder="e.g. Hydra Celestial Barrier Glaze"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className={inputCls}
                     />
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Subcategory</label>
-                  <select
-                    value={subcategory}
-                    onChange={(e) => setSubcategory(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl bg-white"
-                  >
-                    <option value="None">None</option>
-                    {COMMON_SUBCATEGORIES.map((sc) => (
-                      <option key={sc} value={sc}>
-                        {sc}
-                      </option>
-                    ))}
-                    <option value="Custom">+ Custom Subcategory...</option>
-                  </select>
-                  {subcategory === 'Custom' && (
-                    <input
-                      type="text"
-                      placeholder="Enter new subcategory name..."
-                      value={customSubcategory}
-                      onChange={(e) => setCustomSubcategory(e.target.value)}
-                      className="mt-2 w-full px-3.5 py-1.5 text-xs border border-emerald-300 rounded-xl"
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Tag & Stock */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-gray-700">Special Tag Badge</label>
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                      tag && tag !== 'None' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500'
-                    }`}>
-                      {tag && tag !== 'None' ? `Tag: ON (${tag})` : 'Tag: OFF'}
-                    </span>
                   </div>
-                  <select
-                    value={tag}
-                    onChange={(e) => setTag(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl bg-white"
-                  >
-                    <option value="None">None (OFF - Hide Tag Badge)</option>
-                    {COMMON_TAGS.map((t) => (
-                      <option key={t} value={t}>
-                        {t} (ON)
-                      </option>
-                    ))}
-                    <option value="Custom">+ Custom Tag... (ON)</option>
-                  </select>
-                  {tag === 'Custom' && (
-                    <input
-                      type="text"
-                      placeholder="e.g. Limited Edition"
-                      value={customTag}
-                      onChange={(e) => setCustomTag(e.target.value)}
-                      className="mt-2 w-full px-3.5 py-1.5 text-xs border border-emerald-300 rounded-xl"
-                    />
-                  )}
-                </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Stock Units *</label>
-                  <input
-                    type="number"
-                    required
-                    min={0}
-                    value={stock}
-                    onChange={(e) => setStock(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl"
-                  />
-                </div>
-              </div>
-
-              {/* PRODUCT PHOTOGRAPHY GALLERY UPLOAD SYSTEM */}
-              <div className="border border-[#EDE8E1] rounded-2xl p-5 bg-[#FAF8F5]/80 space-y-4">
-                <div className="flex items-center justify-between">
                   <div>
-                    <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                      <ImageIcon className="w-4 h-4 text-[#13382B]" />
-                      <span>Product Photography Gallery *</span>
+                    <label htmlFor="pf-subtitle" className={labelCls}>
+                      Subtitle / botanical highlights
                     </label>
-                    <p className="text-[11px] text-gray-500 mt-0.5">
-                      Upload high-resolution formulation photos. First image is automatically the primary storefront cover photo.
-                    </p>
+                    <input
+                      id="pf-subtitle"
+                      type="text"
+                      placeholder="e.g. Micro-Algae • Botanical Ceramides • Niacinamide"
+                      value={subtitle}
+                      onChange={(e) => setSubtitle(e.target.value)}
+                      className={inputCls}
+                    />
                   </div>
-                  {images.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingImage}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#13382B] text-white rounded-xl text-xs font-semibold hover:bg-[#1E4D3B] transition-colors"
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Add More</span>
-                    </button>
-                  )}
-                </div>
 
-                {/* Hidden Multi-file input */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
-                  onChange={handleFileInputChange}
-                  className="hidden"
-                />
-
-                {/* Upload Status Alert */}
-                {uploadingImage && (
-                  <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-medium flex items-center gap-2 border border-emerald-200 animate-pulse">
-                    <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
-                    <span>{uploadStatusText || 'Uploading images via Multer...'}</span>
+                  <div>
+                    <label htmlFor="pf-desc" className={labelCls}>
+                      Full description *
+                    </label>
+                    <textarea
+                      id="pf-desc"
+                      rows={4}
+                      required
+                      placeholder="Describe how it works, the texture and the results customers can expect."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className={`${inputCls} resize-y leading-relaxed`}
+                    />
                   </div>
-                )}
 
-                {/* If NO photos uploaded: Big Interactive Drop Zone */}
-                {images.length === 0 ? (
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center bg-white ${
-                      isDragging
-                        ? 'border-[#13382B] bg-[#EAF1EB]/50 scale-[1.01]'
-                        : 'border-[#D1C7BD] hover:border-[#13382B] hover:bg-[#FAF8F5]'
-                    }`}
-                  >
-                    <div className="w-14 h-14 rounded-full bg-[#EAF1EB] text-[#13382B] flex items-center justify-center mb-3 shadow-inner">
-                      <UploadCloud className="w-7 h-7" />
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="pf-category" className={labelCls}>
+                        Category *
+                      </label>
+                      <select
+                        id="pf-category"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className={selectCls}
+                      >
+                        {COMMON_CATEGORIES.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                        <option value="Custom">+ Custom category…</option>
+                      </select>
+                      {category === 'Custom' && (
+                        <input
+                          type="text"
+                          required
+                          aria-label="Custom category name"
+                          placeholder="New category name"
+                          value={customCategory}
+                          onChange={(e) => setCustomCategory(e.target.value)}
+                          className={`${inputCls} mt-2 border-[#B9D1BE] bg-[#F6FAF6]`}
+                        />
+                      )}
                     </div>
-                    <p className="text-sm font-semibold text-gray-800">
-                      Click to browse or drag & drop formulation images
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1 max-w-sm">
-                      Upload multiple JPEG, PNG, WEBP, or AVIF photography (up to 10MB each).
-                    </p>
-                    <button
-                      type="button"
-                      className="mt-4 px-4 py-2 bg-[#13382B] text-white text-xs font-semibold rounded-full shadow hover:bg-[#1E4D3B] transition-all"
-                    >
-                      Select Image Files
-                    </button>
+
+                    <div>
+                      <label htmlFor="pf-subcategory" className={labelCls}>
+                        Subcategory
+                      </label>
+                      <select
+                        id="pf-subcategory"
+                        value={subcategory}
+                        onChange={(e) => setSubcategory(e.target.value)}
+                        className={selectCls}
+                      >
+                        <option value="None">None</option>
+                        {COMMON_SUBCATEGORIES.map((sc) => (
+                          <option key={sc} value={sc}>
+                            {sc}
+                          </option>
+                        ))}
+                        <option value="Custom">+ Custom subcategory…</option>
+                      </select>
+                      {subcategory === 'Custom' && (
+                        <input
+                          type="text"
+                          aria-label="Custom subcategory name"
+                          placeholder="New subcategory name"
+                          value={customSubcategory}
+                          onChange={(e) => setCustomSubcategory(e.target.value)}
+                          className={`${inputCls} mt-2 border-[#B9D1BE] bg-[#F6FAF6]`}
+                        />
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  /* If photos exist: Render Thumbnail Grid */
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                </fieldset>
+
+                {/* ── Pricing & stock ── */}
+                <fieldset className="space-y-4">
+                  <legend className={`${sectionTitleCls} mb-3`}>Pricing &amp; stock</legend>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="pf-price" className={labelCls}>
+                        Selling price (₹) *
+                      </label>
+                      <input
+                        id="pf-price"
+                        type="number"
+                        required
+                        min={0}
+                        value={price}
+                        onChange={(e) => setPrice(Number(e.target.value))}
+                        className={`${inputCls} tabular-nums`}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="pf-original" className={labelCls}>
+                        Original price (₹) *
+                      </label>
+                      <input
+                        id="pf-original"
+                        type="number"
+                        required
+                        min={0}
+                        value={originalPrice}
+                        onChange={(e) => setOriginalPrice(Number(e.target.value))}
+                        className={`${inputCls} tabular-nums`}
+                      />
+                      {discountPct > 0 && (
+                        <p className="mt-1 text-[12px] font-medium text-emerald-700">
+                          Shows a {discountPct}% off badge in the store
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label htmlFor="pf-size" className={labelCls}>
+                        Volume / size
+                      </label>
+                      <input
+                        id="pf-size"
+                        type="text"
+                        value={size}
+                        onChange={(e) => setSize(e.target.value)}
+                        placeholder="e.g. 50ml or 100ml"
+                        className={inputCls}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="pf-stock" className={labelCls}>
+                        Stock units *
+                      </label>
+                      <input
+                        id="pf-stock"
+                        type="number"
+                        required
+                        min={0}
+                        value={stock}
+                        onChange={(e) => setStock(Number(e.target.value))}
+                        className={`${inputCls} tabular-nums`}
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+
+                {/* ── Photos ── */}
+                <fieldset className="space-y-4">
+                  <div className="flex items-end justify-between gap-4">
+                    <div>
+                      <legend className={sectionTitleCls}>Product photos *</legend>
+                      <p className={hintCls}>The first photo is the cover shown in the store. JPG, PNG, WEBP or AVIF, up to 10 MB each.</p>
+                    </div>
+                    {images.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingImage}
+                        className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border border-[#E2DBD1] bg-white px-3.5 py-1.5 text-[12px] font-medium text-[#13382B] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50 ${focusRing}`}
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        Add more
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Hidden multi-file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
+                    onChange={handleFileInputChange}
+                    className="hidden"
+                  />
+
+                  {/* Upload status */}
+                  {uploadingImage && (
+                    <div
+                      role="status"
+                      className="flex items-center gap-2 rounded-xl border border-[#B9D1BE] bg-[#F6FAF6] px-3.5 py-2.5 text-[13px] font-medium text-[#13382B]"
+                    >
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {uploadStatusText || 'Uploading images…'}
+                    </div>
+                  )}
+
+                  {images.length === 0 ? (
+                    /* Empty: large drop zone */
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors ${
+                        isDragging
+                          ? 'border-[#13382B] bg-[#EAF1EB]/60'
+                          : 'border-[#D9D0C4] bg-[#FAF8F5] hover:border-[#13382B]/60'
+                      }`}
+                    >
+                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#13382B] shadow-sm">
+                        <UploadCloud className="h-6 w-6" />
+                      </div>
+                      <p className="text-[14px] font-medium text-stone-800">Drop photos here, or click to browse</p>
+                      <p className="mt-1 text-[12px] text-stone-500">You can select several images at once.</p>
+                      <button
+                        type="button"
+                        className={`mt-4 rounded-full bg-[#13382B] px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-[#1E4D3B] ${focusRing}`}
+                      >
+                        Choose images
+                      </button>
+                    </div>
+                  ) : (
+                    /* Thumbnails grid */
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                       {images.map((imgUrl, idx) => (
                         <div
                           key={idx}
-                          className={`relative group rounded-2xl bg-white border p-1.5 shadow-sm transition-all overflow-hidden ${
-                            idx === 0
-                              ? 'border-[#13382B] ring-2 ring-[#13382B]/20'
-                              : 'border-[#EDE8E1] hover:border-[#13382B]'
+                          className={`group relative overflow-hidden rounded-2xl border bg-white p-1.5 transition-colors ${
+                            idx === 0 ? 'border-[#13382B] ring-2 ring-[#13382B]/15' : 'border-[#EDE8E1] hover:border-[#13382B]/50'
                           }`}
                         >
-                          <div className="aspect-square w-full rounded-xl overflow-hidden bg-[#FAF8F5] flex items-center justify-center relative">
+                          <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-[#FAF8F5]">
                             <img
                               src={getImageUrl(imgUrl)}
-                              alt="Formulation preview"
-                              onError={(e) => {
+                              alt={idx === 0 ? 'Cover photo' : `Product photo ${idx + 1}`}
+                              onError={() => {
                                 console.error('Image load error for:', imgUrl);
                               }}
-                              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                              className="h-full w-full object-contain"
                             />
                             {imgUrl.startsWith('blob:') && uploadingImage && (
-                              <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center">
-                                <Loader2 className="w-5 h-5 text-white animate-spin" />
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
+                                <Loader2 className="h-5 w-5 animate-spin text-white" />
                               </div>
                             )}
                           </div>
 
-                          {/* Primary Cover Badge */}
                           {idx === 0 ? (
-                            <span className="absolute top-3 left-3 px-2 py-0.5 bg-[#13382B] text-white text-[9px] font-bold rounded-full shadow flex items-center gap-1">
-                              <Star className="w-2.5 h-2.5 fill-current text-[#C5A880]" />
-                              <span>Cover</span>
+                            <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#13382B] px-2 py-0.5 text-[11px] font-medium text-white shadow">
+                              <Star className="h-3 w-3 fill-[#C5A880] text-[#C5A880]" />
+                              Cover
                             </span>
                           ) : (
                             <button
                               type="button"
                               onClick={() => handleSetPrimaryImage(idx)}
-                              className="absolute top-3 left-3 px-2 py-0.5 bg-white/90 backdrop-blur-sm hover:bg-[#13382B] hover:text-white text-gray-700 text-[9px] font-bold rounded-full shadow transition-all opacity-0 group-hover:opacity-100"
-                              title="Set as primary cover photo"
+                              title="Set as cover photo"
+                              className={`absolute left-3 top-3 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-medium text-stone-700 shadow transition-opacity hover:bg-[#13382B] hover:text-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100 ${focusRing}`}
                             >
-                              Make Cover
+                              Make cover
                             </button>
                           )}
 
-                          {/* Remove Button */}
                           <button
                             type="button"
                             onClick={() => handleRemoveImage(idx)}
-                            className="absolute top-3 right-3 w-6 h-6 bg-red-600/90 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 hover:bg-red-700 transition-all shadow"
-                            title="Remove image"
+                            aria-label={`Remove photo ${idx + 1}`}
+                            title="Remove photo"
+                            className={`absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-red-600 shadow transition-opacity hover:bg-red-600 hover:text-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100 ${focusRing}`}
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <X className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       ))}
 
-                      {/* Dropzone card to add more */}
+                      {/* Add-more tile */}
                       <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => fileInputRef.current?.click()}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            fileInputRef.current?.click();
+                          }
+                        }}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-[#D1C7BD] hover:border-[#13382B] bg-white hover:bg-[#FAF8F5] flex flex-col items-center justify-center cursor-pointer transition-all p-2 text-center"
-                      >
-                        <Plus className="w-5 h-5 text-gray-400 group-hover:text-[#13382B]" />
-                        <span className="text-[11px] font-semibold text-gray-600 mt-1">Add Photo</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Optional External Image URL input */}
-                <div className="pt-2 border-t border-gray-200/60">
-                  <p className="text-[11px] text-gray-500 mb-1.5">Or add image via URL:</p>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="url"
-                      placeholder="Paste external image URL (e.g. https://...)..."
-                      value={imageUrlInput}
-                      onChange={(e) => setImageUrlInput(e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-xs bg-white border border-[#EDE8E1] rounded-xl focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddImageUrl}
-                      className="px-4 py-1.5 bg-[#FAF8F5] border border-[#EDE8E1] hover:bg-[#EDE8E1] text-gray-800 rounded-xl text-xs font-semibold transition-colors"
-                    >
-                      Attach URL
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Skin Types Selector */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                  Suitable Skin Types
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {COMMON_SKIN_TYPES.map((st) => {
-                    const isSelected = selectedSkinTypes.includes(st);
-                    return (
-                      <button
-                        key={st}
-                        type="button"
-                        onClick={() => handleToggleSkinType(st)}
-                        className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                          isSelected
-                            ? 'bg-[#13382B] text-white shadow-sm'
-                            : 'bg-[#FAF8F5] text-gray-600 border border-[#EDE8E1] hover:bg-gray-100'
+                        className={`group flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-2 text-center transition-colors ${focusRing} ${
+                          isDragging ? 'border-[#13382B] bg-[#EAF1EB]/60' : 'border-[#D9D0C4] bg-white hover:border-[#13382B]/60 hover:bg-[#FAF8F5]'
                         }`}
                       >
-                        {st}
+                        <Plus className="h-5 w-5 text-stone-400 transition-colors group-hover:text-[#13382B]" />
+                        <span className="mt-1 text-[12px] font-medium text-stone-600">Add photo</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* External image URL */}
+                  <div className="rounded-2xl bg-[#FAF8F5] p-4">
+                    <label htmlFor="pf-image-url" className="mb-1.5 block text-[12px] font-medium text-stone-600">
+                      Or add an image from a link
+                    </label>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <input
+                        id="pf-image-url"
+                        type="text"
+                        inputMode="url"
+                        placeholder="https://… (Google Drive, Dropbox and GitHub links work too)"
+                        value={imageUrlInput}
+                        onChange={(e) => {
+                          setImageUrlInput(e.target.value);
+                          if (imageUrlError) setImageUrlError('');
+                        }}
+                        onKeyDown={(e) => {
+                          // Enter attaches the URL instead of submitting the whole product form
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (!checkingImageUrl) handleAddImageUrl();
+                          }
+                        }}
+                        disabled={checkingImageUrl}
+                        aria-invalid={Boolean(imageUrlError)}
+                        aria-describedby={imageUrlError ? 'pf-image-url-error' : undefined}
+                        className={`${inputCls} flex-1 py-2 ${imageUrlError ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddImageUrl()}
+                        disabled={checkingImageUrl || !imageUrlInput.trim()}
+                        className={`inline-flex items-center justify-center gap-1.5 rounded-[10px] border border-[#E2DBD1] bg-white px-4 py-2 text-[13px] font-medium text-[#13382B] transition-colors hover:bg-[#EDE8E1] disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
+                      >
+                        {checkingImageUrl && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                        {checkingImageUrl ? 'Checking…' : 'Attach image'}
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Key Ingredients */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Key Botanical Ingredients (Comma separated)
-                </label>
-                <input
-                  type="text"
-                  placeholder="Botanical Squalane, Marine Micro-Algae, Niacinamide"
-                  value={ingredients}
-                  onChange={(e) => setIngredients(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl focus:outline-none"
-                />
-              </div>
-
-              {/* Key Benefits */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Clinical & Skin Benefits (Comma separated)
-                </label>
-                <input
-                  type="text"
-                  placeholder="72-Hour Hydro-Lock, Glass Skin Glow, Barrier Repair"
-                  value={keyBenefits}
-                  onChange={(e) => setKeyBenefits(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl focus:outline-none"
-                />
-              </div>
-
-              {/* How to Use */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  How to Use Ritual Steps (One per line)
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="Step 1: Cleanse skin thoroughly...&#10;Step 2: Press 2-3 drops into face..."
-                  value={howToUse}
-                  onChange={(e) => setHowToUse(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-[#EDE8E1] rounded-xl focus:outline-none"
-                />
-              </div>
-
-              {/* Toggles: Active, Best Seller, Featured (Storefront Flags) */}
-              <div className="pt-2">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-2">
-                  Storefront Visibility & Flags (Attached to Shop Card)
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <label
-                    className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
-                      isActive ? 'border-emerald-300 bg-emerald-50/50' : 'border-gray-200 bg-gray-50'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isActive}
-                      onChange={(e) => setIsActive(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
-                    />
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-bold text-gray-900">Active in Store</p>
-                        <span
-                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                            isActive ? 'bg-emerald-200 text-emerald-800' : 'bg-gray-200 text-gray-600'
-                          }`}
-                        >
-                          {isActive ? 'ON' : 'OFF'}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-gray-500">Live on storefront catalog</p>
                     </div>
-                  </label>
+                    {imageUrlError && (
+                      <p id="pf-image-url-error" className="mt-2 flex items-start gap-1.5 text-[12px] text-red-600">
+                        <AlertCircle className="mt-px h-3.5 w-3.5 flex-shrink-0" />
+                        <span>{imageUrlError}</span>
+                      </p>
+                    )}
+                  </div>
+                </fieldset>
 
-                  <label
-                    className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
-                      isBestSeller ? 'border-amber-300 bg-amber-50/50' : 'border-gray-200 bg-gray-50'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isBestSeller}
-                      onChange={(e) => setIsBestSeller(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
-                    />
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-bold text-gray-900">★ Best Seller</p>
-                        <span
-                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                            isBestSeller ? 'bg-amber-200 text-amber-900' : 'bg-gray-200 text-gray-600'
-                          }`}
-                        >
-                          {isBestSeller ? 'ON' : 'OFF'}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-gray-500">Attaches luxury Best Seller badge</p>
-                    </div>
-                  </label>
+                {/* ── Formula ── */}
+                <fieldset className="space-y-4">
+                  <legend className={`${sectionTitleCls} mb-3`}>Formula &amp; usage</legend>
 
-                  <label
-                    className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
-                      isFeatured ? 'border-purple-300 bg-purple-50/50' : 'border-gray-200 bg-gray-50'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isFeatured}
-                      onChange={(e) => handleFeaturedChange(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#13382B] focus:ring-[#13382B]"
-                    />
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-bold text-gray-900">✦ Top Picks</p>
-                        <span
-                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                            isFeatured ? 'bg-purple-200 text-purple-900' : 'bg-gray-200 text-gray-600'
-                          }`}
-                        >
-                          {isFeatured ? 'ON' : 'OFF'}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-gray-500">Attaches Top Pick badge</p>
+                  <div>
+                    <p className={labelCls}>Suitable skin types</p>
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Suitable skin types">
+                      {COMMON_SKIN_TYPES.map((st) => {
+                        const isSelected = selectedSkinTypes.includes(st);
+                        return (
+                          <button
+                            key={st}
+                            type="button"
+                            onClick={() => handleToggleSkinType(st)}
+                            aria-pressed={isSelected}
+                            className={`rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-colors ${focusRing} ${
+                              isSelected
+                                ? 'border-[#13382B] bg-[#13382B] text-white'
+                                : 'border-[#E2DBD1] bg-white text-stone-600 hover:border-[#13382B]/50'
+                            }`}
+                          >
+                            {st}
+                          </button>
+                        );
+                      })}
                     </div>
-                  </label>
-                </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="pf-ingredients" className={labelCls}>
+                      Key ingredients
+                    </label>
+                    <input
+                      id="pf-ingredients"
+                      type="text"
+                      placeholder="Botanical Squalane, Marine Micro-Algae, Niacinamide"
+                      value={ingredients}
+                      onChange={(e) => setIngredients(e.target.value)}
+                      className={inputCls}
+                    />
+                    <p className={hintCls}>Separate each ingredient with a comma.</p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="pf-benefits" className={labelCls}>
+                      Key benefits
+                    </label>
+                    <input
+                      id="pf-benefits"
+                      type="text"
+                      placeholder="72-Hour Hydration, Glass Skin Glow, Barrier Repair"
+                      value={keyBenefits}
+                      onChange={(e) => setKeyBenefits(e.target.value)}
+                      className={inputCls}
+                    />
+                    <p className={hintCls}>Separate each benefit with a comma.</p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="pf-howto" className={labelCls}>
+                      How to use
+                    </label>
+                    <textarea
+                      id="pf-howto"
+                      rows={3}
+                      placeholder={'Step 1: Cleanse skin thoroughly.\nStep 2: Press 2–3 drops into face and neck.'}
+                      value={howToUse}
+                      onChange={(e) => setHowToUse(e.target.value)}
+                      className={`${inputCls} resize-y leading-relaxed`}
+                    />
+                    <p className={hintCls}>Write one step per line.</p>
+                  </div>
+                </fieldset>
+
+                {/* ── Storefront ── */}
+                <fieldset className="space-y-4">
+                  <legend className={`${sectionTitleCls} mb-3`}>Storefront</legend>
+
+                  <div className="max-w-sm">
+                    <label htmlFor="pf-tag" className={labelCls}>
+                      Tag badge
+                    </label>
+                    <select id="pf-tag" value={tag} onChange={(e) => setTag(e.target.value)} className={selectCls}>
+                      <option value="None">No tag</option>
+                      {COMMON_TAGS.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                      <option value="Custom">+ Custom tag…</option>
+                    </select>
+                    {tag === 'Custom' && (
+                      <input
+                        type="text"
+                        aria-label="Custom tag"
+                        placeholder="e.g. Limited Edition"
+                        value={customTag}
+                        onChange={(e) => setCustomTag(e.target.value)}
+                        className={`${inputCls} mt-2 border-[#B9D1BE] bg-[#F6FAF6]`}
+                      />
+                    )}
+                    <p className={hintCls}>
+                      {tag && tag !== 'None' ? 'Shown on the product card in the store.' : 'No tag will be shown.'}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    {[
+                      {
+                        key: 'active',
+                        title: 'Active in store',
+                        desc: 'Visible in the store catalogue',
+                        checked: isActive,
+                        onChange: (v: boolean) => setIsActive(v),
+                        on: 'border-[#B9D1BE] bg-[#F6FAF6]',
+                      },
+                      {
+                        key: 'best',
+                        title: 'Best Seller',
+                        desc: 'Adds a Best Seller badge',
+                        checked: isBestSeller,
+                        onChange: (v: boolean) => setIsBestSeller(v),
+                        on: 'border-[#E3CFA9] bg-[#FBF7EF]',
+                      },
+                      {
+                        key: 'featured',
+                        title: 'Top Picks',
+                        desc: `Featured on the home page (max ${MAX_FEATURED_PRODUCTS})`,
+                        checked: isFeatured,
+                        onChange: (v: boolean) => handleFeaturedChange(v),
+                        on: 'border-[#D7C9DF] bg-[#F8F5FA]',
+                      },
+                    ].map((opt) => (
+                      <label
+                        key={opt.key}
+                        className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-3.5 transition-colors focus-within:ring-2 focus-within:ring-[#13382B]/30 ${
+                          opt.checked ? opt.on : 'border-[#EDE8E1] bg-white hover:bg-[#FAF8F5]'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={opt.checked}
+                          onChange={(e) => opt.onChange(e.target.checked)}
+                          className="mt-0.5 h-4 w-4 flex-shrink-0 cursor-pointer rounded border-stone-300 accent-[#13382B]"
+                        />
+                        <span>
+                          <span className="flex items-center gap-2 text-[13px] font-semibold text-stone-900">
+                            {opt.title}
+                            <span
+                              className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                                opt.checked ? 'bg-[#13382B] text-white' : 'bg-stone-100 text-stone-500'
+                              }`}
+                            >
+                              {opt.checked ? 'On' : 'Off'}
+                            </span>
+                          </span>
+                          <span className="mt-0.5 block text-[12px] text-stone-500">{opt.desc}</span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
               </div>
 
-              {formError && (
-                <div className="p-3 bg-red-50 text-red-600 rounded-xl text-xs font-medium flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  <span>{formError}</span>
+              {/* Sticky footer */}
+              <div className="border-t border-[#EDE8E1] bg-white px-6 py-4 sm:px-8">
+                {formError && (
+                  <div
+                    role="alert"
+                    className="mb-3 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-[13px] font-medium text-red-700"
+                  >
+                    <AlertCircle className="mt-px h-4 w-4 flex-shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className={`rounded-full border border-[#E2DBD1] px-5 py-2.5 text-[13px] font-medium text-stone-700 transition-colors hover:bg-[#FAF8F5] ${focusRing}`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={formSubmitting || uploadingImage}
+                    className={`inline-flex items-center gap-2 rounded-full bg-[#13382B] px-6 py-2.5 text-[13px] font-semibold text-white shadow-[0_8px_20px_-10px_rgba(19,56,43,0.7)] transition-colors hover:bg-[#1E4D3B] disabled:opacity-50 ${focusRing}`}
+                  >
+                    {formSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    {formSubmitting ? 'Saving…' : editingProduct ? 'Save changes' : 'Create & publish'}
+                  </button>
                 </div>
-              )}
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 border border-gray-300 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={formSubmitting || uploadingImage}
-                  className="px-6 py-2.5 bg-[#13382B] text-white rounded-full text-xs font-semibold hover:bg-[#1E4D3B] disabled:opacity-50 shadow-md flex items-center gap-2"
-                >
-                  {formSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>{formSubmitting ? 'Saving Formulation...' : editingProduct ? 'Save Changes' : 'Create & Publish'}</span>
-                </button>
               </div>
             </form>
           </div>

@@ -106,6 +106,28 @@ export const createReview = async (
       return next(new ApiError('Rating must be between 1 and 5 stars', 400));
     }
 
+    // Process uploaded review images (via multipart files or URLs passed in body)
+    const uploadedFiles = (req.files as Express.Multer.File[]) || (req.file ? [req.file] : []);
+    const fileUrls = uploadedFiles.map((file) => `/uploads/reviews/${file.filename}`);
+
+    let bodyImages: string[] = [];
+    if (req.body.images) {
+      if (Array.isArray(req.body.images)) {
+        bodyImages = req.body.images;
+      } else if (typeof req.body.images === 'string') {
+        try {
+          const parsed = JSON.parse(req.body.images);
+          if (Array.isArray(parsed)) bodyImages = parsed;
+          else if (parsed) bodyImages = [parsed];
+        } catch {
+          bodyImages = [req.body.images];
+        }
+      }
+    }
+
+    // Combine any new files with existing/body image URLs
+    const finalImages = [...fileUrls, ...bodyImages].filter(Boolean);
+
     // Resolve product
     let product = await Product.findById(productId);
     if (!product && !mongoose.Types.ObjectId.isValid(productId)) {
@@ -127,6 +149,9 @@ export const createReview = async (
       existingReview.rating = Number(rating);
       existingReview.title = title.trim();
       existingReview.comment = comment.trim();
+      if (finalImages.length > 0 || req.body.images !== undefined) {
+        existingReview.images = finalImages;
+      }
       existingReview.isApproved = false; // requires re-approval upon edit
       await existingReview.save();
 
@@ -158,6 +183,7 @@ export const createReview = async (
       rating: Number(rating),
       title: title.trim(),
       comment: comment.trim(),
+      images: finalImages,
       isApproved: false,
       verifiedPurchase: true,
     });
@@ -168,6 +194,35 @@ export const createReview = async (
       success: true,
       message: 'Review submitted successfully! It will appear publicly once approved by an admin.',
       data: newReview,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Customer: Upload review images independently
+ */
+export const uploadReviewImagesHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const files = (req.files as Express.Multer.File[]) || (req.file ? [req.file] : []);
+    if (!files || files.length === 0) {
+      return next(new ApiError('No review image files provided', 400));
+    }
+
+    const host = req.get('host') || 'localhost:5012';
+    const imageUrls = files.map((f) => `${req.protocol}://${host}/uploads/reviews/${f.filename}`);
+    const relativeUrls = files.map((f) => `/uploads/reviews/${f.filename}`);
+
+    res.status(200).json({
+      success: true,
+      imageUrls,
+      relativeUrls,
+      count: imageUrls.length,
     });
   } catch (error) {
     next(error);

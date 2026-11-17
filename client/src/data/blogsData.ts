@@ -263,7 +263,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     title: 'The Power of Natural Ingredients in Skincare: Backed by Science',
     subtitle: 'Where age-old botanical wisdom merges with cellular bio-fermentation',
     category: 'Wellness',
-    coverImage: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1000&q=80',
+    coverImage: '/images/blogs/Natural.png',
     publishedAt: '2026-06-05',
     readTime: '4 min read',
     author: {
@@ -308,7 +308,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     title: '5 Skincare Habits for Healthy, Glowing Skin',
     subtitle: 'Simple everyday rituals to transform dull, fatigued skin into radiance',
     category: 'Skincare Tips',
-    coverImage: 'https://images.unsplash.com/photo-1512290900672-1f5be6e25ce4?auto=format&fit=crop&w=1000&q=80',
+    coverImage: '/images/blogs/Glowing.png',
     publishedAt: '2026-05-28',
     readTime: '4 min read',
     author: {

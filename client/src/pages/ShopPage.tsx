@@ -250,7 +250,7 @@ const ShopPage: React.FC = () => {
           <div className="relative mx-auto w-64 sm:w-80 md:mx-0">
             <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 shadow-[0_20px_50px_-20px_rgba(2,20,25,0.8)]">
               <img
-                src="/images/home/productpage.png"
+                src="/images/home/shop.jpeg"
                 alt="Hydra Skincare Formulation"
                 className="h-full w-full object-cover"
               />

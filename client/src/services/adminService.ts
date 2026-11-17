@@ -79,4 +79,25 @@ export const adminService = {
     const res = await api.patch(`/products/${id}/stock`, { stock });
     return res.data;
   },
+
+  // Physical Store Visit Invoices (POS)
+  createStoreInvoice: async (data: any): Promise<any> => {
+    const res = await api.post('/admin/store-invoices', data);
+    return res.data;
+  },
+
+  getStoreInvoices: async (params?: Record<string, any>): Promise<any> => {
+    const res = await api.get('/admin/store-invoices', { params });
+    return res.data;
+  },
+
+  getStoreInvoiceById: async (id: string): Promise<any> => {
+    const res = await api.get(`/admin/store-invoices/${id}`);
+    return res.data;
+  },
+
+  deleteStoreInvoice: async (id: string): Promise<any> => {
+    const res = await api.delete(`/admin/store-invoices/${id}`);
+    return res.data;
+  },
 };

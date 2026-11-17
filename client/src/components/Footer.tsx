@@ -7,11 +7,8 @@ import {
   Facebook,
   Headphones,
   Instagram,
-  Landmark,
   Linkedin,
-  QrCode,
   ShieldCheck,
-  Smartphone,
   Truck,
   Youtube,
 } from 'lucide-react';
@@ -38,10 +35,11 @@ const trustItems = [
 ];
 
 const paymentMethods = [
-  { icon: Smartphone, label: 'UPI', gradient: 'from-[#FF7A1A] via-[#F59E0B] to-[#16A34A]' },
-  { icon: Landmark, label: 'Net Banking', gradient: 'from-[#2563EB] to-[#6D28D9]' },
-  { icon: Banknote, label: 'Cash on Delivery', gradient: 'from-[#10B981] to-[#059669]' },
-  { icon: QrCode, label: 'Scan & Pay QR', gradient: 'from-[#EC4899] to-[#8B5CF6]' },
+  { name: 'Razorpay', image: '/images/payments/razorpay.png', alt: 'Razorpay Secure Payment' },
+  { name: 'VISA', image: '/images/payments/visa.png', alt: 'VISA Card' },
+  { name: 'Maestro', image: '/images/payments/maestro.png', alt: 'Mastercard & Maestro Card' },
+  { name: 'PhonePe', image: '/images/payments/phonepe.png', alt: 'PhonePe UPI' },
+  { name: 'Google Pay', image: '/images/payments/gpay.png', alt: 'Google Pay (GPay)' },
 ];
 
 const socialLinks = [
@@ -204,7 +202,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* ---------- Payments ---------- */}
-        <div className="mt-10 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-8">
+        <div className="mt-10 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-8 border-t border-white/10 pt-8">
           <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-start lg:gap-1 flex-shrink-0">
             <h4 className="text-lg font-bold tracking-wide text-white">We Accept</h4>
             <span className="flex items-center gap-1.5 text-xs text-[#D3EEEE]">
@@ -212,21 +210,25 @@ export const Footer: React.FC = () => {
               100% secure payments
             </span>
           </div>
-          <ul className="grid flex-1 grid-cols-2 sm:grid-cols-4 gap-3">
-            {paymentMethods.map(({ icon: Icon, label, gradient }) => (
-              <li
-                key={label}
-                className="flex items-center gap-2.5 rounded-xl bg-white px-3 py-2.5 shadow-[0_8px_24px_-12px_rgba(2,20,25,0.8)] transition-transform duration-300 hover:-translate-y-0.5"
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-1">
+            {paymentMethods.map(({ name, image, alt }) => (
+              <div
+                key={name}
+                className="flex h-11 sm:h-12 items-center justify-center rounded-xl bg-white px-3 sm:px-4 py-1.5 shadow-[0_8px_24px_-12px_rgba(2,20,25,0.8)] border border-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <span
-                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${gradient} text-white shadow-sm`}
-                >
-                  <Icon className="h-4 w-4" strokeWidth={2.2} />
-                </span>
-                <span className="text-xs font-semibold leading-tight text-[#031F26]">{label}</span>
-              </li>
+                <img
+                  src={image}
+                  alt={alt}
+                  className="h-6 sm:h-7 w-auto max-w-[85px] object-contain"
+                  loading="lazy"
+                />
+              </div>
             ))}
-          </ul>
+            {/* <div className="flex h-11 sm:h-12 items-center gap-2 rounded-xl bg-white/[0.10] hover:bg-white/[0.16] px-4 py-1.5 text-white border border-white/15 shadow-sm transition-all duration-300 hover:-translate-y-0.5 backdrop-blur-md">
+              <Banknote className="h-4 w-4 text-[#7FE6EA]" />
+              <span className="text-xs font-bold tracking-wide whitespace-nowrap">Cash on Delivery</span>
+            </div> */}
+          </div>
         </div>
 
         {/* ---------- Bottom bar ---------- */}

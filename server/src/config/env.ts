@@ -21,4 +21,8 @@ export const env = {
   SHIPROCKET_PASSWORD: process.env.SHIPROCKET_PASSWORD || '',
   SHIPROCKET_BASE_URL: process.env.SHIPROCKET_BASE_URL || 'https://apiv2.shiprocket.in/v1/external',
   SHIPROCKET_WEBHOOK_SECRET: process.env.SHIPROCKET_WEBHOOK_SECRET || '',
+  /** Optional — enables POST /api/orders/webhook/razorpay (payment.captured / order.paid / payment.failed) */
+  RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET || '',
+  /** How long an unpaid online order keeps its stock reserved before auto-cancellation */
+  PAYMENT_WINDOW_MINUTES: Math.max(5, parseInt(process.env.PAYMENT_WINDOW_MINUTES || '1440', 10) || 1440),
 };

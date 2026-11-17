@@ -53,18 +53,26 @@ const TESTIMONIALS = [
   {
     name: 'Priya S.',
     quote: 'Absolutely love the quality! The product looks beautiful and feels premium. Highly recommended!',
+       avatar: '/images/home/sneha_avatar.jpg',
+    verified: true,
   },
   {
     name: 'Rahul M.',
     quote: 'Great shopping experience. Smooth ordering process, excellent packaging, and fast delivery.',
+    avatar: '/images/home/rahul_avatar.jpg',
+    verified: true,
   },
   {
     name: 'Ananya R.',
     quote: 'The quality exceeded my expectations. Everything looks elegant and perfectly designed.',
+    avatar: '/images/home/ananya_avatar.jpg',
+    verified: true,
   },
   {
     name: 'Arjun K.',
     quote: 'Amazing product and excellent service. I will definitely shop here again!',
+    avatar: '/images/home/arjun_avatar.jpg',
+    verified: true,
   },
 ];
 
@@ -762,7 +770,7 @@ export const HomePage: React.FC = () => {
 
               <div className="relative hidden w-[38%] shrink-0 sm:block">
                 <img
-                  src="/images/home/testimonial_leaf.jpg"
+                  src="/images/home/testimonial_leaf.png"
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover"
                   onError={(e) => {
@@ -793,16 +801,7 @@ export const HomePage: React.FC = () => {
                     Get exclusive offers, skincare tips and more.
                   </p>
                 </div>
-                <div className="hidden h-28 w-20 shrink-0 rotate-6 overflow-hidden rounded-2xl bg-white p-1.5 shadow-[0_20px_40px_-15px_rgba(2,20,25,0.9)] sm:block">
-                  <img
-                    src="/images/home/newsletter_bottle.jpg"
-                    alt="Hydra Serum bottle"
-                    className="h-full w-full rounded-xl object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/home/newsletter_card.jpg';
-                    }}
-                  />
-                </div>
+    
               </div>
 
               <form onSubmit={handleNewsletterSubmit} className="mt-8">

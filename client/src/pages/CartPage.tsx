@@ -42,7 +42,7 @@ export const CartPage: React.FC = () => {
       setCouponSuccess(`Coupon ${res.data.code} applied! Saved ₹${res.data.discountCalculated}`);
       setCouponInput('');
     } catch (err: any) {
-      setCouponError(err.message || 'Invalid coupon code');
+      setCouponError(err.response?.data?.message || err.message || 'Invalid coupon code');
     } finally {
       setCouponLoading(false);
     }
