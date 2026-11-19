@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Package,
@@ -126,20 +126,54 @@ export const OrderTrackingPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrder = async () => {
+  const fetchOrder = useCallback(
+    async (silent = false) => {
       if (!id) return;
+      if (!silent) setLoading(true);
       try {
         const data = await orderService.getOrderById(id);
         setOrder(data);
       } catch (err) {
         console.error('Error fetching order:', err);
       } finally {
-        setLoading(false);
+        if (!silent) setLoading(false);
+      }
+    },
+    [id]
+  );
+
+  useEffect(() => {
+    fetchOrder(false);
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'hydra_order_updated' && e.newValue) {
+        try {
+          const payload = JSON.parse(e.newValue);
+          if (!payload.orderId || payload.orderId === id) {
+            fetchOrder(true);
+          }
+        } catch {
+          fetchOrder(true);
+        }
       }
     };
-    fetchOrder();
-  }, [id]);
+
+    const handleFocus = () => fetchOrder(true);
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchOrder(true);
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [fetchOrder, id]);
 
   const handleCancel = async () => {
     if (!order) return;
@@ -426,13 +460,19 @@ export const OrderTrackingPage: React.FC = () => {
           {/* Top Info Banner */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-gray-100">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-bold border inline-flex items-center gap-1.5 ${statusMeta.color} ${statusMeta.border}`}
                 >
                   <span>{statusMeta.icon}</span>
                   <span>{statusMeta.label}</span>
                 </span>
+                {isDelivered && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Completed</span>
+                  </span>
+                )}
                 <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${payBadgeStyle}`}>
                   {normPayment.toUpperCase()}
                 </span>
@@ -441,6 +481,8 @@ export const OrderTrackingPage: React.FC = () => {
               <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#13382B] mt-2">
                 {isCancelled
                   ? 'Order Cancelled'
+                  : isDelivered
+                  ? 'Current Milestone: Delivered (Completed)'
                   : `Current Milestone: ${statusMeta.label}`}
               </h2>
               <p className="text-xs text-gray-500 mt-0.5">
@@ -519,8 +561,8 @@ export const OrderTrackingPage: React.FC = () => {
                   <div className="grid grid-cols-5 gap-2 relative z-10 text-center">
                     {STATUS_PIPELINE.map((st, idx) => {
                       const meta = STATUS_META[st];
-                      const isCompleted = idx < currentStepIdx;
-                      const isCurrent = idx === currentStepIdx;
+                      const isCompleted = idx < currentStepIdx || isDelivered;
+                      const isCurrent = idx === currentStepIdx && !isDelivered;
 
                       return (
                         <div key={st} className="flex flex-col items-center px-1">
@@ -558,8 +600,8 @@ export const OrderTrackingPage: React.FC = () => {
               <div className="block md:hidden space-y-4 pt-2">
                 {STATUS_PIPELINE.map((st, idx) => {
                   const meta = STATUS_META[st];
-                  const isCompleted = idx < currentStepIdx;
-                  const isCurrent = idx === currentStepIdx;
+                  const isCompleted = idx < currentStepIdx || isDelivered;
+                  const isCurrent = idx === currentStepIdx && !isDelivered;
 
                   return (
                     <div key={st} className="flex items-start gap-3.5 relative">
@@ -644,8 +686,15 @@ export const OrderTrackingPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               {!isCancelled && (
-                <span className="text-xs font-bold text-[#2E6B48] bg-[#EAF1EB] px-3 py-1 rounded-full border border-[#B8DAC2]">
-                  Step {Math.max(1, currentStepIdx + 1)} of 5
+                <span className="text-xs font-bold text-[#2E6B48] bg-[#EAF1EB] px-3 py-1 rounded-full border border-[#B8DAC2] inline-flex items-center gap-1.5">
+                  {isDelivered ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>All 5 Steps Completed</span>
+                    </>
+                  ) : (
+                    <span>Step {Math.max(1, currentStepIdx + 1)} of 5</span>
+                  )}
                 </span>
               )}
               {normStatus === 'delivered' && (
@@ -676,8 +725,8 @@ export const OrderTrackingPage: React.FC = () => {
               <tbody className="divide-y divide-gray-100">
                 {STATUS_PIPELINE.map((st, idx) => {
                   const meta = STATUS_META[st];
-                  const isCompleted = idx < currentStepIdx;
-                  const isCurrent = idx === currentStepIdx;
+                  const isCompleted = idx < currentStepIdx || isDelivered;
+                  const isCurrent = idx === currentStepIdx && !isDelivered;
 
                   return (
                     <tr

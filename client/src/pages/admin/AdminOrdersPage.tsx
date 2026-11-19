@@ -175,13 +175,20 @@ export const AdminOrdersPage: React.FC = () => {
 
     if (nextStatus === 'shipped') {
       setCustomCourier(order.shiprocket?.courierName || 'Blue Dart Express');
-      setCustomAwb(order.shiprocket?.awbCode || order.trackingNumber || '');
+      setCustomAwb(order.shiprocket?.awbCode || order.trackingNumber || `TRACK-${order.orderNumber}`);
       setShippingNote('');
       setShowShipModal(true);
       return;
     }
 
     await executeStatusUpdate(order._id, nextStatus);
+  };
+
+  const handlePipelineStepUpdate = async (order: Order, targetStatus: string) => {
+    const nextStatus = getNextStage(order.status);
+    if (!nextStatus || targetStatus !== nextStatus) return;
+
+    await handleAdvanceStatus(order);
   };
 
   const executeStatusUpdate = async (orderId: string, nextStatus: string, additional?: any) => {
@@ -199,6 +206,13 @@ export const AdminOrdersPage: React.FC = () => {
       if (selectedOrder?._id === orderId) {
         setSelectedOrder(updated);
       }
+
+      try {
+        localStorage.setItem(
+          'hydra_order_updated',
+          JSON.stringify({ orderId, status: nextStatus, ts: Date.now() })
+        );
+      } catch {}
 
       setActionNotice({
         type: 'success',
@@ -640,28 +654,59 @@ export const AdminOrdersPage: React.FC = () => {
               {/* Enterprise 5-Step Pipeline Visualizer */}
               {!isCancelled ? (
                 <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#EDE8E1] space-y-3">
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between text-xs gap-2">
                     <span className="font-bold text-gray-800">5-Step Delivery Pipeline</span>
-                    <span className="text-[10px] font-bold text-[#13382B] bg-white px-2 py-0.5 rounded-full border border-[#EDE8E1]">
-                      Step {selectedStepIdx + 1} of 5: {selectedMeta.label}
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        isDelivered
+                          ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                          : 'text-[#13382B] bg-white border-[#EDE8E1]'
+                      }`}
+                    >
+                      {isDelivered
+                        ? 'Step 5 of 5: Delivered (Completed)'
+                        : `Step ${selectedStepIdx + 1} of 5: ${selectedMeta.label}`}
                     </span>
                   </div>
 
-                  {/* Horizontal Nodes */}
+                  {/* Horizontal Interactive Nodes */}
                   <div className="grid grid-cols-5 gap-1 pt-1 text-center">
                     {STATUS_PIPELINE.map((st, idx) => {
                       const meta = STATUS_META[st];
-                      const isPast = idx < selectedStepIdx;
-                      const isCurrent = idx === selectedStepIdx;
+                      const isPast = idx < selectedStepIdx || isDelivered;
+                      const isCurrent = idx === selectedStepIdx && !isDelivered;
+                      const isNextStep = idx === selectedStepIdx + 1 && !isDelivered;
+                      const isUpdatingThis = updatingId === selectedOrder._id;
 
                       return (
-                        <div key={st} className="flex flex-col items-center">
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => isNextStep && handlePipelineStepUpdate(selectedOrder, st)}
+                          disabled={!isNextStep || isUpdatingThis}
+                          title={
+                            isNextStep
+                              ? `Click to update order status to ${meta.label}`
+                              : isPast
+                              ? `${meta.label} (Completed)`
+                              : isCurrent
+                              ? `${meta.label} (Current)`
+                              : `Complete ${STATUS_META[STATUS_PIPELINE[idx - 1]]?.label || 'previous step'} first`
+                          }
+                          className={`flex flex-col items-center group focus:outline-none ${
+                            isNextStep && !isUpdatingThis
+                              ? 'cursor-pointer hover:opacity-90'
+                              : 'cursor-default'
+                          }`}
+                        >
                           <div
                             className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                               isPast
                                 ? 'bg-[#2E6B48] text-white shadow-xs'
                                 : isCurrent
                                 ? `${meta.color} border-2 ${meta.border} ring-2 ring-[#13382B]/20 scale-110 shadow-sm`
+                                : isNextStep
+                                ? 'bg-white text-[#13382B] border-2 border-dashed border-[#13382B]/60 group-hover:border-[#13382B] group-hover:scale-105'
                                 : 'bg-gray-100 text-gray-400 border border-gray-200'
                             }`}
                           >
@@ -669,21 +714,60 @@ export const AdminOrdersPage: React.FC = () => {
                           </div>
                           <span
                             className={`text-[9px] font-bold mt-1.5 leading-tight ${
-                              isCurrent ? 'text-[#13382B]' : isPast ? 'text-[#2E6B48]' : 'text-gray-400'
+                              isCurrent
+                                ? 'text-[#13382B]'
+                                : isPast
+                                ? 'text-[#2E6B48]'
+                                : isNextStep
+                                ? 'text-[#13382B]'
+                                : 'text-gray-400'
                             }`}
                           >
                             {meta.label}
                           </span>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
 
+                  {/* Attached Step-by-Step Update Control inside 5-Step Delivery Pipeline */}
+                  {!isDelivered && nextStageForSelected && (
+                    <div className="pt-2.5 mt-1 border-t border-[#EDE8E1] flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-[10px] text-gray-500">
+                        Next step: <strong>{STATUS_META[nextStageForSelected]?.label}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleAdvanceStatus(selectedOrder)}
+                        disabled={updatingId === selectedOrder._id}
+                        className={`px-3.5 py-1.5 text-white rounded-full text-[11px] font-bold flex items-center gap-1.5 shadow-xs transition-all disabled:opacity-50 ${
+                          nextStageForSelected === 'delivered'
+                            ? 'bg-[#2E6B48] hover:bg-[#13382B]'
+                            : 'bg-[#13382B] hover:bg-[#1E4D3B]'
+                        }`}
+                      >
+                        {nextStageForSelected === 'delivered' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                        <span>
+                          {updatingId === selectedOrder._id
+                            ? 'Updating...'
+                            : nextStageForSelected === 'confirmed'
+                            ? 'Update to Confirmed →'
+                            : nextStageForSelected === 'processing'
+                            ? 'Update to Processing →'
+                            : nextStageForSelected === 'shipped'
+                            ? 'Update to Shipped 🚚 →'
+                            : 'Mark as Delivered 🎉'}
+                        </span>
+                      </button>
+                    </div>
+                  )}
+
                   {/* Milestone Delivered Confirmation & Invoice Download */}
                   {selectedNormStatus === 'delivered' && (
-                    <div className="pt-2.5 mt-2 border-t border-emerald-200 flex items-center justify-between text-xs">
+                    <div className="pt-2.5 mt-2 border-t border-emerald-200 flex items-center justify-between text-xs gap-2">
                       <span className="text-emerald-700 font-bold flex items-center gap-1.5 text-[11px]">
-                        <span>🎉</span> Fulfillment Milestone: Delivered
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Delivery Completed — Milestone: Delivered</span>
                       </span>
                       <button
                         type="button"
@@ -896,59 +980,7 @@ export const AdminOrdersPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Shiprocket Logistics Section */}
-              <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200/80 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-indigo-900 font-bold text-xs">
-                    <Truck className="w-4 h-4 text-indigo-700" />
-                    <span>Courier & Logistics Details</span>
-                  </div>
-                  {selectedOrder.shiprocket?.trackingUrl && (
-                    <a
-                      href={selectedOrder.shiprocket.trackingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[11px] text-indigo-700 font-semibold hover:underline flex items-center gap-1"
-                    >
-                      <span>Live Courier Portal</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-gray-500 block text-[10px]">Courier Partner:</span>
-                    <strong className="text-gray-900">
-                      {selectedOrder.shiprocket?.courierName || 'Pending Assignment'}
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block text-[10px]">AWB Tracking Code:</span>
-                    <strong className="font-mono text-gray-900">
-                      {selectedOrder.shiprocket?.awbCode || selectedOrder.trackingNumber || 'Not generated yet'}
-                    </strong>
-                  </div>
-                </div>
-
-                {!isCancelled && (
-                  <button
-                    type="button"
-                    onClick={() => handleCreateShiprocket(selectedOrder._id)}
-                    disabled={shiprocketLoading || isDelivered}
-                    className="w-full py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-lg text-xs font-semibold disabled:opacity-50 transition-all flex items-center justify-center gap-1.5 shadow-2xs"
-                  >
-                    <Truck className="w-3.5 h-3.5" />
-                    <span>
-                      {shiprocketLoading
-                        ? 'Connecting Shiprocket...'
-                        : selectedOrder.shiprocket?.awbCode
-                        ? 'Re-sync Shiprocket Shipment'
-                        : 'Auto-Generate Shiprocket AWB'}
-                    </span>
-                  </button>
-                )}
-              </div>
+         
 
               {/* Customer Info & Shipping Destination */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">

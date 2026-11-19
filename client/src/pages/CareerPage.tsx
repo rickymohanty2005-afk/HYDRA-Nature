@@ -224,9 +224,7 @@ export const CareerPage: React.FC = () => {
               alt="Hydra Collaborative Headquarters"
               className="w-full h-full object-cover rounded-2xl"
             />
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-[#031F26] shadow-sm">
-              Build • Innovate • Grow
-            </div>
+           
           </div>
         </div>
       </section>

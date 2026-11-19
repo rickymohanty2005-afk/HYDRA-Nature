@@ -46,7 +46,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     author: {
       name: 'Dr. Evelyn Vance',
       role: 'Head of Skincare Formulation & Dermatologist',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+      avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTicl0T1zAWsAnztxyWJBLMJIsyodafip2T7kmFwyrJqwyye5CrfSnZuY6E&s=10',
     },
     tags: ['Acids', 'Chemical Exfoliation', 'AHA', 'BHA', 'Skin Barrier'],
     excerpt:

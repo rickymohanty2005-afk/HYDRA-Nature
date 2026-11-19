@@ -1,0 +1,8 @@
+{
+  "name": "HYDRA24n Professional Beauty",
+  "short_name": "HYDRA24n",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#13382B"
+}

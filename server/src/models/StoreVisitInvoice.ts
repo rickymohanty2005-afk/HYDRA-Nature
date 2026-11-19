@@ -171,7 +171,6 @@ const StoreVisitInvoiceSchema = new Schema<IStoreVisitInvoice>(
   }
 );
 
-StoreVisitInvoiceSchema.index({ invoiceNumber: 1 });
 StoreVisitInvoiceSchema.index({ customerPhone: 1 });
 StoreVisitInvoiceSchema.index({ createdAt: -1 });
 

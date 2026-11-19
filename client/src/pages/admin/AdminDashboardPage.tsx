@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   TrendingUp,
@@ -9,26 +9,57 @@ import {
   Package,
   Calendar,
   IndianRupee,
+  RefreshCw,
 } from 'lucide-react';
 import { adminService, DashboardAnalytics } from '../../services/adminService';
 
 export const AdminDashboardPage: React.FC = () => {
   const [data, setData] = useState<DashboardAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const RECENT_ORDERS_LIMIT = 5;
+  const REFRESH_INTERVAL_MS = 30000;
+
+  const fetchAnalytics = useCallback(async (silent = false) => {
+    if (silent) setRefreshing(true);
+    try {
+      const res = await adminService.getAnalytics();
+      setData(res);
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error('Error fetching admin analytics:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const res = await adminService.getAnalytics();
-        setData(res);
-      } catch (err) {
-        console.error('Error fetching admin analytics:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAnalytics();
-  }, []);
+
+    // Periodically refresh so recent orders stay up to date
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') fetchAnalytics(true);
+    }, REFRESH_INTERVAL_MS);
+
+    // Refresh immediately when the admin returns to the tab
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchAnalytics(true);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [fetchAnalytics]);
+
+  const recentOrders = (data?.recentOrders ?? [])
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, RECENT_ORDERS_LIMIT);
 
   if (loading) {
     return (
@@ -188,7 +219,23 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="lg:col-span-8 bg-white rounded-3xl p-6 border border-[#EDE8E1] shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <h3 className="font-serif text-base font-bold text-[#13382B]">Recent Orders</h3>
-           
+            <div className="flex items-center gap-3">
+              {lastUpdated && (
+                <span className="text-[10px] text-gray-400">
+                  Updated {lastUpdated.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => fetchAnalytics(true)}
+                disabled={refreshing}
+                className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#13382B] hover:text-[#2E6B48] disabled:opacity-50"
+                title="Refresh recent orders"
+              >
+                <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -202,8 +249,8 @@ export const AdminDashboardPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {data?.recentOrders && data.recentOrders.length > 0 ? (
-                  data.recentOrders.map((ord) => (
+                {recentOrders.length > 0 ? (
+                  recentOrders.map((ord) => (
                     <tr key={ord._id} className="hover:bg-gray-50/60">
                       <td className="py-3 font-mono font-bold text-[#13382B]">
                         {ord.orderNumber}

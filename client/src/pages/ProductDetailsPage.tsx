@@ -1021,11 +1021,7 @@ export const ProductDetailsPage: React.FC = () => {
             <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#13382B]">
               Clinically Tested & Certified Safe
             </h2>
-            <p className="text-xs sm:text-sm text-gray-600 mt-2.5 leading-relaxed">
-              RayGlow Advanced Skincare was screened by <strong>independent accredited laboratories</strong> — 
-              FARE Labs (NABL-accredited, TC-5503) & Wave Analytical Labs for steroids and heavy metals, 
-              and dermatologically patch-tested in-vivo by Mascot Spincontrol (ISO 9001, Bureau Veritas).
-            </p>
+           
 
             {/* Clinical Highlights Strip */}
             <div className="flex flex-wrap items-center justify-center gap-2.5 mt-5">
@@ -1060,9 +1056,7 @@ export const ProductDetailsPage: React.FC = () => {
                 className="w-full h-auto object-cover max-h-[500px] transition-transform duration-500 group-hover:scale-[1.01]"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <span className="px-4 py-2 bg-white/95 backdrop-blur-sm text-[#13382B] text-xs font-bold rounded-full shadow-lg flex items-center gap-2">
-                  <ZoomIn className="w-4 h-4 text-[#2E6B48]" /> Click to Enlarge Clinical Showcase
-                </span>
+              
               </div>
             </div>
             <div className="p-4 sm:p-5 bg-gradient-to-r from-[#FAF8F5] via-white to-[#FAF8F5] border-t border-[#EDE8E1] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-600">

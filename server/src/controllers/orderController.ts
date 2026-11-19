@@ -578,7 +578,7 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response, next: N
       return;
     }
 
-    // ── Forward progression ─────────────────────────────────────────────────
+    // ── Forward progression (strict one-by-one step) ────────────────────────
     const allowedNext = getNextStatus(current);
     if (target !== allowedNext) {
       return next(

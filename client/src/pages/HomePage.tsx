@@ -47,31 +47,31 @@ const TESTIMONIALS = [
   {
     name: 'Sneha Patel',
     quote: 'Hydra products have completely transformed my skin. Natural, effective and truly premium!',
-    avatar: '/images/home/sneha_avatar.jpg',
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlL1NoDtKaB_Fq2UXW85fNGSrbD2ggm-LmMVt9kSAjr-z-Jvo4QdhRgagz&s=10',
     verified: true,
   },
   {
     name: 'Priya S.',
     quote: 'Absolutely love the quality! The product looks beautiful and feels premium. Highly recommended!',
-       avatar: '/images/home/sneha_avatar.jpg',
+       avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfWZsaYj4DPHkRJJkh3BQN-VrAJzYgS1tXWQ4-8EiBeIxYFkAo4pVsMuOF&s=10',
     verified: true,
   },
   {
     name: 'Rahul M.',
     quote: 'Great shopping experience. Smooth ordering process, excellent packaging, and fast delivery.',
-    avatar: '/images/home/rahul_avatar.jpg',
+       avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0jC1gAJtQH_fkoQ_yqlPBrXxeVr9tSO7xRgdgG5Lo39818pfjsUoqLCND&s=10',
     verified: true,
   },
   {
     name: 'Ananya R.',
     quote: 'The quality exceeded my expectations. Everything looks elegant and perfectly designed.',
-    avatar: '/images/home/ananya_avatar.jpg',
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7ZQd-uOlvB2-30CZ6q3GHYhRDYMaFoF6_YQ4ZKDoQX-qApBhQMXoiZWA&s=10',
     verified: true,
   },
   {
     name: 'Arjun K.',
     quote: 'Amazing product and excellent service. I will definitely shop here again!',
-    avatar: '/images/home/arjun_avatar.jpg',
+    avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTicl0T1zAWsAnztxyWJBLMJIsyodafip2T7kmFwyrJqwyye5CrfSnZuY6E&s=10',
     verified: true,
   },
 ];

@@ -54,6 +54,8 @@ const allowedOrigins: (string | RegExp)[] = [
     .filter(Boolean),
   // Any Vercel domain for this project (e.g. hydra-nature-cyan.vercel.app, preview deployments)
   /^https:\/\/hydra-nature(-[a-z0-9-]+)?\.vercel\.app$/,
+  // Allow any local dev port (e.g. Vite fallback 5174, 5175) outside production
+  ...(env.NODE_ENV !== 'production' ? [/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/] : []),
 ];
 
 app.use(
