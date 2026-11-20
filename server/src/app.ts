@@ -159,7 +159,7 @@ export const startServer = async () => {
     await migrateLegacyOrderStatuses();
     startPaymentExpiryJob();
 
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`===============================================`);
       console.log(`  🌿 HYDRA Skincare API Server running on port ${PORT}`);
       console.log(`  🌿 Environment: ${env.NODE_ENV}`);
