@@ -24,13 +24,13 @@ const diskStorage = multer.diskStorage({
 export const upload = multer({
   storage: diskStorage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit per file
+    fileSize: 50 * 1024 * 1024, // 50MB limit per file (supports product photos & videos)
   },
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files (JPEG, PNG, WEBP, AVIF, GIF) are allowed.'));
+      cb(new Error('Only image (JPG, PNG, WEBP, AVIF, GIF) or video (MP4, WEBM, MOV) files are allowed.'));
     }
   },
 });

@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { productService } from '../../services/productService';
 import { Product } from '../../types';
-import { getImageUrl } from '../../utils/imageUrl';
+import { getImageUrl, isVideoUrl } from '../../utils/imageUrl';
 
 const COMMON_SKIN_TYPES = ['All Skin Types', 'Dry', 'Oily', 'Sensitive', 'Combination', 'Normal'];
 const COMMON_CATEGORIES = ['Face Care', 'Body Care', 'Hair Care', 'Skincare Sets', 'Natural Care', 'Organic Range'];
@@ -71,6 +71,8 @@ export const AdminProductsPage: React.FC = () => {
   const [uploadStatusText, setUploadStatusText] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoBlobSetRef = useRef<Set<string>>(new Set());
+  const isMediaVideo = (url?: string) => Boolean(url && (videoBlobSetRef.current.has(url) || isVideoUrl(url)));
 
   const [stock, setStock] = useState<number>(50);
   const [size, setSize] = useState('50ml');
@@ -259,30 +261,34 @@ export const AdminProductsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Handle Multer file upload for single or multiple files
+  // Handle Multer + Cloudinary file upload for single or multiple images/videos
   const processFilesUpload = async (files: FileList | File[]) => {
-    let fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    let fileArray = Array.from(files).filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'));
     if (fileArray.length === 0) {
-      alert('Please select valid image files (JPG, PNG, WEBP, AVIF).');
+      alert('Please select valid image (JPG, PNG, WEBP, AVIF) or video (MP4, WEBM, MOV) files.');
       return;
     }
 
     const slotsLeft = MAX_PRODUCT_IMAGES - images.length;
     if (slotsLeft <= 0) {
-      alert(`You can attach a maximum of ${MAX_PRODUCT_IMAGES} product photos.`);
+      alert(`You can attach a maximum of ${MAX_PRODUCT_IMAGES} product photos/videos.`);
       return;
     }
     if (fileArray.length > slotsLeft) {
-      alert(`Only ${MAX_PRODUCT_IMAGES} photos are allowed. Adding the first ${slotsLeft} selected photo${slotsLeft > 1 ? 's' : ''}.`);
+      alert(`Only ${MAX_PRODUCT_IMAGES} media files are allowed. Adding the first ${slotsLeft} selected file${slotsLeft > 1 ? 's' : ''}.`);
       fileArray = fileArray.slice(0, slotsLeft);
     }
 
-    // Instant local preview so images display immediately
-    const localPreviews = fileArray.map((f) => URL.createObjectURL(f));
+    // Instant local preview so images/videos display immediately
+    const localPreviews = fileArray.map((f) => {
+      const blobUrl = URL.createObjectURL(f);
+      if (f.type.startsWith('video/')) videoBlobSetRef.current.add(blobUrl);
+      return blobUrl;
+    });
     setImages((prev) => [...prev, ...localPreviews]);
 
     setUploadingImage(true);
-    setUploadStatusText(`Uploading ${fileArray.length} photo${fileArray.length > 1 ? 's' : ''}…`);
+    setUploadStatusText(`Uploading ${fileArray.length} file${fileArray.length > 1 ? 's' : ''} to Cloudinary…`);
 
     try {
       let uploadedUrls: string[] = [];
@@ -315,7 +321,10 @@ export const AdminProductsPage: React.FC = () => {
       setImages((prev) => prev.filter((img) => !localPreviews.includes(img)));
       alert(err.message || 'Image upload failed. Please make sure the backend server is running.');
     } finally {
-      localPreviews.forEach((u) => URL.revokeObjectURL(u));
+      localPreviews.forEach((u) => {
+        videoBlobSetRef.current.delete(u);
+        URL.revokeObjectURL(u);
+      });
       setUploadingImage(false);
       setUploadStatusText('');
       if (fileInputRef.current) {
@@ -1197,8 +1206,8 @@ export const AdminProductsPage: React.FC = () => {
                 <fieldset className="space-y-4">
                   <div className="flex items-end justify-between gap-4">
                     <div>
-                      <legend className={sectionTitleCls}>Product photos *</legend>
-                      <p className={hintCls}>{`Required: add 1 to ${MAX_PRODUCT_IMAGES} of your own product photos (${images.length}/${MAX_PRODUCT_IMAGES}). The first photo is the cover shown in the store. JPG, PNG, WEBP or AVIF, up to 10 MB each.`}</p>
+                      <legend className={sectionTitleCls}>Product photos &amp; videos *</legend>
+                      <p className={hintCls}>{`Required: add 1 to ${MAX_PRODUCT_IMAGES} of your own product photos or videos (${images.length}/${MAX_PRODUCT_IMAGES}). Saved to Cloudinary. The first item is the cover shown in the store. JPG, PNG, WEBP, AVIF, MP4, WEBM or MOV (up to 50 MB).`}</p>
                     </div>
                     {images.length > 0 && images.length < MAX_PRODUCT_IMAGES && (
                       <button
@@ -1213,12 +1222,12 @@ export const AdminProductsPage: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Hidden multi-file input */}
+                  {/* Hidden multi-file input (images + videos) */}
                   <input
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
+                    accept="image/jpeg,image/png,image/webp,image/avif,image/gif,video/mp4,video/webm,video/quicktime,video/ogg"
                     onChange={handleFileInputChange}
                     className="hidden"
                   />
@@ -1270,16 +1279,32 @@ export const AdminProductsPage: React.FC = () => {
                           }`}
                         >
                           <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-[#FAF8F5]">
-                            <img loading="lazy" decoding="async"
-                              src={getImageUrl(imgUrl)}
-                              alt={idx === 0 ? 'Cover photo' : `Product photo ${idx + 1}`}
-                              referrerPolicy="no-referrer"
-                              onError={(e) => {
-                                const el = e.target as HTMLImageElement;
-                                if (!el.src.endsWith('/images/placeholder.svg')) el.src = '/images/placeholder.svg';
-                              }}
-                              className="h-full w-full object-contain"
-                            />
+                            {isMediaVideo(imgUrl) ? (
+                              <>
+                                <video
+                                  src={getImageUrl(imgUrl)}
+                                  muted
+                                  playsInline
+                                  controls
+                                  preload="metadata"
+                                  className="h-full w-full object-contain"
+                                />
+                                <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-medium text-white">
+                                  Video
+                                </span>
+                              </>
+                            ) : (
+                              <img loading="lazy" decoding="async"
+                                src={getImageUrl(imgUrl)}
+                                alt={idx === 0 ? 'Cover photo' : `Product photo ${idx + 1}`}
+                                referrerPolicy="no-referrer"
+                                onError={(e) => {
+                                  const el = e.target as HTMLImageElement;
+                                  if (!el.src.endsWith('/images/placeholder.svg')) el.src = '/images/placeholder.svg';
+                                }}
+                                className="h-full w-full object-contain"
+                              />
+                            )}
                             {imgUrl.startsWith('blob:') && uploadingImage && (
                               <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
                                 <Loader2 className="h-5 w-5 animate-spin text-white" />

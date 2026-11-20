@@ -29,3 +29,14 @@ export const getImageUrl = (url?: string): string => {
   if (cleanPath.startsWith('/uploads/')) return `${backendOrigin}${cleanPath}`;
   return cleanPath;
 };
+
+/**
+ * Returns true if the given media URL points to a video (Cloudinary /video/upload/ or video file extension).
+ */
+export const isVideoUrl = (url?: string): boolean => {
+  if (!url) return false;
+  const lower = url.trim().toLowerCase();
+  if (lower.startsWith('data:video/')) return true;
+  if (lower.includes('/video/upload/')) return true;
+  return /\.(mp4|webm|mov|m4v|ogg)(\?|#|$)/i.test(lower);
+};

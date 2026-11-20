@@ -29,7 +29,7 @@ import { useAppDispatch, useAppSelector } from '../store';
 import { addToCart, toggleCartDrawer } from '../store/cartSlice';
 import { toggleWishlistItem } from '../store/wishlistSlice';
 import { Product, Review } from '../types';
-import { getImageUrl } from '../utils/imageUrl';
+import { getImageUrl, isVideoUrl } from '../utils/imageUrl';
 
 const FALLBACK_PRODUCT_IMAGE = '/images/placeholder.svg';
 
@@ -367,16 +367,27 @@ export const ProductDetailsPage: React.FC = () => {
                 }
               }}
             >
-              <img
-                key={primaryImage || 'placeholder'}
-                src={getImageUrl(primaryImage) || FALLBACK_PRODUCT_IMAGE}
-                alt={product.name}
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_PRODUCT_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
-                }}
-                className="w-full h-full object-contain max-h-[460px] drop-shadow-xl transition-all duration-300"
-              />
+              {isVideoUrl(primaryImage) ? (
+                <video
+                  key={primaryImage}
+                  src={getImageUrl(primaryImage)}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full h-full object-contain max-h-[460px] rounded-2xl"
+                />
+              ) : (
+                <img
+                  key={primaryImage || 'placeholder'}
+                  src={getImageUrl(primaryImage) || FALLBACK_PRODUCT_IMAGE}
+                  alt={product.name}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_PRODUCT_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
+                  }}
+                  className="w-full h-full object-contain max-h-[460px] drop-shadow-xl transition-all duration-300"
+                />
+              )}
 
               {product.tag && (
                 <span className="absolute top-4 left-4 sm:top-6 sm:left-6 text-xs font-semibold tracking-wide px-3 py-1 bg-[#13382B] text-white rounded-full shadow-sm">
@@ -434,15 +445,30 @@ export const ProductDetailsPage: React.FC = () => {
                       activeIndex === idx ? 'border-[#13382B] shadow-sm ring-2 ring-[#13382B]/15' : 'border-[#EDE8E1] opacity-75 hover:opacity-100'
                     }`}
                   >
-                    <img loading="lazy" decoding="async"
-                      src={getImageUrl(img) || FALLBACK_PRODUCT_IMAGE}
-                      alt={`${product.name} photo ${idx + 1}`}
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_PRODUCT_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
-                      }}
-                      className="w-full h-full object-contain"
-                    />
+                    {isVideoUrl(img) ? (
+                      <div className="relative w-full h-full flex items-center justify-center bg-black/5 rounded-xl overflow-hidden">
+                        <video
+                          src={getImageUrl(img)}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="w-full h-full object-contain"
+                        />
+                        <span className="pointer-events-none absolute bottom-1 right-1 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                          VIDEO
+                        </span>
+                      </div>
+                    ) : (
+                      <img loading="lazy" decoding="async"
+                        src={getImageUrl(img) || FALLBACK_PRODUCT_IMAGE}
+                        alt={`${product.name} photo ${idx + 1}`}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_PRODUCT_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
+                        }}
+                        className="w-full h-full object-contain"
+                      />
+                    )}
                   </button>
                 ))}
               </div>

@@ -5,7 +5,7 @@ import { Product } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { addToCart } from '../../store/cartSlice';
 import { toggleWishlistItem } from '../../store/wishlistSlice';
-import { getImageUrl } from '../../utils/imageUrl';
+import { getImageUrl, isVideoUrl } from '../../utils/imageUrl';
 
 const FALLBACK_IMAGE = '/images/placeholder.svg';
 
@@ -20,8 +20,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [added, setAdded] = useState(false);
 
   const productImages = (product.images || []).map((img) => img?.trim()).filter(Boolean).slice(0, 6);
-  const coverImage = productImages[0] || '';
-  const hoverImage = productImages[1] || '';
+  const stillImages = productImages.filter((img) => !isVideoUrl(img));
+  const coverImage = stillImages[0] || productImages[0] || '';
+  const hoverImage = stillImages[1] || '';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -143,19 +144,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Soft Radial Ambient Glow */}
         <div className="absolute inset-0 bg-radial from-white/60 via-transparent to-transparent opacity-80 pointer-events-none" />
 
-        <img
-          src={getImageUrl(coverImage) || FALLBACK_IMAGE}
-          alt={product.name}
-          referrerPolicy="no-referrer"
-          decoding="async"
-          onError={(e) => {
-            if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
-          }}
-          className={`h-full w-full object-contain object-center drop-shadow-[0_12px_22px_rgba(19,56,43,0.13)] transition-all duration-500 ease-out ${
-            hoverImage ? 'sm:group-hover:opacity-0' : 'group-hover:scale-105'
-          } ${isOutOfStock ? 'opacity-60 grayscale-[30%]' : ''}`}
-          loading="lazy"
-        />
+        {isVideoUrl(coverImage) ? (
+          <video
+            src={getImageUrl(coverImage)}
+            muted
+            loop
+            autoPlay
+            playsInline
+            preload="metadata"
+            className={`h-full w-full object-contain object-center transition-all duration-500 ease-out ${
+              isOutOfStock ? 'opacity-60 grayscale-[30%]' : ''
+            }`}
+          />
+        ) : (
+          <img
+            src={getImageUrl(coverImage) || FALLBACK_IMAGE}
+            alt={product.name}
+            referrerPolicy="no-referrer"
+            decoding="async"
+            onError={(e) => {
+              if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+            }}
+            className={`h-full w-full object-contain object-center drop-shadow-[0_12px_22px_rgba(19,56,43,0.13)] transition-all duration-500 ease-out ${
+              hoverImage ? 'sm:group-hover:opacity-0' : 'group-hover:scale-105'
+            } ${isOutOfStock ? 'opacity-60 grayscale-[30%]' : ''}`}
+            loading="lazy"
+          />
+        )}
 
         {hoverImage && (
           <img

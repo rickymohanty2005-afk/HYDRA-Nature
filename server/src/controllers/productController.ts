@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import fs from 'fs';
 import { Product } from '../models/Product';
 import { ApiError } from '../utils/apiError';
-import cloudinary from '../config/cloudinary';
+import cloudinary, { isCloudinaryConfigured } from '../config/cloudinary';
 
 // Helper to normalize input into string arrays
 const parseStringArray = (input: any): string[] => {
@@ -49,14 +50,22 @@ const generateUniqueSlug = async (name: string, excludeId?: string): Promise<str
   return slug;
 };
 
-// Product photos are mandatory (1-6), supplied by the admin. No automatic fallback image.
+// Product media is mandatory (1-6), supplied by the admin. No automatic fallback image.
 const MAX_PRODUCT_IMAGES = 6;
 
-const cloudinaryConfigured = (): boolean =>
-  !!process.env.CLOUDINARY_CLOUD_NAME &&
-  process.env.CLOUDINARY_CLOUD_NAME !== 'hydra-demo' &&
-  !!process.env.CLOUDINARY_API_KEY &&
-  process.env.CLOUDINARY_API_KEY !== '123456789012345';
+const uploadFileToCloudinary = async (file: Express.Multer.File): Promise<{ secure_url: string; resource_type: string }> => {
+  const isVideo = file.mimetype.startsWith('video/');
+  const uploadRes = await cloudinary.uploader.upload(file.path, {
+    folder: isVideo ? 'hydra_products/videos' : 'hydra_products',
+    resource_type: 'auto',
+  });
+  // Clean up temporary local disk file once persisted to Cloudinary
+  fs.promises.unlink(file.path).catch(() => {});
+  return {
+    secure_url: uploadRes.secure_url,
+    resource_type: uploadRes.resource_type || (isVideo ? 'video' : 'image'),
+  };
+};
 
 const publicProto = (req: Request): string =>
   (req.get('x-forwarded-proto') || req.protocol).split(',')[0].trim();
@@ -486,11 +495,11 @@ export const getSubcategories = async (req: Request, res: Response, next: NextFu
   }
 };
 
-// 8. Upload product image handler (Multer Disk Storage + Cloudinary option)
+// 8. Upload single product image or video handler (Cloudinary primary + local fallback)
 export const uploadProductImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     if (!req.file) {
-      return next(new ApiError('No image file provided', 400));
+      return next(new ApiError('No image or video file provided', 400));
     }
 
     const host = req.get('host') || 'localhost:5012';
@@ -498,20 +507,19 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
     const fullUrl = `${proto}://${host}/uploads/products/${req.file.filename}`;
     const localUrl = `/uploads/products/${req.file.filename}`;
 
-    // If real Cloudinary credentials are configured, sync to Cloudinary
-    if (cloudinaryConfigured()) {
+    if (isCloudinaryConfigured()) {
       try {
-        const uploadRes = await cloudinary.uploader.upload(req.file.path, {
-          folder: 'hydra_products',
-        });
+        const uploaded = await uploadFileToCloudinary(req.file);
         res.status(200).json({
           success: true,
-          imageUrl: uploadRes.secure_url,
+          imageUrl: uploaded.secure_url,
+          resourceType: uploaded.resource_type,
+          storage: 'cloudinary',
           filename: req.file.filename,
         });
         return;
       } catch (cErr) {
-        console.warn('Cloudinary upload skipped, falling back to local disk storage:', cErr);
+        console.warn('Cloudinary upload failed, falling back to local disk storage:', cErr);
       }
     }
 
@@ -519,6 +527,8 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
       success: true,
       imageUrl: fullUrl,
       relativeUrl: localUrl,
+      resourceType: req.file.mimetype.startsWith('video/') ? 'video' : 'image',
+      storage: 'local',
       filename: req.file.filename,
     });
   } catch (error) {
@@ -526,25 +536,24 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
   }
 };
 
-// 9. Upload multiple product images handler
+// 9. Upload multiple product images/videos handler (Cloudinary primary + local fallback)
 export const uploadProductImages = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {
-      return next(new ApiError('No image files provided', 400));
+      return next(new ApiError('No image or video files provided', 400));
     }
 
     const host = req.get('host') || 'localhost:5012';
     const relativeUrls = files.map((f) => `/uploads/products/${f.filename}`);
     let imageUrls = files.map((f) => `${publicProto(req)}://${host}/uploads/products/${f.filename}`);
 
-    // Persist to Cloudinary when configured (Render's disk is ephemeral); keep local URL per-file on failure
-    if (cloudinaryConfigured()) {
+    if (isCloudinaryConfigured()) {
       imageUrls = await Promise.all(
         files.map(async (f, i) => {
           try {
-            const r = await cloudinary.uploader.upload(f.path, { folder: 'hydra_products' });
-            return r.secure_url;
+            const uploaded = await uploadFileToCloudinary(f);
+            return uploaded.secure_url;
           } catch (cErr) {
             console.warn('Cloudinary upload failed, using local storage:', cErr);
             return imageUrls[i];
