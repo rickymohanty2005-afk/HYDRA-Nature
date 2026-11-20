@@ -425,6 +425,7 @@ export const HomePage: React.FC = () => {
                         <img loading="lazy" decoding="async"
                           src={getImageUrl(product.images[0])}
                           alt={product.name}
+                          referrerPolicy="no-referrer"
                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';

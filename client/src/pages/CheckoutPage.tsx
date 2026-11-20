@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { getImageUrl } from '../utils/imageUrl';
 import {
   ShieldCheck,
   CreditCard,
@@ -740,8 +741,13 @@ export const CheckoutPage: React.FC = () => {
                   >
                     <div className="flex items-center gap-2.5">
                       <img loading="lazy" decoding="async"
-                        src={item.image}
+                        src={getImageUrl(item.image) || '/images/placeholder.svg'}
                         alt={item.name}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const el = e.currentTarget;
+                          if (!el.src.endsWith('/images/placeholder.svg')) el.src = '/images/placeholder.svg';
+                        }}
                         className="w-12 h-12 object-contain bg-[#FAF8F5] rounded-lg p-1 border border-[#EDE8E1]"
                       />
                       <div>

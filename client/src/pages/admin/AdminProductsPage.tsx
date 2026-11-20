@@ -243,7 +243,7 @@ export const AdminProductsPage: React.FC = () => {
     }
 
     // Load actual product images or empty if none
-    setImages(p.images && p.images.length > 0 ? p.images : []);
+    setImages((p.images || []).map((img) => img?.trim()).filter(Boolean));
     setImageUrlInput('');
     setImageUrlError('');
     setStock(p.stock !== undefined ? p.stock : 50);
@@ -303,15 +303,19 @@ export const AdminProductsPage: React.FC = () => {
         // Swap the temporary blob preview URLs for the permanent stored URLs
         setImages((prev) => {
           const withoutPreviews = prev.filter((img) => !localPreviews.includes(img));
-          return [...withoutPreviews, ...uploadedUrls];
+          return [...withoutPreviews, ...uploadedUrls].slice(0, MAX_PRODUCT_IMAGES);
         });
         showNotification(`${uploadedUrls.length} photo${uploadedUrls.length > 1 ? 's' : ''} uploaded`);
+      } else {
+        setImages((prev) => prev.filter((img) => !localPreviews.includes(img)));
+        alert('Upload completed without returning image URLs. Please try again.');
       }
     } catch (err: any) {
       // Revert temporary previews on error
       setImages((prev) => prev.filter((img) => !localPreviews.includes(img)));
-      alert(err.message || 'Image upload failed. Please make sure the backend server is running on port 5012.');
+      alert(err.message || 'Image upload failed. Please make sure the backend server is running.');
     } finally {
+      localPreviews.forEach((u) => URL.revokeObjectURL(u));
       setUploadingImage(false);
       setUploadStatusText('');
       if (fileInputRef.current) {
@@ -754,6 +758,7 @@ export const AdminProductsPage: React.FC = () => {
                             <img loading="lazy" decoding="async"
                               src={getImageUrl(p.images[0])}
                               alt={p.name}
+                              referrerPolicy="no-referrer"
                               onError={(e) => {
                                 const el = e.target as HTMLImageElement;
                                 if (!el.src.endsWith('/images/placeholder.svg')) el.src = '/images/placeholder.svg';
@@ -1256,10 +1261,10 @@ export const AdminProductsPage: React.FC = () => {
                     </div>
                   ) : (
                     /* Thumbnails grid */
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {images.map((imgUrl, idx) => (
                         <div
-                          key={idx}
+                          key={`${imgUrl}-${idx}`}
                           className={`group relative overflow-hidden rounded-2xl border bg-white p-1.5 transition-colors ${
                             idx === 0 ? 'border-[#13382B] ring-2 ring-[#13382B]/15' : 'border-[#EDE8E1] hover:border-[#13382B]/50'
                           }`}
@@ -1268,8 +1273,10 @@ export const AdminProductsPage: React.FC = () => {
                             <img loading="lazy" decoding="async"
                               src={getImageUrl(imgUrl)}
                               alt={idx === 0 ? 'Cover photo' : `Product photo ${idx + 1}`}
-                              onError={() => {
-                                console.error('Image load error for:', imgUrl);
+                              referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                const el = e.target as HTMLImageElement;
+                                if (!el.src.endsWith('/images/placeholder.svg')) el.src = '/images/placeholder.svg';
                               }}
                               className="h-full w-full object-contain"
                             />
@@ -1357,7 +1364,7 @@ export const AdminProductsPage: React.FC = () => {
                             if (!checkingImageUrl) handleAddImageUrl();
                           }
                         }}
-                        disabled={checkingImageUrl}
+                        disabled={checkingImageUrl || images.length >= MAX_PRODUCT_IMAGES}
                         aria-invalid={Boolean(imageUrlError)}
                         aria-describedby={imageUrlError ? 'pf-image-url-error' : undefined}
                         className={`${inputCls} flex-1 py-2 ${imageUrlError ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : ''}`}
@@ -1365,7 +1372,7 @@ export const AdminProductsPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleAddImageUrl()}
-                        disabled={checkingImageUrl || !imageUrlInput.trim()}
+                        disabled={checkingImageUrl || !imageUrlInput.trim() || images.length >= MAX_PRODUCT_IMAGES}
                         className={`inline-flex items-center justify-center gap-1.5 rounded-[10px] border border-[#E2DBD1] bg-white px-4 py-2 text-[13px] font-medium text-[#13382B] transition-colors hover:bg-[#EDE8E1] disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
                       >
                         {checkingImageUrl && <Loader2 className="h-3.5 w-3.5 animate-spin" />}

@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Sparkles,
   ArrowRight,
   Trash2,
@@ -82,11 +84,11 @@ export const ProductDetailsPage: React.FC = () => {
         if (data && data.product) {
           setProduct(data.product);
           setRelatedProducts(data.relatedProducts || []);
-          const firstImg =
-            data.product.images && data.product.images.length > 0
-              ? data.product.images[0]
-              : FALLBACK_PRODUCT_IMAGE;
-          setActiveImage(firstImg);
+          const validImages = (data.product.images || [])
+            .map((img: string) => img?.trim())
+            .filter(Boolean)
+            .slice(0, 6);
+          setActiveImage(validImages[0] || '');
 
           // Fetch reviews
           try {
@@ -140,8 +142,17 @@ export const ProductDetailsPage: React.FC = () => {
     );
   }
 
-  const primaryImage = activeImage || (product.images?.[0] ?? FALLBACK_PRODUCT_IMAGE);
-  const productImages = (product.images || []).filter(Boolean).slice(0, 6);
+  const productImages = (product.images || []).map((img) => img?.trim()).filter(Boolean).slice(0, 6);
+  const activeIndex = Math.max(0, productImages.indexOf(activeImage));
+  const primaryImage = productImages[activeIndex] || '';
+  const goPrevImage = () => {
+    if (productImages.length <= 1) return;
+    setActiveImage(productImages[(activeIndex - 1 + productImages.length) % productImages.length]);
+  };
+  const goNextImage = () => {
+    if (productImages.length <= 1) return;
+    setActiveImage(productImages[(activeIndex + 1) % productImages.length]);
+  };
   const safeIngredients = product.ingredients || [];
   const safeBenefits = product.keyBenefits || [];
   const safeHowToUse = product.howToUse || [];
@@ -342,10 +353,25 @@ export const ProductDetailsPage: React.FC = () => {
           {/* Left: Product Images Gallery */}
           <div className="lg:col-span-6 space-y-4">
             {/* Main Stage */}
-            <div className="relative aspect-square w-full rounded-3xl bg-white border border-[#EDE8E1] p-8 flex items-center justify-center shadow-sm overflow-hidden">
+            <div
+              className="relative aspect-square w-full rounded-3xl bg-white border border-[#EDE8E1] p-4 sm:p-8 flex items-center justify-center shadow-sm overflow-hidden select-none"
+              onTouchStart={(e) => {
+                (e.currentTarget as HTMLDivElement).dataset.touchX = String(e.touches[0].clientX);
+              }}
+              onTouchEnd={(e) => {
+                const startX = Number((e.currentTarget as HTMLDivElement).dataset.touchX || 0);
+                const delta = e.changedTouches[0].clientX - startX;
+                if (Math.abs(delta) > 40) {
+                  if (delta < 0) goNextImage();
+                  else goPrevImage();
+                }
+              }}
+            >
               <img
+                key={primaryImage || 'placeholder'}
                 src={getImageUrl(primaryImage) || FALLBACK_PRODUCT_IMAGE}
                 alt={product.name}
+                referrerPolicy="no-referrer"
                 onError={(e) => {
                   if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_PRODUCT_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
                 }}
@@ -353,14 +379,14 @@ export const ProductDetailsPage: React.FC = () => {
               />
 
               {product.tag && (
-                <span className="absolute top-6 left-6 text-xs font-semibold tracking-wide px-3 py-1 bg-[#13382B] text-white rounded-full shadow-sm">
+                <span className="absolute top-4 left-4 sm:top-6 sm:left-6 text-xs font-semibold tracking-wide px-3 py-1 bg-[#13382B] text-white rounded-full shadow-sm">
                   {product.tag}
                 </span>
               )}
 
               <button
                 onClick={() => dispatch(toggleWishlistItem(product))}
-                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-600 hover:text-red-600 transition-colors"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-600 hover:text-red-600 transition-colors"
                 aria-label="Wishlist"
               >
                 <Heart
@@ -369,22 +395,49 @@ export const ProductDetailsPage: React.FC = () => {
                   }`}
                 />
               </button>
+
+              {productImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={goPrevImage}
+                    aria-label="Previous product photo"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-[#EDE8E1] shadow-sm flex items-center justify-center text-[#13382B] hover:bg-[#13382B] hover:text-white transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={goNextImage}
+                    aria-label="Next product photo"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-[#EDE8E1] shadow-sm flex items-center justify-center text-[#13382B] hover:bg-[#13382B] hover:text-white transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                  <span className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 rounded-full bg-[#13382B]/85 px-2.5 py-0.5 text-[11px] font-medium text-white">
+                    {activeIndex + 1} / {productImages.length}
+                  </span>
+                </>
+              )}
             </div>
 
-            {/* Thumbnail Row */}
+            {/* Thumbnail Grid — all attached photos (up to 6) visible on both mobile and desktop */}
             {productImages.length > 1 && (
-              <div className="flex items-center gap-3 overflow-x-auto pb-2">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 sm:gap-3">
                 {productImages.map((img, idx) => (
                   <button
-                    key={idx}
+                    key={`${img}-${idx}`}
+                    type="button"
                     onClick={() => setActiveImage(img)}
-                    className={`w-20 h-20 rounded-2xl bg-white p-2 border-2 transition-all flex-shrink-0 ${
-                      activeImage === img ? 'border-[#13382B] shadow-sm' : 'border-[#EDE8E1] opacity-70 hover:opacity-100'
+                    aria-label={`View photo ${idx + 1} of ${productImages.length}`}
+                    className={`aspect-square w-full rounded-2xl bg-white p-1.5 sm:p-2 border-2 transition-all flex items-center justify-center overflow-hidden ${
+                      activeIndex === idx ? 'border-[#13382B] shadow-sm ring-2 ring-[#13382B]/15' : 'border-[#EDE8E1] opacity-75 hover:opacity-100'
                     }`}
                   >
                     <img loading="lazy" decoding="async"
                       src={getImageUrl(img) || FALLBACK_PRODUCT_IMAGE}
-                      alt=""
+                      alt={`${product.name} photo ${idx + 1}`}
+                      referrerPolicy="no-referrer"
                       onError={(e) => {
                         if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_PRODUCT_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
                       }}

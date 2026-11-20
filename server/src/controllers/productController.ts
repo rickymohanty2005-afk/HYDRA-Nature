@@ -59,7 +59,15 @@ const cloudinaryConfigured = (): boolean =>
   process.env.CLOUDINARY_API_KEY !== '123456789012345';
 
 const publicProto = (req: Request): string =>
-  (req.get('x-forwarded-proto') || req.protocol).split(',')[0];
+  (req.get('x-forwarded-proto') || req.protocol).split(',')[0].trim();
+
+const parseImageArray = (input: any): string[] => {
+  if (!input) return [];
+  const raw = Array.isArray(input) ? input : [input];
+  return raw
+    .map((item) => String(item).trim())
+    .filter((url) => Boolean(url) && !url.startsWith('blob:'));
+};
 
 // 1. Get all products with full dynamic filters, sorting, search, and pagination
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -285,7 +293,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
       ? Math.round(((numOriginalPrice - numPrice) / numOriginalPrice) * 100)
       : 0;
 
-    const parsedImages = parseStringArray(images);
+    const parsedImages = parseImageArray(images);
     if (parsedImages.length === 0) {
       return next(new ApiError('At least one product photo is required', 400));
     }
@@ -363,7 +371,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 
     // Normalize arrays if provided
     if (updates.images !== undefined) {
-      const parsedImages = parseStringArray(updates.images);
+      const parsedImages = parseImageArray(updates.images);
       if (parsedImages.length === 0) {
         return next(new ApiError('At least one product photo is required', 400));
       }
@@ -486,17 +494,12 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
     }
 
     const host = req.get('host') || 'localhost:5012';
-    const proto = (req.get('x-forwarded-proto') || req.protocol).split(',')[0];
+    const proto = publicProto(req);
     const fullUrl = `${proto}://${host}/uploads/products/${req.file.filename}`;
     const localUrl = `/uploads/products/${req.file.filename}`;
 
     // If real Cloudinary credentials are configured, sync to Cloudinary
-    if (
-      process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_CLOUD_NAME !== 'hydra-demo' &&
-      process.env.CLOUDINARY_API_KEY &&
-      process.env.CLOUDINARY_API_KEY !== '123456789012345'
-    ) {
+    if (cloudinaryConfigured()) {
       try {
         const uploadRes = await cloudinary.uploader.upload(req.file.path, {
           folder: 'hydra_products',

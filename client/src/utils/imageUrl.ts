@@ -4,26 +4,28 @@
  * - Backend uploads (/uploads/...) resolve to the API origin
  */
 export const getImageUrl = (url?: string): string => {
-  if (!url) return '';
+  const trimmed = url?.trim();
+  if (!trimmed) return '';
 
   const apiBase = import.meta.env.VITE_API_BASE_URL || '';
   const backendOrigin = apiBase.replace(/\/api\/?$/, '');
   const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
 
-  if (url.startsWith('data:') || url.startsWith('blob:')) return url;
+  if (trimmed.startsWith('data:') || trimmed.startsWith('blob:')) return trimmed;
+  if (trimmed.startsWith('//')) return `https:${trimmed}`;
 
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     // Legacy localhost upload URLs -> active backend
-    const m = url.match(/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/uploads\/.*)$/);
+    const m = trimmed.match(/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/uploads\/.*)$/);
     if (m) return `${backendOrigin}${m[1]}`;
     // Avoid mixed-content blocking on https sites
-    if (isHttps && url.startsWith('http://') && !/^http:\/\/(localhost|127\.0\.0\.1)/.test(url)) {
-      return url.replace(/^http:\/\//, 'https://');
+    if (isHttps && trimmed.startsWith('http://') && !/^http:\/\/(localhost|127\.0\.0\.1)/.test(trimmed)) {
+      return trimmed.replace(/^http:\/\//, 'https://');
     }
-    return url;
+    return trimmed;
   }
 
-  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
   if (cleanPath.startsWith('/uploads/')) return `${backendOrigin}${cleanPath}`;
   return cleanPath;
 };

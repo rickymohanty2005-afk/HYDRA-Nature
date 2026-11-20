@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Tag, ArrowLeft } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store';
+import { getImageUrl } from '../utils/imageUrl';
 import {
   removeFromCart,
   updateQuantity,
@@ -114,8 +115,13 @@ export const CartPage: React.FC = () => {
                 >
                   <div className="flex items-center gap-4">
                     <img loading="lazy" decoding="async"
-                      src={item.image}
+                      src={getImageUrl(item.image) || '/images/placeholder.svg'}
                       alt={item.name}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const el = e.currentTarget;
+                        if (!el.src.endsWith('/images/placeholder.svg')) el.src = '/images/placeholder.svg';
+                      }}
                       className="w-20 h-20 object-contain rounded-2xl bg-[#FAF8F5] p-2 flex-shrink-0 border border-[#EDE8E1]"
                     />
                     <div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../store';
+import { getImageUrl } from '../../utils/imageUrl';
 import {
   removeFromCart,
   updateQuantity,
@@ -132,8 +133,13 @@ export const CartDrawer: React.FC = () => {
                   className="flex gap-4 p-3 bg-white rounded-xl border border-[#EDE8E1] shadow-sm"
                 >
                   <img loading="lazy" decoding="async"
-                    src={item.image}
+                    src={getImageUrl(item.image) || '/images/placeholder.svg'}
                     alt={item.name}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      if (!el.src.endsWith('/images/placeholder.svg')) el.src = '/images/placeholder.svg';
+                    }}
                     className="w-18 h-20 object-contain rounded-lg bg-[#FAF8F5] p-1 flex-shrink-0"
                   />
                   <div className="flex-1 flex flex-col justify-between">

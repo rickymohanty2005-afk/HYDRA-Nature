@@ -19,6 +19,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const isInWishlist = wishlistItems.some((i) => i._id === product._id);
   const [added, setAdded] = useState(false);
 
+  const productImages = (product.images || []).map((img) => img?.trim()).filter(Boolean).slice(0, 6);
+  const coverImage = productImages[0] || '';
+  const hoverImage = productImages[1] || '';
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -32,7 +36,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         name: product.name,
         price: product.price,
         originalPrice: product.originalPrice,
-        image: product.images?.[0] || '',
+        image: coverImage,
         size: product.size || '50ml',
         quantity: 1,
       })
@@ -134,22 +138,46 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* 2. PRODUCT IMAGE STAGE */}
       <Link
         to={`/shop/${product.slug || product._id}`}
-        className="block my-3 overflow-hidden rounded-2xl bg-gradient-to-b from-[#FAF8F5] via-[#F8F5F0] to-[#F1ECE5]/70 p-5 aspect-square flex items-center justify-center relative group/stage transition-colors"
+        className="my-3 overflow-hidden rounded-2xl bg-gradient-to-b from-[#FAF8F5] via-[#F8F5F0] to-[#F1ECE5]/70 p-3 sm:p-5 aspect-square flex items-center justify-center relative group/stage transition-colors"
       >
         {/* Soft Radial Ambient Glow */}
         <div className="absolute inset-0 bg-radial from-white/60 via-transparent to-transparent opacity-80 pointer-events-none" />
 
         <img
-          src={getImageUrl(product.images?.[0]) || FALLBACK_IMAGE}
+          src={getImageUrl(coverImage) || FALLBACK_IMAGE}
           alt={product.name}
+          referrerPolicy="no-referrer"
+          decoding="async"
           onError={(e) => {
             if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
           }}
-          className={`h-full w-full object-contain object-center drop-shadow-[0_12px_22px_rgba(19,56,43,0.13)] group-hover:scale-108 transition-transform duration-700 ease-out ${
-            isOutOfStock ? 'opacity-60 grayscale-[30%]' : ''
-          }`}
+          className={`h-full w-full object-contain object-center drop-shadow-[0_12px_22px_rgba(19,56,43,0.13)] transition-all duration-500 ease-out ${
+            hoverImage ? 'sm:group-hover:opacity-0' : 'group-hover:scale-105'
+          } ${isOutOfStock ? 'opacity-60 grayscale-[30%]' : ''}`}
           loading="lazy"
         />
+
+        {hoverImage && (
+          <img
+            src={getImageUrl(hoverImage)}
+            alt={`${product.name} alternate view`}
+            referrerPolicy="no-referrer"
+            decoding="async"
+            loading="lazy"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+            className={`hidden sm:block absolute inset-3 sm:inset-5 h-[calc(100%-1.5rem)] sm:h-[calc(100%-2.5rem)] w-[calc(100%-1.5rem)] sm:w-[calc(100%-2.5rem)] object-contain object-center drop-shadow-[0_12px_22px_rgba(19,56,43,0.13)] opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out ${
+              isOutOfStock ? 'grayscale-[30%]' : ''
+            }`}
+          />
+        )}
+
+        {productImages.length > 1 && (
+          <span className="absolute bottom-2.5 right-2.5 z-10 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-[#13382B] border border-[#EDE8E1] shadow-sm">
+            {productImages.length} photos
+          </span>
+        )}
 
         {/* Out of Stock Frosted Overlay */}
         {isOutOfStock && (
