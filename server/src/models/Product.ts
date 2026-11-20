@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+﻿import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IProduct extends Document {
   name: string;
@@ -81,7 +81,7 @@ const ProductSchema = new Schema<IProduct>(
     images: {
       type: [String],
       required: [true, 'At least one product image is required'],
-      validate: [(val: string[]) => val.length > 0, 'At least one image is required'],
+      validate: [(val: string[]) => val.length > 0 && val.length <= 6, 'A product needs between 1 and 6 images'],
     },
     stock: {
       type: Number,

@@ -29,8 +29,7 @@ import { toggleWishlistItem } from '../store/wishlistSlice';
 import { Product, Review } from '../types';
 import { getImageUrl } from '../utils/imageUrl';
 
-const FALLBACK_PRODUCT_IMAGE =
-  'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
+const FALLBACK_PRODUCT_IMAGE = '/images/placeholder.svg';
 
 // 2.jpeg is an exact duplicate of 1.jpeg, so it is skipped
 const TRUSTED_LOGOS = [1, 3, 4, 5, 6, 7, 8, 9].map((n) => `/images/trustedlogo/${n}.jpeg`);
@@ -142,7 +141,7 @@ export const ProductDetailsPage: React.FC = () => {
   }
 
   const primaryImage = activeImage || (product.images?.[0] ?? FALLBACK_PRODUCT_IMAGE);
-  const productImages = product.images?.length > 0 ? product.images : [FALLBACK_PRODUCT_IMAGE];
+  const productImages = (product.images || []).filter(Boolean).slice(0, 6);
   const safeIngredients = product.ingredients || [];
   const safeBenefits = product.keyBenefits || [];
   const safeHowToUse = product.howToUse || [];
@@ -348,7 +347,7 @@ export const ProductDetailsPage: React.FC = () => {
                 src={getImageUrl(primaryImage) || FALLBACK_PRODUCT_IMAGE}
                 alt={product.name}
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
+                  if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_PRODUCT_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
                 }}
                 className="w-full h-full object-contain max-h-[460px] drop-shadow-xl transition-all duration-300"
               />
@@ -387,7 +386,7 @@ export const ProductDetailsPage: React.FC = () => {
                       src={getImageUrl(img) || FALLBACK_PRODUCT_IMAGE}
                       alt=""
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
+                        if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_PRODUCT_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_PRODUCT_IMAGE;
                       }}
                       className="w-full h-full object-contain"
                     />

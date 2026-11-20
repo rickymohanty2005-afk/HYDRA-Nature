@@ -82,6 +82,7 @@ export const Navbar: React.FC = () => {
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
+      setMobileMenuOpen(false);
       setSearchQuery('');
     }
   };
@@ -106,9 +107,8 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="mx-auto sm:mx-0 flex items-center gap-2 text-center text-[11px] tracking-wider">
-            <span className="text-[#7FDDE2]">Free Shipping.</span>
 
-            <span className="text-[#FFFFFF]/85">Nature. Science. You.</span>
+            <span className="text-[#FFFFFF]/85">WHERE HYDRATION MEETS RADIANCE</span>
           </div>
 
           {/* Social Icons */}
@@ -189,12 +189,14 @@ export const Navbar: React.FC = () => {
             />
           </Link>
 
-          {/* Right Action Icons: Search, Account, Wishlist, Cart */}
+          {/* Right Action Icons
+              Mobile: only Profile + Theme toggle
+              Desktop (lg+): Search, Theme, Account, Wishlist, Cart — unchanged */}
           <div className="flex items-center justify-end gap-1 sm:gap-3 lg:gap-4">
-            {/* Search Toggle — styled as an underlined field on desktop */}
+            {/* Search Toggle — desktop only (moved into mobile menu on small screens) */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="group flex items-center gap-3 p-1.5 md:px-0 md:pb-2 md:pt-1 md:border-b md:border-[#04282B]/20 md:hover:border-[#1E9AA3] md:w-40 xl:w-56 text-[#04282B] hover:text-[#04282B] transition-colors"
+              className="hidden lg:flex group items-center gap-3 p-1.5 md:px-0 md:pb-2 md:pt-1 md:border-b md:border-[#04282B]/20 md:hover:border-[#1E9AA3] md:w-40 xl:w-56 text-[#04282B] hover:text-[#04282B] transition-colors"
               aria-label="Search products"
             >
               <Search className="w-5 h-5 md:w-4 md:h-4 flex-shrink-0" />
@@ -203,19 +205,19 @@ export const Navbar: React.FC = () => {
               </span>
             </button>
 
-            {/* Dark / Light mode toggle */}
+            {/* Dark / Light mode toggle — second on mobile, same position on desktop */}
             <button
               type="button"
               onClick={toggleTheme}
-              className={iconButtonClass}
+              className={`${iconButtonClass} order-2 lg:order-none`}
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               title={isDark ? 'Light mode' : 'Dark mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {/* User Account / Profile Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            {/* User Account / Profile Dropdown — first on mobile, same position on desktop */}
+            <div className="relative order-1 lg:order-none" ref={dropdownRef}>
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className={`${iconButtonClass} flex items-center gap-1`}
@@ -297,8 +299,8 @@ export const Navbar: React.FC = () => {
               )}
             </div>
 
-            {/* Wishlist Link */}
-            <Link to="/wishlist" className={iconButtonClass} aria-label="Wishlist">
+            {/* Wishlist Link — desktop only (moved into mobile menu on small screens) */}
+            <Link to="/wishlist" className={`${iconButtonClass} hidden lg:block`} aria-label="Wishlist">
               <Heart className="w-5 h-5" />
               {wishlistItems.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#04282B] text-[#FFFFFF] text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -307,10 +309,10 @@ export const Navbar: React.FC = () => {
               )}
             </Link>
 
-            {/* Shopping Bag / Cart — "Bag (n)" style */}
+            {/* Shopping Bag / Cart — desktop only (moved into mobile menu on small screens) */}
             <button
               onClick={() => dispatch(toggleCartDrawer(true))}
-              className="group flex items-center gap-2 pl-1.5 text-[#04282B] hover:text-[#04282B] transition-colors"
+              className="hidden lg:flex group items-center gap-2 pl-1.5 text-[#04282B] hover:text-[#04282B] transition-colors"
               aria-label="Open Shopping Bag"
             >
               <ShoppingBag className="w-5 h-5 sm:hidden" />
@@ -328,7 +330,7 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Animated Search Drawer */}
+        {/* Animated Search Drawer (desktop) */}
         {searchOpen && (
           <div className="mt-3 border-t border-[#04282B]/[0.08] bg-white px-4 py-4">
             <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto flex items-center gap-3 border-b border-[#04282B]/20 focus-within:border-[#1E9AA3] pb-2">
@@ -361,6 +363,27 @@ export const Navbar: React.FC = () => {
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden mt-3 border-t border-[#04282B]/[0.08] bg-white px-4 pt-3 pb-6 space-y-1">
+            {/* Mobile search */}
+            <form
+              onSubmit={handleSearchSubmit}
+              className="flex items-center gap-2 border-b border-[#04282B]/20 focus-within:border-[#1E9AA3] pb-2 mb-2"
+            >
+              <Search className="w-4 h-4 text-[#04282B]/80 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 min-w-0 text-sm bg-transparent border-none focus:outline-none text-[#04282B] placeholder:text-[#04282B]/45"
+              />
+              <button
+                type="submit"
+                className="px-3 py-1.5 bg-[#04282B] text-[#FFFFFF] text-xs font-semibold rounded-md hover:bg-[#1E9AA3]"
+              >
+                Search
+              </button>
+            </form>
+
             <Link to="/" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Home
             </Link>
@@ -379,6 +402,46 @@ export const Navbar: React.FC = () => {
             <Link to="/career" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Career
             </Link>
+
+            {/* Mobile Wishlist + Bag */}
+            <div className="mt-2 pt-3 border-t border-[#04282B]/[0.08] space-y-1">
+              <Link
+                to="/wishlist"
+                className="flex items-center justify-between py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]"
+              >
+                <span className="flex items-center gap-3">
+                  <Heart className="w-5 h-5" />
+                  Wishlist
+                </span>
+                <span className="flex h-7 min-w-[1.75rem] items-center justify-center rounded-full border border-[#04282B]/30 px-1.5 text-[11px] font-sans font-medium">
+                  {wishlistItems.length}
+                </span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  dispatch(toggleCartDrawer(true));
+                }}
+                className="w-full flex items-center justify-between py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]"
+              >
+                <span className="flex items-center gap-3">
+                  <ShoppingBag className="w-5 h-5" />
+                  Bag
+                </span>
+                <span
+                  className={`flex h-7 min-w-[1.75rem] items-center justify-center rounded-full border px-1.5 text-[11px] font-sans font-medium ${
+                    totalCartCount > 0
+                      ? 'border-[#04282B] bg-[#04282B] text-[#FFFFFF]'
+                      : 'border-[#04282B]/30'
+                  }`}
+                >
+                  {totalCartCount}
+                </span>
+              </button>
+            </div>
+
             {!isAuthenticated && (
               <div className="pt-3">
                 <Link

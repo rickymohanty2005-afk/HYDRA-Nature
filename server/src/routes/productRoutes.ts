@@ -25,6 +25,6 @@ router.post('/', protect, authorize('admin'), createProduct);
 router.put('/:id', protect, authorize('admin'), updateProduct);
 router.delete('/:id', protect, authorize('admin'), deleteProduct);
 router.post('/upload', protect, authorize('admin'), upload.single('image'), uploadProductImage);
-router.post('/upload-multiple', protect, authorize('admin'), upload.array('images', 10), uploadProductImages);
+router.post('/upload-multiple', protect, authorize('admin'), upload.array('images', 6), uploadProductImages);
 
 export default router;

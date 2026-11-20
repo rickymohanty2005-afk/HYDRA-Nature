@@ -49,9 +49,8 @@ const generateUniqueSlug = async (name: string, excludeId?: string): Promise<str
   return slug;
 };
 
-// Default fallback image if none provided
-const DEFAULT_PRODUCT_IMAGE =
-  'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
+// Product photos are mandatory (1-6), supplied by the admin. No automatic fallback image.
+const MAX_PRODUCT_IMAGES = 6;
 
 // 1. Get all products with full dynamic filters, sorting, search, and pagination
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -279,7 +278,10 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 
     const parsedImages = parseStringArray(images);
     if (parsedImages.length === 0) {
-      parsedImages.push(DEFAULT_PRODUCT_IMAGE);
+      return next(new ApiError('At least one product photo is required', 400));
+    }
+    if (parsedImages.length > MAX_PRODUCT_IMAGES) {
+      return next(new ApiError(`A product can have at most ${MAX_PRODUCT_IMAGES} photos`, 400));
     }
 
     const slug = await generateUniqueSlug(name);
@@ -353,7 +355,13 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
     // Normalize arrays if provided
     if (updates.images !== undefined) {
       const parsedImages = parseStringArray(updates.images);
-      updates.images = parsedImages.length > 0 ? parsedImages : product.images;
+      if (parsedImages.length === 0) {
+        return next(new ApiError('At least one product photo is required', 400));
+      }
+      if (parsedImages.length > MAX_PRODUCT_IMAGES) {
+        return next(new ApiError(`A product can have at most ${MAX_PRODUCT_IMAGES} photos`, 400));
+      }
+      updates.images = parsedImages;
     }
     if (updates.ingredients !== undefined) {
       updates.ingredients = parseStringArray(updates.ingredients);

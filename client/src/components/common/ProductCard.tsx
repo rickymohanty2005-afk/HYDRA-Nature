@@ -7,8 +7,7 @@ import { addToCart } from '../../store/cartSlice';
 import { toggleWishlistItem } from '../../store/wishlistSlice';
 import { getImageUrl } from '../../utils/imageUrl';
 
-const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
+const FALLBACK_IMAGE = '/images/placeholder.svg';
 
 interface ProductCardProps {
   product: Product;
@@ -144,7 +143,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           src={getImageUrl(product.images?.[0]) || FALLBACK_IMAGE}
           alt={product.name}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+            if (!(e.target as HTMLImageElement).src.endsWith(FALLBACK_IMAGE)) (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
           }}
           className={`h-full w-full object-contain object-center drop-shadow-[0_12px_22px_rgba(19,56,43,0.13)] group-hover:scale-108 transition-transform duration-700 ease-out ${
             isOutOfStock ? 'opacity-60 grayscale-[30%]' : ''

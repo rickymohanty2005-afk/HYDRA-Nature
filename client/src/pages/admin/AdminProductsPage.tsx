@@ -25,6 +25,7 @@ const COMMON_CATEGORIES = ['Face Care', 'Body Care', 'Hair Care', 'Skincare Sets
 const COMMON_SUBCATEGORIES = ['Serums', 'Moisturizers', 'Cleansers', 'Sunscreens', 'Essentials', 'Masks', 'Oils'];
 const COMMON_TAGS = ['Best Seller', 'New', 'Trending', 'Organic', 'Limited'];
 const MAX_FEATURED_PRODUCTS = 4;
+const MAX_PRODUCT_IMAGES = 6;
 
 type ProductFlag = 'isBestSeller' | 'isFeatured';
 
@@ -260,10 +261,20 @@ export const AdminProductsPage: React.FC = () => {
 
   // Handle Multer file upload for single or multiple files
   const processFilesUpload = async (files: FileList | File[]) => {
-    const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    let fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
     if (fileArray.length === 0) {
       alert('Please select valid image files (JPG, PNG, WEBP, AVIF).');
       return;
+    }
+
+    const slotsLeft = MAX_PRODUCT_IMAGES - images.length;
+    if (slotsLeft <= 0) {
+      alert(`You can attach a maximum of ${MAX_PRODUCT_IMAGES} product photos.`);
+      return;
+    }
+    if (fileArray.length > slotsLeft) {
+      alert(`Only ${MAX_PRODUCT_IMAGES} photos are allowed. Adding the first ${slotsLeft} selected photo${slotsLeft > 1 ? 's' : ''}.`);
+      fileArray = fileArray.slice(0, slotsLeft);
     }
 
     // Instant local preview so images display immediately
@@ -424,6 +435,11 @@ export const AdminProductsPage: React.FC = () => {
       }
     }
 
+    if (images.length >= MAX_PRODUCT_IMAGES) {
+      setImageUrlError(`Maximum ${MAX_PRODUCT_IMAGES} photos allowed. Remove one to add another.`);
+      return null;
+    }
+
     if (images.includes(url)) {
       setImageUrlError('This image is already in the gallery.');
       return null;
@@ -502,6 +518,9 @@ export const AdminProductsPage: React.FC = () => {
       // Validation: ensure at least one real product photo is uploaded
       if (finalImages.length === 0) {
         throw new Error('Add at least one product photo before publishing.');
+      }
+      if (finalImages.length > MAX_PRODUCT_IMAGES) {
+        throw new Error(`A product can have at most ${MAX_PRODUCT_IMAGES} photos. Remove ${finalImages.length - MAX_PRODUCT_IMAGES} to continue.`);
       }
 
       const finalCategory = category === 'Custom' ? customCategory.trim() : category;
@@ -736,8 +755,8 @@ export const AdminProductsPage: React.FC = () => {
                               src={getImageUrl(p.images[0])}
                               alt={p.name}
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
+                                const el = e.target as HTMLImageElement;
+                                if (!el.src.endsWith('/images/placeholder.svg')) el.src = '/images/placeholder.svg';
                               }}
                               className="h-14 w-14 flex-shrink-0 rounded-xl border border-[#EDE8E1] bg-[#FAF8F5] object-contain p-1"
                             />
@@ -1174,9 +1193,9 @@ export const AdminProductsPage: React.FC = () => {
                   <div className="flex items-end justify-between gap-4">
                     <div>
                       <legend className={sectionTitleCls}>Product photos *</legend>
-                      <p className={hintCls}>The first photo is the cover shown in the store. JPG, PNG, WEBP or AVIF, up to 10 MB each.</p>
+                      <p className={hintCls}>{`Required: add 1 to ${MAX_PRODUCT_IMAGES} of your own product photos (${images.length}/${MAX_PRODUCT_IMAGES}). The first photo is the cover shown in the store. JPG, PNG, WEBP or AVIF, up to 10 MB each.`}</p>
                     </div>
-                    {images.length > 0 && (
+                    {images.length > 0 && images.length < MAX_PRODUCT_IMAGES && (
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
@@ -1290,6 +1309,7 @@ export const AdminProductsPage: React.FC = () => {
                       ))}
 
                       {/* Add-more tile */}
+                      {images.length < MAX_PRODUCT_IMAGES && (
                       <div
                         role="button"
                         tabIndex={0}
@@ -1310,6 +1330,7 @@ export const AdminProductsPage: React.FC = () => {
                         <Plus className="h-5 w-5 text-stone-400 transition-colors group-hover:text-[#13382B]" />
                         <span className="mt-1 text-[12px] font-medium text-stone-600">Add photo</span>
                       </div>
+                      )}
                     </div>
                   )}
 
