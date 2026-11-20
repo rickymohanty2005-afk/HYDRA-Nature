@@ -512,7 +512,7 @@ export const ProductDetailsPage: React.FC = () => {
             </div>
 
             {/* Description */}
-            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+            <p className="text-xs sm:text-sm text-gray-600 font-bold leading-relaxed whitespace-pre-line">
               {product.description}
             </p>
 

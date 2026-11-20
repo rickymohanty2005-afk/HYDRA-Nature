@@ -9,7 +9,6 @@ import {
   Check,
   Star,
   Droplets,
-  Clock,
   ShieldCheck,
   Sparkles,
   Image as ImageIcon,
@@ -27,7 +26,7 @@ import {
   FreeShippingIcon,
   CategoryIcon,
 } from '../components/common/BotanicalIcons';
-import { HomeHeroCarousel, NIGHT_INGREDIENTS, NIGHT_RITUAL } from '../components/HomeHeroCarousel';
+import { HomeHeroCarousel } from '../components/HomeHeroCarousel';
 import { productService } from '../services/productService';
 import { newsletterService } from '../services/newsletterService';
 import { useAppDispatch, useAppSelector } from '../store';
@@ -36,11 +35,18 @@ import { toggleWishlistItem } from '../store/wishlistSlice';
 import { Product } from '../types';
 import { getImageUrl } from '../utils/imageUrl';
 
-// Night cream spotlight content
-const NIGHT_BENEFITS = [
-  { icon: Sparkles, title: 'Boosts collagen', text: 'Supports firmer, bouncier skin.' },
-  { icon: Clock, title: 'Softens fine lines', text: 'Visibly smoother over time.' },
-  { icon: Droplets, title: 'Refines texture', text: 'Wake up to an even, rested glow.' },
+// Ultra Radiance face wash spotlight content
+const RADIANCE_INGREDIENTS = [
+  'Niacinamide',
+  'Hyaluronic Acid',
+  'Willow Bark Extract',
+  'Glutathione',
+];
+
+const RADIANCE_BENEFITS = [
+  { icon: Sparkles, title: 'Brightening', text: 'Helps even out skin tone and reveal a fresher glow.' },
+  { icon: Droplets, title: 'Hydrating', text: 'Hyaluronic Acid helps skin retain moisture without feeling dry.' },
+  { icon: ShieldCheck, title: 'Purifying', text: 'Lifts away dirt, oil and dullness while keeping pores clear.' },
 ];
 
 const TESTIMONIALS = [
@@ -278,29 +284,33 @@ export const HomePage: React.FC = () => {
               </p>
 
               <h2 className="font-serif text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl lg:text-[52px]">
-                Skincare, made simple.{' '}
+                Inspired by nature.{' '}
                 <span className="bg-gradient-to-r from-[#BEFAFC] to-[#6FE4E8] bg-clip-text italic text-transparent">
-                  Rooted in nature.
+                  Powered by science.
                 </span>
               </h2>
 
               <p className="mt-5 max-w-md text-sm leading-7 text-[#D3EEEE] sm:text-base">
-                Powered by Nature, Perfected by Science. We bring considered botanical ingredients and
-                thoughtful formulation together for rituals that feel beautifully uncomplicated.
+                A fusion skincare philosophy inspired by Korean, Japanese and Indian botanical traditions,
+                thoughtfully combining nature-derived ingredients with modern, science-led formulations.
               </p>
 
               <ul className="mt-8 grid gap-3">
                 {[
-                  { icon: Leaf, title: 'Nature-led ingredients', text: 'Botanical ingredients chosen with care.' },
+                  {
+                    icon: Leaf,
+                    title: 'Korean botanical rituals',
+                    text: 'Hydration-focused care inspired by layered Korean skincare.',
+                  },
                   {
                     icon: ShieldCheck,
-                    title: 'Thoughtfully tested',
-                    text: 'Considered formulas, made with your daily routine in mind.',
+                    title: 'Japanese formulation precision',
+                    text: 'Minimal, refined routines guided by considered scientific expertise.',
                   },
                   {
                     icon: Sparkles,
-                    title: 'Everyday essentials',
-                    text: 'A simpler approach to the care you reach for every day.',
+                    title: 'Indian botanical wisdom',
+                    text: 'Time-honoured botanical ingredients selected for everyday skin rituals.',
                   },
                 ].map(({ icon: Icon, title, text }) => (
                   <li
@@ -493,7 +503,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ------------------------------------------------------------------
-          4. NIGHT CREAM SPOTLIGHT — compact editorial teaser
+          4. Ultra Radiance Face Wash
          ------------------------------------------------------------------ */}
       <section className="bg-[#FAF8F5] py-10 sm:py-14 lg:py-20">
         <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
@@ -563,12 +573,15 @@ export const HomePage: React.FC = () => {
                 </h2>
 
                 <p className="mt-4 max-w-xl text-sm leading-7 text-[#D3EEEE] sm:text-base">
-                  A rich overnight treatment designed to rejuvenate and restore your skin while you sleep.
+                  Start your day with a cleanse that does more. This Korean-inspired formula is created for Indian
+                  skin and lifts away dirt, oil and dullness without leaving your skin tight or dry. It leaves every
+                  wash fresh, soft and visibly brighter. Niacinamide and Glutathione help even out skin tone,
+                  Willow Bark Extract keeps pores clear, and Hyaluronic Acid helps skin retain moisture.
                 </p>
 
                 {/* Ingredients as glass chips */}
                 <ul className="mt-5 flex max-w-xl flex-wrap gap-2" aria-label="Key ingredients">
-                  {NIGHT_INGREDIENTS.map((ing) => (
+                  {RADIANCE_INGREDIENTS.map((ing) => (
                     <li
                       key={ing}
                       className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1 text-[11px] font-medium text-[#D3EEEE] backdrop-blur"
@@ -580,7 +593,7 @@ export const HomePage: React.FC = () => {
 
                 {/* Benefits */}
                 <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  {NIGHT_BENEFITS.map(({ icon: Icon, title, text }) => (
+                  {RADIANCE_BENEFITS.map(({ icon: Icon, title, text }) => (
                     <div
                       key={title}
                       className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-xl transition-colors hover:border-white/30 hover:bg-white/[0.12]"
@@ -594,6 +607,8 @@ export const HomePage: React.FC = () => {
                   ))}
                 </div>
 
+             
+
                 {/* CTAs */}
                 <div className="mt-8 flex flex-wrap items-center gap-4">
                   <Link
@@ -603,12 +618,7 @@ export const HomePage: React.FC = () => {
                     <span>Shop</span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                   </Link>
-                  <Link
-                    to="/shop"
-                    className="inline-flex items-center gap-2 text-xs font-semibold text-[#D3EEEE] underline-offset-4 transition-colors hover:text-white hover:underline sm:text-sm"
-                  >
-                    View all products
-                  </Link>
+               
                 </div>
               </div>
             </div>

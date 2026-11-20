@@ -108,7 +108,7 @@ export const Navbar: React.FC = () => {
 
           <div className="mx-auto sm:mx-0 flex items-center gap-2 text-center text-[11px] tracking-wider">
 
-            <span className="text-[#FFFFFF]/85">WHERE HYDRATION MEETS RADIANCE</span>
+            <span className="text-[#FFFFFF]/85 font-bold">WHERE HYDRATION MEETS RADIANCE</span>
           </div>
 
           {/* Social Icons */}
