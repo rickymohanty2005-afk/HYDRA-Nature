@@ -37,11 +37,11 @@ export const generateOrderNumber = (): string => {
 export const getPaymentDeadline = (from = new Date()): Date =>
   new Date(from.getTime() + env.PAYMENT_WINDOW_MINUTES * 60 * 1000);
 
-/** Mock gateway orders exist only for local development / sandbox without keys. */
+/** Mock gateway orders are disabled — always use real Razorpay orders. */
 export const isMockGatewayOrder = (razorpayOrderId?: string): boolean =>
   !!razorpayOrderId && razorpayOrderId.startsWith('order_test_');
 
-export const isMockGatewayAllowed = (): boolean => !isProduction;
+export const isMockGatewayAllowed = (): boolean => false;
 
 // ─── Pricing & Stock ──────────────────────────────────────────────────────────
 
@@ -164,6 +164,16 @@ export const createGatewayOrder = async (
   receipt: string,
   notes: Record<string, string>
 ): Promise<{ id: string; amount: number; currency: string; isMock?: boolean }> => {
+  const keyId = env.RAZORPAY_KEY_ID.trim();
+  const keySecret = env.RAZORPAY_KEY_SECRET.trim();
+  if (!keyId || !keySecret || keyId === keySecret || keySecret === 'hydra_razorpay_secret_sample') {
+    console.error('[Razorpay] Invalid or incomplete Razorpay API credentials configured on server.');
+    throw new ApiError(
+      'Razorpay payment gateway is not properly configured on the server. Please verify RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.',
+      502
+    );
+  }
+
   const amountInPaise = Math.round(amount * 100);
   try {
     const rzpOrder: any = await razorpayInstance.orders.create({
@@ -172,14 +182,14 @@ export const createGatewayOrder = async (
       receipt: receipt.slice(0, 40),
       notes,
     });
-    return { id: rzpOrder.id, amount: rzpOrder.amount, currency: rzpOrder.currency };
-  } catch (err) {
-    if (!isMockGatewayAllowed()) {
-      console.error('[Razorpay] order creation failed:', err);
-      throw new ApiError('Payment gateway is temporarily unavailable. Please try again shortly.', 502);
-    }
-    // Development sandbox (demo keys) — simulated gateway order
-    return { id: `order_test_${Date.now()}`, amount: amountInPaise, currency: 'INR', isMock: true };
+    return { id: rzpOrder.id, amount: Number(rzpOrder.amount), currency: rzpOrder.currency || 'INR', isMock: false };
+  } catch (err: any) {
+    console.error('[Razorpay] order creation failed:', err?.statusCode, err?.error || err);
+    const reason =
+      err?.statusCode === 401
+        ? 'Razorpay authentication failed. Please check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET on the server.'
+        : err?.error?.description || 'Payment gateway is temporarily unavailable. Please try again shortly.';
+    throw new ApiError(reason, 502);
   }
 };
 
@@ -195,7 +205,7 @@ export const verifyGatewaySignature = (
   }
 
   const expected = crypto
-    .createHmac('sha256', env.RAZORPAY_KEY_SECRET)
+    .createHmac('sha256', env.RAZORPAY_KEY_SECRET.trim())
     .update(`${razorpayOrderId}|${razorpayPaymentId}`)
     .digest('hex');
 

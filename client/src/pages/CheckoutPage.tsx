@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getImageUrl } from '../utils/imageUrl';
 import {
+  loadRazorpayScript,
+  getRazorpayBrandLogo,
+  formatRazorpayContact,
+} from '../utils/loadRazorpay';
+import {
   ShieldCheck,
   CreditCard,
   Lock,
@@ -274,70 +279,79 @@ export const CheckoutPage: React.FC = () => {
       // 1. Create Order on Server (generates Order in DB + Razorpay gateway order)
       const orderInitRes = await orderService.createRazorpayOrder(items, couponCode || undefined, address);
       const { order: createdOrder, razorpayOrder, keyId } = orderInitRes.data;
-      const rzpOrder = razorpayOrder || orderInitRes.data.order;
+      const rzpOrder = razorpayOrder;
 
-      // 2. Open Razorpay Checkout modal if Razorpay is loaded and key is valid
-      if (window.Razorpay && !rzpOrder.isMock) {
-        const options = {
-          key: keyId,
-          amount: rzpOrder.amount,
-          currency: 'INR',
-          name: 'Hydra Skincare',
-          description: 'Luxury Botanical Skincare Order',
-          image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=120&q=80',
-          order_id: rzpOrder.id,
-          handler: async function (response: any) {
-            try {
-              // 3. Verify Payment on Server and confirm Order
-              const verifyRes = await orderService.verifyOrderPayment(createdOrder._id, {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              });
-
-              dispatch(clearCart());
-              setConfirmedOrder(verifyRes.data);
-            } catch (vErr: any) {
-              setErrorMessage(vErr.message || 'Payment verification failed.');
-              setPaymentLoading(false);
-            }
-          },
-          prefill: {
-            name: address.fullName,
-            email: user?.email,
-            contact: address.phone,
-          },
-          theme: {
-            color: '#13382B',
-          },
-          modal: {
-            ondismiss: function () {
-              setPaymentLoading(false);
-              // Order is saved in DB in placed status — can complete from Orders page
-            },
-          },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', async function (failRes: any) {
-          try {
-            await orderService.recordPaymentFailure(createdOrder._id, failRes?.error?.description);
-          } catch {}
-          setErrorMessage(failRes.error?.description || 'Payment was unsuccessful. You can retry anytime from Order History.');
-          setPaymentLoading(false);
-        });
-        rzp.open();
-      } else {
-        // Safe Development / Sandbox Instant Verification Simulation
-        const verifyRes = await orderService.verifyOrderPayment(createdOrder._id, {
-          razorpay_order_id: rzpOrder.id,
-          razorpay_payment_id: `pay_test_${Date.now()}`,
-          razorpay_signature: 'mock_verified_signature',
-        });
-
-        dispatch(clearCart());
-        setConfirmedOrder(verifyRes.data);
+      // 2. Always require a real Razorpay gateway order — never auto-confirm without payment
+      if (!rzpOrder?.id || rzpOrder.isMock || String(rzpOrder.id).startsWith('order_test_') || !keyId) {
+        throw new Error(
+          'Razorpay payment gateway is not active on the server. Please verify live Razorpay API keys (RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET) on the backend.'
+        );
       }
+
+      const sdkReady = await loadRazorpayScript();
+      if (!sdkReady || !window.Razorpay) {
+        setErrorMessage(
+          `Unable to load Razorpay Checkout (check your internet connection or ad-blocker). Your order #${createdOrder.orderNumber} has been saved — you can complete payment anytime from My Orders.`
+        );
+        setPaymentLoading(false);
+        return;
+      }
+
+      const options = {
+        key: keyId,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency || 'INR',
+        name: 'HYDRA24n Skincare',
+        description: `Order #${createdOrder.orderNumber}`,
+        image: getRazorpayBrandLogo(),
+        order_id: rzpOrder.id,
+        handler: async function (response: any) {
+          try {
+            // 3. Verify Payment on Server and confirm Order
+            const verifyRes = await orderService.verifyOrderPayment(createdOrder._id, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            dispatch(clearCart());
+            setConfirmedOrder(verifyRes.data);
+          } catch (vErr: any) {
+            setErrorMessage(vErr.message || 'Payment verification failed. If debited, it will be reconciled automatically.');
+          } finally {
+            setPaymentLoading(false);
+          }
+        },
+        prefill: {
+          name: address.fullName,
+          email: user?.email || '',
+          contact: formatRazorpayContact(address.phone),
+        },
+        notes: {
+          orderNumber: createdOrder.orderNumber,
+        },
+        theme: {
+          color: '#13382B',
+        },
+        modal: {
+          ondismiss: function () {
+            setPaymentLoading(false);
+            setErrorMessage(
+              `Payment window closed. Your order #${createdOrder.orderNumber} is saved — you can complete payment anytime from My Orders.`
+            );
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', async function (failRes: any) {
+        try {
+          await orderService.recordPaymentFailure(createdOrder._id, failRes?.error?.description);
+        } catch {}
+        setErrorMessage(failRes.error?.description || 'Payment was unsuccessful. You can retry anytime from Order History.');
+        setPaymentLoading(false);
+      });
+      rzp.open();
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to initiate order. Please try again.');
       setPaymentLoading(false);

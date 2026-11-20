@@ -144,7 +144,7 @@ export const createRazorpayOrder = async (req: AuthRequest, res: Response, next:
       data: {
         order,
         razorpayOrder: gatewayPayload(gateway),
-        keyId: env.RAZORPAY_KEY_ID,
+        keyId: env.RAZORPAY_KEY_ID.trim(),
         paymentWindowMinutes: env.PAYMENT_WINDOW_MINUTES,
       },
     });
@@ -271,9 +271,7 @@ export const retryOrderPayment = async (req: AuthRequest, res: Response, next: N
     let gateway: { id: string; amount: number; currency: string; isMock?: boolean } | null = null;
     const existingId = order.paymentDetails?.razorpayOrderId;
 
-    if (existingId && isMockGatewayOrder(existingId)) {
-      gateway = { id: existingId, amount: amountInPaise, currency: 'INR', isMock: true };
-    } else if (existingId) {
+    if (existingId && !isMockGatewayOrder(existingId)) {
       try {
         const g: any = await razorpayInstance.orders.fetch(existingId);
         if (g && g.status !== 'paid' && Number(g.amount) === amountInPaise) {
@@ -311,7 +309,7 @@ export const retryOrderPayment = async (req: AuthRequest, res: Response, next: N
         alreadyPaid: false,
         order,
         razorpayOrder: gatewayPayload(gateway),
-        keyId: env.RAZORPAY_KEY_ID,
+        keyId: env.RAZORPAY_KEY_ID.trim(),
       },
     });
   } catch (error) {

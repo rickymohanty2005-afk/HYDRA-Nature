@@ -24,6 +24,11 @@ import {
 } from 'lucide-react';
 import { orderService } from '../services/orderService';
 import { downloadOrderInvoicePdf } from '../utils/invoiceGenerator';
+import {
+  loadRazorpayScript,
+  getRazorpayBrandLogo,
+  formatRazorpayContact,
+} from '../utils/loadRazorpay';
 import { Order } from '../types';
 
 const STATUS_PIPELINE = ['placed', 'confirmed', 'processing', 'shipped', 'delivered'];
@@ -216,79 +221,82 @@ export const OrderTrackingPage: React.FC = () => {
         return;
       }
 
-      if (window.Razorpay && razorpayOrder && !razorpayOrder.isMock) {
-        const options = {
-          key: keyId,
-          amount: razorpayOrder.amount,
-          currency: 'INR',
-          name: 'Hydra Skincare',
-          description: `Order Payment #${order.orderNumber}`,
-          image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=120&q=80',
-          order_id: razorpayOrder.id,
-          handler: async function (response: any) {
-            try {
-              const verifyRes = await orderService.verifyOrderPayment(order._id, {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              });
+      if (!razorpayOrder?.id || razorpayOrder.isMock || String(razorpayOrder.id).startsWith('order_test_') || !keyId) {
+        throw new Error(
+          'Razorpay payment gateway is not active on the server. Please verify live Razorpay API keys on the backend.'
+        );
+      }
 
-              setOrder(verifyRes.data);
-              setPaymentNotice({
-                type: 'success',
-                text: 'Payment received successfully! Your order is now confirmed and being processed.',
-              });
-            } catch (vErr: any) {
-              setPaymentNotice({
-                type: 'error',
-                text: vErr.message || 'Payment verification failed. Please try again.',
-              });
-            } finally {
-              setRetryingPayment(false);
-            }
-          },
-          prefill: {
-            name: order.shippingAddress.fullName,
-            email: typeof order.user === 'object' ? order.user?.email : undefined,
-            contact: order.shippingAddress.phone,
-          },
-          theme: {
-            color: '#13382B',
-          },
-          modal: {
-            ondismiss: function () {
-              setRetryingPayment(false);
-            },
-          },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', async function (failRes: any) {
-          try {
-            await orderService.recordPaymentFailure(order._id, failRes?.error?.description);
-          } catch {}
-          setPaymentNotice({
-            type: 'error',
-            text: failRes.error?.description || 'Payment was unsuccessful. Please check your bank or retry.',
-          });
-          setRetryingPayment(false);
-        });
-        rzp.open();
-      } else {
-        // Safe Development / Sandbox Simulation fallback
-        const verifyRes = await orderService.verifyOrderPayment(order._id, {
-          razorpay_order_id: razorpayOrder?.id || `order_test_${Date.now()}`,
-          razorpay_payment_id: `pay_test_${Date.now()}`,
-          razorpay_signature: 'mock_verified_signature',
-        });
-
-        setOrder(verifyRes.data);
+      const sdkReady = await loadRazorpayScript();
+      if (!sdkReady || !window.Razorpay) {
         setPaymentNotice({
-          type: 'success',
-          text: 'Payment simulated and verified successfully! Order is confirmed.',
+          type: 'error',
+          text: 'Unable to load Razorpay Checkout. Please check your internet connection or disable ad-blockers and try again.',
         });
         setRetryingPayment(false);
+        return;
       }
+
+      const options = {
+        key: keyId,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency || 'INR',
+        name: 'HYDRA24n Skincare',
+        description: `Order Payment #${order.orderNumber}`,
+        image: getRazorpayBrandLogo(),
+        order_id: razorpayOrder.id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await orderService.verifyOrderPayment(order._id, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            setOrder(verifyRes.data);
+            setPaymentNotice({
+              type: 'success',
+              text: 'Payment received successfully! Your order is now confirmed and being processed.',
+            });
+          } catch (vErr: any) {
+            setPaymentNotice({
+              type: 'error',
+              text: vErr.message || 'Payment verification failed. Please try again.',
+            });
+          } finally {
+            setRetryingPayment(false);
+          }
+        },
+        prefill: {
+          name: order.shippingAddress.fullName,
+          email: typeof order.user === 'object' ? order.user?.email : undefined,
+          contact: formatRazorpayContact(order.shippingAddress.phone),
+        },
+        notes: {
+          orderNumber: order.orderNumber,
+        },
+        theme: {
+          color: '#13382B',
+        },
+        modal: {
+          ondismiss: function () {
+            setRetryingPayment(false);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', async function (failRes: any) {
+        try {
+          await orderService.recordPaymentFailure(order._id, failRes?.error?.description);
+        } catch {}
+        setPaymentNotice({
+          type: 'error',
+          text: failRes.error?.description || 'Payment was unsuccessful. Please check your bank or retry.',
+        });
+        setRetryingPayment(false);
+      });
+      rzp.open();
     } catch (err: any) {
       setPaymentNotice({
         type: 'error',
