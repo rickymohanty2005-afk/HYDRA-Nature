@@ -52,6 +52,15 @@ const generateUniqueSlug = async (name: string, excludeId?: string): Promise<str
 // Product photos are mandatory (1-6), supplied by the admin. No automatic fallback image.
 const MAX_PRODUCT_IMAGES = 6;
 
+const cloudinaryConfigured = (): boolean =>
+  !!process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_CLOUD_NAME !== 'hydra-demo' &&
+  !!process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_KEY !== '123456789012345';
+
+const publicProto = (req: Request): string =>
+  (req.get('x-forwarded-proto') || req.protocol).split(',')[0];
+
 // 1. Get all products with full dynamic filters, sorting, search, and pagination
 export const getAllProducts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -523,8 +532,23 @@ export const uploadProductImages = async (req: Request, res: Response, next: Nex
     }
 
     const host = req.get('host') || 'localhost:5012';
-    const imageUrls = files.map((f) => `${(req.get('x-forwarded-proto') || req.protocol).split(',')[0]}://${host}/uploads/products/${f.filename}`);
     const relativeUrls = files.map((f) => `/uploads/products/${f.filename}`);
+    let imageUrls = files.map((f) => `${publicProto(req)}://${host}/uploads/products/${f.filename}`);
+
+    // Persist to Cloudinary when configured (Render's disk is ephemeral); keep local URL per-file on failure
+    if (cloudinaryConfigured()) {
+      imageUrls = await Promise.all(
+        files.map(async (f, i) => {
+          try {
+            const r = await cloudinary.uploader.upload(f.path, { folder: 'hydra_products' });
+            return r.secure_url;
+          } catch (cErr) {
+            console.warn('Cloudinary upload failed, using local storage:', cErr);
+            return imageUrls[i];
+          }
+        })
+      );
+    }
 
     res.status(200).json({
       success: true,

@@ -718,7 +718,7 @@ export const AdminProductsPage: React.FC = () => {
           <table className="w-full min-w-[960px] text-left text-[13px]">
             <thead>
               <tr className="bg-[#FAF8F5] text-[12px] font-medium text-stone-500">
-                <th scope="col" className="px-6 py-3 font-medium">Product</th>
+                <th scope="col" className="sticky left-0 z-10 bg-[#FAF8F5] px-4 py-3 font-medium sm:px-6">Product</th>
                 <th scope="col" className="px-4 py-3 font-medium">Category</th>
                 <th scope="col" className="px-4 py-3 font-medium">Price</th>
                 <th scope="col" className="px-4 py-3 font-medium">Stock</th>
@@ -748,7 +748,7 @@ export const AdminProductsPage: React.FC = () => {
                   return (
                     <tr key={p._id} className="align-middle transition-colors hover:bg-[#FCFBF9]">
                       {/* Product */}
-                      <td className="px-6 py-4">
+                      <td className="sticky left-0 z-10 bg-white px-4 py-4 sm:px-6">
                         <div className="flex items-center gap-3.5">
                           {hasPhoto ? (
                             <img loading="lazy" decoding="async"
