@@ -246,7 +246,7 @@ export const HomePage: React.FC = () => {
             {/* Image: full-bleed on desktop (subject sits on the right, dark negative space behind the copy) */}
             <div className="relative aspect-[4/3] w-full sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
               <img
-                src="/images/home/care_model.png"
+                src="/images/home/care_model.webp"
                 alt="Woman enjoying a gentle skincare ritual"
                 className="absolute inset-0 h-full w-full object-cover object-[78%_center] lg:object-right"
                 loading="lazy"
@@ -422,7 +422,7 @@ export const HomePage: React.FC = () => {
 
                       {/* Actual product image — absolute fill so every card is identical size */}
                       {product.images?.[0] && (
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={getImageUrl(product.images[0])}
                           alt={product.name}
                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -532,7 +532,7 @@ export const HomePage: React.FC = () => {
                   />
 
                   <img
-                    src="/images/home/RadianceFaceWash.png"
+                    src="/images/home/RadianceFaceWash.webp"
                     alt="Hydra 24h Ultra Radiance face wash in a gold-capped white jar"
                     className="relative block h-auto w-full object-contain drop-shadow-[0_30px_40px_rgba(2,20,25,0.55)]"
                     loading="lazy"
@@ -705,13 +705,13 @@ export const HomePage: React.FC = () => {
 
                   <figcaption className="mt-6 flex items-center gap-3 border-t border-[#04282B]/[0.08] pt-5">
                     {TESTIMONIALS[activeTestimonial].avatar && (
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={TESTIMONIALS[activeTestimonial].avatar}
                         alt={TESTIMONIALS[activeTestimonial].name}
                         className="h-11 w-11 rounded-full object-cover ring-2 ring-[#1E9AA3]/30 ring-offset-2"
                         onError={(e) => {
                           e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/images/home/testimonial_card.jpg';
+                          e.currentTarget.src = '/images/home/testimonial_leaf.webp';
                         }}
                       />
                     )}
@@ -769,12 +769,12 @@ export const HomePage: React.FC = () => {
               </div>
 
               <div className="relative hidden w-[38%] shrink-0 sm:block">
-                <img
-                  src="/images/home/testimonial_leaf.png"
+                <img loading="lazy" decoding="async"
+                  src="/images/home/testimonial_leaf.webp"
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/home/testimonial_card.jpg';
+                    (e.target as HTMLImageElement).src = '/images/home/testimonial_leaf.webp';
                   }}
                 />
                 <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white to-transparent" aria-hidden="true" />

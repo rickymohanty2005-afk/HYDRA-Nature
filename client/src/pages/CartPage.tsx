@@ -113,7 +113,7 @@ export const CartPage: React.FC = () => {
                   className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-gray-100 last:border-b-0 last:pb-0"
                 >
                   <div className="flex items-center gap-4">
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={item.image}
                       alt={item.name}
                       className="w-20 h-20 object-contain rounded-2xl bg-[#FAF8F5] p-2 flex-shrink-0 border border-[#EDE8E1]"

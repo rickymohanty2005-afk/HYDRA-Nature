@@ -27,7 +27,7 @@ export const authService = {
   },
 
   getMe: async (): Promise<{ user: User }> => {
-    const res = await api.get('/auth/me');
+    const res = await api.get('/auth/me', { timeout: 12000 });
     return res.data.data;
   },
 

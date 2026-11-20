@@ -30,6 +30,9 @@ import adminRoutes from './routes/adminRoutes';
 
 const app: Application = express();
 
+// Behind Render/Vercel proxies: needed for correct req.protocol (https URLs) and rate-limit IPs
+app.set('trust proxy', 1);
+
 // Security Headers (configured to allow cross-origin image requests)
 app.use(
   helmet({

@@ -898,7 +898,7 @@ export const OrderTrackingPage: React.FC = () => {
                 className="flex items-center justify-between gap-4 p-3.5 bg-[#FAF8F5] rounded-2xl border border-gray-100"
               >
                 <div className="flex items-center gap-3">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={item.image}
                     alt={item.name}
                     className="w-14 h-14 object-contain rounded-xl bg-white p-1 border border-[#EDE8E1]"

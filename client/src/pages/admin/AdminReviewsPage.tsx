@@ -418,7 +418,7 @@ export const AdminReviewsPage: React.FC = () => {
                 <div className="p-5 bg-[#FAF8F5] border-b border-[#EDE8E1] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-xl bg-white border border-[#EDE8E1] p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={
                           prod.images?.[0]
                             ? getImageUrl(prod.images[0])
@@ -544,7 +544,7 @@ export const AdminReviewsPage: React.FC = () => {
               </button>
             </div>
             <div className="p-4 flex items-center justify-center bg-[#F7F5F0] max-h-[75vh] overflow-auto">
-              <img
+              <img loading="lazy" decoding="async"
                 src={previewImage}
                 alt="Customer photo enlarged"
                 className="max-w-full max-h-[70vh] object-contain rounded-2xl shadow-sm"
@@ -677,7 +677,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
                     className="w-14 h-14 rounded-xl border border-[#EDE8E1] bg-[#FAF8F5] overflow-hidden cursor-pointer hover:border-[#13382B] hover:shadow-sm transition-all relative group flex-shrink-0"
                     title="Click to view full image"
                   >
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={fullUrl}
                       alt={`Review photo ${idx + 1}`}
                       className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"

@@ -40,7 +40,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     title: 'The Complete Guide to Skincare Acids: Which Acid Solves Which Problem',
     subtitle: 'Everything you need to know about AHAs, BHAs, PHAs and Hyaluronic Acid',
     category: 'Ingredients',
-    coverImage: '/images/blogs/guide_to_acids.png',
+    coverImage: '/images/blogs/guide_to_acids.webp',
     publishedAt: '2026-06-19',
     readTime: '6 min read',
     author: {
@@ -62,7 +62,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
       name: 'Hydra Glow Serum',
       slug: 'hydra-glow-serum',
       price: 1499,
-      image: '/images/products/hydra-glow-serum.jpg',
+      image: '/images/home/RadianceFaceWash.webp',
       tag: 'Best Seller',
     },
     sections: [
@@ -108,7 +108,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     title: 'Why SPF 50 Is Non-Negotiable in India: The Complete Sunscreen Guide for Indian Skin',
     subtitle: 'The science of high UV index, tropical humidity, and shielding Indian melanin',
     category: 'Skincare Tips',
-    coverImage: '/images/blogs/spf_50_guide.png',
+    coverImage: '/images/blogs/spf_50_guide.webp',
     publishedAt: '2026-06-18',
     readTime: '5 min read',
     author: {
@@ -130,7 +130,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
       name: 'Hydra Sunscreen Gel',
       slug: 'hydra-sunscreen-gel',
       price: 999,
-      image: '/images/products/hydra-sunscreen-gel.jpg',
+      image: '/images/home/RadianceFaceWash2.webp',
     },
     sections: [
       {
@@ -168,7 +168,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     title: 'Vitamin C: The Secret to Glowing and Youthful Skin?',
     subtitle: 'Unlocking the power of bio-available botanical L-Ascorbic Acid & Ethyl Ascorbate',
     category: 'Ingredients',
-    coverImage: '/images/blogs/vitamin_c_banner.jpg',
+    coverImage: '/images/blogs/vitamin_c_banner.webp',
     publishedAt: '2026-06-15',
     readTime: '5 min read',
     author: {
@@ -189,7 +189,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
       name: 'Hydra Glow Serum',
       slug: 'hydra-glow-serum',
       price: 1499,
-      image: '/images/products/hydra-glow-serum.jpg',
+      image: '/images/home/RadianceFaceWash.webp',
       tag: 'Best Seller',
     },
     sections: [
@@ -216,7 +216,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     title: 'Glutathione: The Master Antioxidant for Radiant and Youthful Skin',
     subtitle: 'How cellular detoxification transforms stubborn hyperpigmentation from within',
     category: 'Beauty Trends',
-    coverImage: '/images/blogs/glutathione_banner.jpg',
+    coverImage: '/images/blogs/glutathione_banner.webp',
     publishedAt: '2026-06-12',
     readTime: '6 min read',
     author: {
@@ -237,7 +237,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
       name: 'Hydra Nourish Cream',
       slug: 'hydra-nourish-cream',
       price: 1299,
-      image: '/images/products/hydra-nourish-cream.jpg',
+      image: '/images/home/Hydra Day Cream Natural Glow.webp',
       tag: 'New',
     },
     sections: [
@@ -263,7 +263,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     title: 'The Power of Natural Ingredients in Skincare: Backed by Science',
     subtitle: 'Where age-old botanical wisdom merges with cellular bio-fermentation',
     category: 'Wellness',
-    coverImage: '/images/blogs/Natural.png',
+    coverImage: '/images/blogs/Natural.webp',
     publishedAt: '2026-06-05',
     readTime: '4 min read',
     author: {
@@ -283,7 +283,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
       name: 'Hydra Glow Serum',
       slug: 'hydra-glow-serum',
       price: 1499,
-      image: '/images/products/hydra-glow-serum.jpg',
+      image: '/images/home/RadianceFaceWash.webp',
       tag: 'Best Seller',
     },
     sections: [
@@ -308,7 +308,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
     title: '5 Skincare Habits for Healthy, Glowing Skin',
     subtitle: 'Simple everyday rituals to transform dull, fatigued skin into radiance',
     category: 'Skincare Tips',
-    coverImage: '/images/blogs/Glowing.png',
+    coverImage: '/images/blogs/Glowing.webp',
     publishedAt: '2026-05-28',
     readTime: '4 min read',
     author: {
@@ -329,7 +329,7 @@ export const PREDEFINED_BLOGS: BlogItem[] = [
       name: 'Hydra Nourish Cream',
       slug: 'hydra-nourish-cream',
       price: 1299,
-      image: '/images/products/hydra-nourish-cream.jpg',
+      image: '/images/home/Hydra Day Cream Natural Glow.webp',
       tag: 'New',
     },
     sections: [

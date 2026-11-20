@@ -732,7 +732,7 @@ export const AdminProductsPage: React.FC = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3.5">
                           {hasPhoto ? (
-                            <img
+                            <img loading="lazy" decoding="async"
                               src={getImageUrl(p.images[0])}
                               alt={p.name}
                               onError={(e) => {
@@ -1246,7 +1246,7 @@ export const AdminProductsPage: React.FC = () => {
                           }`}
                         >
                           <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-[#FAF8F5]">
-                            <img
+                            <img loading="lazy" decoding="async"
                               src={getImageUrl(imgUrl)}
                               alt={idx === 0 ? 'Cover photo' : `Product photo ${idx + 1}`}
                               onError={() => {

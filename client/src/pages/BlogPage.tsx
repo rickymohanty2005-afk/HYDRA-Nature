@@ -123,7 +123,7 @@ export const BlogPage: React.FC = () => {
                   to={`/blog/${article.slug}`}
                   className="block relative rounded-2xl sm:rounded-3xl overflow-hidden aspect-[16/10] bg-[#E8EFE9] border border-[#E5EBE6] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(19,56,43,0.08)] transition-all duration-500"
                 >
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={article.coverImage}
                     alt={article.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"

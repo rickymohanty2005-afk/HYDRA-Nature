@@ -181,7 +181,7 @@ export const AdminLayout: React.FC = () => {
           <div className="flex items-center gap-4">
            
             <div className="w-8 h-8 rounded-full overflow-hidden bg-white border border-[#C5A880] shadow-sm flex items-center justify-center">
-              <img
+              <img loading="lazy" decoding="async"
                 src="/images/home/Logo.png"
                 alt="Hydra logo"
                 className="w-full h-full object-cover"

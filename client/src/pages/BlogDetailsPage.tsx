@@ -126,7 +126,7 @@ export const BlogDetailsPage: React.FC = () => {
         {/* Author & Share Bar */}
         <div className="flex items-center justify-between py-4 border-y border-[#EDE8E1] mb-8">
           <div className="flex items-center gap-3.5">
-            <img
+            <img loading="lazy" decoding="async"
               src={blog.author.avatar}
               alt={blog.author.name}
               className="w-11 h-11 rounded-full object-cover border-2 border-[#C5A880]"
@@ -154,7 +154,7 @@ export const BlogDetailsPage: React.FC = () => {
             2. FEATURED COVER IMAGE BANNER
            ────────────────────────────────────────────────────────── */}
         <div className="rounded-2xl sm:rounded-3xl overflow-hidden aspect-[16/10] sm:aspect-[16/9] bg-[#E8EFE9] border border-[#EDE8E1] shadow-lg mb-10">
-          <img
+          <img loading="lazy" decoding="async"
             src={blog.coverImage}
             alt={blog.title}
             className="w-full h-full object-cover"
@@ -245,7 +245,7 @@ export const BlogDetailsPage: React.FC = () => {
           <div className="mt-12 bg-white rounded-3xl p-6 sm:p-8 border border-[#EDE8E1] shadow-md flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-5">
               <div className="w-20 h-20 rounded-2xl bg-[#FAF8F5] p-2 border border-[#EDE8E1] flex-shrink-0">
-                <img
+                <img loading="lazy" decoding="async"
                   src={blog.recommendedProduct.image}
                   alt={blog.recommendedProduct.name}
                   className="w-full h-full object-contain"
@@ -334,7 +334,7 @@ export const BlogDetailsPage: React.FC = () => {
                     to={`/blog/${rel.slug}`}
                     className="block aspect-[16/10] rounded-xl overflow-hidden bg-[#FAF8F5]"
                   >
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={rel.coverImage}
                       alt={rel.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

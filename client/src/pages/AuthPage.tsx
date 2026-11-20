@@ -102,7 +102,7 @@ export const AuthPage: React.FC = () => {
       {/* Brand Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
          <Link to="/" className="flex flex-shrink-0 items-center" aria-label="Hydra home">
-                    <img
+                    <img loading="lazy" decoding="async"
                       src="/images/home/Logo.png"
                       alt="Hydra Professional Beauty"
                       className="h-auto w-24 object-contain [filter:brightness(0)_saturate(100%)_invert(17%)_sepia(20%)_saturate(1200%)_hue-rotate(102deg)_brightness(85%)_contrast(95%)] sm:w-28 lg:w-32"
@@ -117,7 +117,7 @@ export const AuthPage: React.FC = () => {
           <div className="lg:col-span-5 bg-[#13382B] text-white p-8 sm:p-10 flex flex-col justify-between relative overflow-hidden">
             {/* Background Image Watermark */}
             <div className="absolute inset-0 opacity-20 pointer-events-none">
-              <img
+              <img loading="lazy" decoding="async"
                 src="https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80"
                 alt="Botanical Background"
                 className="w-full h-full object-cover"

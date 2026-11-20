@@ -131,7 +131,7 @@ export const CartDrawer: React.FC = () => {
                   key={`${item.productId}-${item.size}`}
                   className="flex gap-4 p-3 bg-white rounded-xl border border-[#EDE8E1] shadow-sm"
                 >
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={item.image}
                     alt={item.name}
                     className="w-18 h-20 object-contain rounded-lg bg-[#FAF8F5] p-1 flex-shrink-0"

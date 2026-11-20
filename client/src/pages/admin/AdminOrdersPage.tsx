@@ -1032,7 +1032,7 @@ export const AdminOrdersPage: React.FC = () => {
                       className="flex items-center justify-between gap-3 p-2 rounded-xl bg-[#FAF8F5] border border-gray-100"
                     >
                       <div className="flex items-center gap-2.5">
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={item.image}
                           alt={item.name}
                           className="w-10 h-10 object-contain bg-white rounded-lg p-0.5 border border-gray-200"

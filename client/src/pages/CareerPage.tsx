@@ -219,7 +219,7 @@ export const CareerPage: React.FC = () => {
           </div>
 
           <div className="relative w-56 sm:w-72 h-44 sm:h-56 rounded-3xl overflow-hidden shadow-[0_20px_50px_-20px_rgba(2,20,25,0.8)] border border-white/15 flex-shrink-0 flex items-center justify-center bg-white/[0.07] backdrop-blur-xl p-3">
-            <img
+            <img loading="lazy" decoding="async"
               src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=700&q=80"
               alt="Hydra Collaborative Headquarters"
               className="w-full h-full object-cover rounded-2xl"

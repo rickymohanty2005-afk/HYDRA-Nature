@@ -383,7 +383,7 @@ export const ProductDetailsPage: React.FC = () => {
                       activeImage === img ? 'border-[#13382B] shadow-sm' : 'border-[#EDE8E1] opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={getImageUrl(img) || FALLBACK_PRODUCT_IMAGE}
                       alt=""
                       onError={(e) => {
@@ -781,7 +781,7 @@ export const ProductDetailsPage: React.FC = () => {
                           key={`existing-${idx}`}
                           className="relative w-16 h-16 rounded-xl border border-[#EDE8E1] bg-[#FAF8F5] overflow-hidden group shadow-xs"
                         >
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={getImageUrl(img)}
                             alt="Existing attachment"
                             className="w-full h-full object-cover"
@@ -803,7 +803,7 @@ export const ProductDetailsPage: React.FC = () => {
                           key={`new-${idx}`}
                           className="relative w-16 h-16 rounded-xl border border-[#2E6B48]/50 bg-[#EAF1EB] overflow-hidden group shadow-xs"
                         >
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={url}
                             alt="New review upload preview"
                             className="w-full h-full object-cover"
@@ -944,7 +944,7 @@ export const ProductDetailsPage: React.FC = () => {
                                 className="w-14 h-14 rounded-xl border border-[#EDE8E1] bg-[#FAF8F5] overflow-hidden cursor-pointer hover:border-[#13382B] hover:shadow-sm transition-all relative group flex-shrink-0"
                                 title="Click to view full image"
                               >
-                                <img
+                                <img loading="lazy" decoding="async"
                                   src={fullUrl}
                                   alt={`Review photo ${idx + 1}`}
                                   className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
@@ -1040,18 +1040,18 @@ export const ProductDetailsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 1. First Section: ad.png Clinical Showcase Banner */}
+          {/* 1. First Section: ad.webp Clinical Showcase Banner */}
           <div className="mb-10 rounded-3xl overflow-hidden border border-[#EDE8E1] bg-white shadow-sm hover:shadow-md transition-all group">
             <div
               className="relative cursor-pointer overflow-hidden bg-[#FAF8F5]"
               onClick={() => setSelectedClinicalImage({
-                src: '/images/home/ad.png',
+                src: '/images/home/ad.webp',
                 title: 'Hydra Clinical Formulation Showcase',
                 desc: 'Independent laboratory screened & certified skincare formulation.'
               })}
             >
-              <img
-                src="/images/home/ad.png"
+              <img loading="lazy" decoding="async"
+                src="/images/home/ad.webp"
                 alt="Hydra Skincare Clinical Campaign"
                 className="w-full h-auto object-cover max-h-[500px] transition-transform duration-500 group-hover:scale-[1.01]"
               />
@@ -1104,7 +1104,7 @@ export const ProductDetailsPage: React.FC = () => {
                     desc: 'Official test reports from Mascot Spincontrol, FARE Labs, and Wave Analytical Labs.'
                   })}
                 >
-                  <img
+                  <img loading="lazy" decoding="async"
                     src="/images/home/clinical-reports.jpg"
                     alt="Verified Lab Reports - Mascot Spincontrol, FARE Labs, Wave Analytical Labs"
                     className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
@@ -1268,7 +1268,7 @@ export const ProductDetailsPage: React.FC = () => {
                 </button>
               </div>
               <div className="p-3 sm:p-5 overflow-auto flex items-center justify-center bg-[#F7F5F0] max-h-[calc(92vh-90px)]">
-                <img
+                <img loading="lazy" decoding="async"
                   src={selectedClinicalImage.src}
                   alt={selectedClinicalImage.title}
                   className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-md"

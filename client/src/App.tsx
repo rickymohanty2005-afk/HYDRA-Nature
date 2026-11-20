@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -9,40 +9,40 @@ import { RootLayout } from './layouts/RootLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 
 // Policy Pages
-import { PrivacyPolicy } from './components/PrivacyPolicy';
-import { TermsConditions } from './components/TermsConditions';
-import { ShippingPolicy } from './components/ShippingPolicy';
-import { ReturnPolicy } from './components/ReturnPolicy';
+const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy').then((m) => ({ default: m.PrivacyPolicy })));
+const TermsConditions = lazy(() => import('./components/TermsConditions').then((m) => ({ default: m.TermsConditions })));
+const ShippingPolicy = lazy(() => import('./components/ShippingPolicy').then((m) => ({ default: m.ShippingPolicy })));
+const ReturnPolicy = lazy(() => import('./components/ReturnPolicy').then((m) => ({ default: m.ReturnPolicy })));
 
 // Public Pages
 import { HomePage } from './pages/HomePage';
-import ShopPage from './pages/ShopPage';
-import { ProductDetailsPage } from './pages/ProductDetailsPage';
-import { AboutPage } from './pages/AboutPage';
-import { BlogPage } from './pages/BlogPage';
-import { BlogDetailsPage } from './pages/BlogDetailsPage';
-import { ContactPage } from './pages/ContactPage';
-import { CareerPage } from './pages/CareerPage';
-import { AuthPage } from './pages/AuthPage';
+const ShopPage = lazy(() => import('./pages/ShopPage'));
+const ProductDetailsPage = lazy(() => import('./pages/ProductDetailsPage').then((m) => ({ default: m.ProductDetailsPage })));
+const AboutPage = lazy(() => import('./pages/AboutPage').then((m) => ({ default: m.AboutPage })));
+const BlogPage = lazy(() => import('./pages/BlogPage').then((m) => ({ default: m.BlogPage })));
+const BlogDetailsPage = lazy(() => import('./pages/BlogDetailsPage').then((m) => ({ default: m.BlogDetailsPage })));
+const ContactPage = lazy(() => import('./pages/ContactPage').then((m) => ({ default: m.ContactPage })));
+const CareerPage = lazy(() => import('./pages/CareerPage').then((m) => ({ default: m.CareerPage })));
+const AuthPage = lazy(() => import('./pages/AuthPage').then((m) => ({ default: m.AuthPage })));
 
 // Protected Customer Pages
-import { CartPage } from './pages/CartPage';
-import { WishlistPage } from './pages/WishlistPage';
-import { CheckoutPage } from './pages/CheckoutPage';
-import { OrdersPage } from './pages/OrdersPage';
-import { OrderTrackingPage } from './pages/OrderTrackingPage';
-import { ProfilePage } from './pages/ProfilePage';
+const CartPage = lazy(() => import('./pages/CartPage').then((m) => ({ default: m.CartPage })));
+const WishlistPage = lazy(() => import('./pages/WishlistPage').then((m) => ({ default: m.WishlistPage })));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })));
+const OrdersPage = lazy(() => import('./pages/OrdersPage').then((m) => ({ default: m.OrdersPage })));
+const OrderTrackingPage = lazy(() => import('./pages/OrderTrackingPage').then((m) => ({ default: m.OrderTrackingPage })));
+const ProfilePage = lazy(() => import('./pages/ProfilePage').then((m) => ({ default: m.ProfilePage })));
 
 // Admin Pages
-import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
-import { AdminProductsPage } from './pages/admin/AdminProductsPage';
-import AdminOrdersPage from './pages/admin/AdminOrdersPage';
-import AdminCustomersPage from './pages/admin/AdminCustomersPage';
-import AdminCareersPage from './pages/admin/AdminCareersPage';
-import AdminCouponsPage from './pages/admin/AdminCouponsPage';
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })));
+const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage').then((m) => ({ default: m.AdminProductsPage })));
+const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
+const AdminCustomersPage = lazy(() => import('./pages/admin/AdminCustomersPage'));
+const AdminCareersPage = lazy(() => import('./pages/admin/AdminCareersPage'));
+const AdminCouponsPage = lazy(() => import('./pages/admin/AdminCouponsPage'));
 
-import AdminReviewsPage from './pages/admin/AdminReviewsPage';
-import Adminvisitinvoice from './pages/admin/Adminvisitinvoice';
+const AdminReviewsPage = lazy(() => import('./pages/admin/AdminReviewsPage'));
+const Adminvisitinvoice = lazy(() => import('./pages/admin/Adminvisitinvoice'));
 
 // Route Guards
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -56,6 +56,12 @@ const NotFound: React.FC = () => (
     <a href="/" className="bg-hydra-dark text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-colors">
       Go Home
     </a>
+  </div>
+);
+
+const PageLoader: React.FC = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="w-10 h-10 border-4 border-hydra-dark border-t-transparent rounded-full animate-spin" />
   </div>
 );
 
@@ -80,6 +86,7 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
+      <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* ─── Public customer routes ─── */}
         <Route element={<RootLayout />}>
@@ -125,6 +132,7 @@ const App: React.FC = () => {
         {/* ─── Catch-all ─── */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
       <WhatsAppButton />
     </BrowserRouter>
   );

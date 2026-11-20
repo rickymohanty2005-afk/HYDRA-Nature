@@ -456,7 +456,7 @@ export const OrdersPage: React.FC = () => {
                         className="flex items-center justify-between gap-3 p-2 rounded-xl bg-[#FAF8F5]/60 hover:bg-[#FAF8F5] transition-colors border border-gray-100"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={item.image}
                             alt={item.name}
                             className="w-10 h-10 object-contain rounded-lg bg-white p-0.5 border border-[#EDE8E1] flex-shrink-0"

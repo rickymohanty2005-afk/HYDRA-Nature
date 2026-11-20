@@ -14,11 +14,14 @@ import {
   Youtube,
   Linkedin,
   Facebook,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 import { useAppDispatch, useAppSelector } from '../store';
 import { logoutUser } from '../store/authSlice';
 import { toggleCartDrawer } from '../store/cartSlice';
+import { useTheme } from '../utils/theme';
 
 const navLinkClass = (isActive: boolean) =>
   `relative py-1 text-[13px] tracking-wide transition-colors after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-[#1E9AA3] after:transition-all after:duration-300 ${
@@ -30,6 +33,7 @@ const iconButtonClass =
 
 export const Navbar: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { isDark, toggle: toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -90,7 +94,7 @@ export const Navbar: React.FC = () => {
 
   // On the home page the navbar floats over the hero and stays clear until the user scrolls
   const isHome = location.pathname === '/';
-  const isTransparent = isHome && !isScrolled && !searchOpen && !mobileMenuOpen;
+  const isTransparent = !isDark && isHome && !isScrolled && !searchOpen && !mobileMenuOpen;
 
   return (
     <header className={`${isHome ? 'fixed inset-x-0' : 'sticky'} top-0 z-40 w-full transition-all duration-300`}>
@@ -197,6 +201,17 @@ export const Navbar: React.FC = () => {
               <span className="hidden md:inline text-[13px] text-[#04282B]/55 group-hover:text-[#04282B] transition-colors">
                 Search...
               </span>
+            </button>
+
+            {/* Dark / Light mode toggle */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className={iconButtonClass}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={isDark ? 'Light mode' : 'Dark mode'}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             {/* User Account / Profile Dropdown */}

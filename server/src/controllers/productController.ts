@@ -469,7 +469,8 @@ export const uploadProductImage = async (req: Request, res: Response, next: Next
     }
 
     const host = req.get('host') || 'localhost:5012';
-    const fullUrl = `${req.protocol}://${host}/uploads/products/${req.file.filename}`;
+    const proto = (req.get('x-forwarded-proto') || req.protocol).split(',')[0];
+    const fullUrl = `${proto}://${host}/uploads/products/${req.file.filename}`;
     const localUrl = `/uploads/products/${req.file.filename}`;
 
     // If real Cloudinary credentials are configured, sync to Cloudinary
@@ -514,7 +515,7 @@ export const uploadProductImages = async (req: Request, res: Response, next: Nex
     }
 
     const host = req.get('host') || 'localhost:5012';
-    const imageUrls = files.map((f) => `${req.protocol}://${host}/uploads/products/${f.filename}`);
+    const imageUrls = files.map((f) => `${(req.get('x-forwarded-proto') || req.protocol).split(',')[0]}://${host}/uploads/products/${f.filename}`);
     const relativeUrls = files.map((f) => `/uploads/products/${f.filename}`);
 
     res.status(200).json({

@@ -137,7 +137,7 @@ export const Footer: React.FC = () => {
           {/* ---------- Brand ---------- */}
           <div className={`${cardClass} lg:col-span-4 flex flex-col`}>
             <Link to="/" className="inline-flex" aria-label="Hydra home">
-              <img
+              <img loading="lazy" decoding="async"
                 src="/images/home/Logo.png"
                 alt="Hydra Professional Beauty"
                 className="h-auto w-44 object-contain [filter:brightness(0)_invert(1)] sm:w-52"

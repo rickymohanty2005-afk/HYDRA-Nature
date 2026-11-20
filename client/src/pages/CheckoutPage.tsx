@@ -739,7 +739,7 @@ export const CheckoutPage: React.FC = () => {
                     className="flex items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-center gap-2.5">
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={item.image}
                         alt={item.name}
                         className="w-12 h-12 object-contain bg-[#FAF8F5] rounded-lg p-1 border border-[#EDE8E1]"

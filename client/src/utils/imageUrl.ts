@@ -1,28 +1,29 @@
 /**
- * Resolves any image URL (local uploads, external URLs, data URLs, blobs)
- * to a fully qualified, displayable image URL.
+ * Resolves any image URL to a displayable URL.
+ * - Client static assets (/images/...) stay same-origin (served by the CDN)
+ * - Backend uploads (/uploads/...) resolve to the API origin
  */
 export const getImageUrl = (url?: string): string => {
   if (!url) return '';
 
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5012/api';
+  const apiBase = import.meta.env.VITE_API_BASE_URL || '';
   const backendOrigin = apiBase.replace(/\/api\/?$/, '');
+  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
 
-  // Automatically repair any legacy or hardcoded 5000 port references for uploads to active port 5012
-  if (url.includes('localhost:5000/uploads')) {
-    return url.replace('http://localhost:5000', backendOrigin);
-  }
+  if (url.startsWith('data:') || url.startsWith('blob:')) return url;
 
-  // Already valid absolute URL or browser memory URL
-  if (
-    url.startsWith('http://') ||
-    url.startsWith('https://') ||
-    url.startsWith('data:') ||
-    url.startsWith('blob:')
-  ) {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    // Legacy localhost upload URLs -> active backend
+    const m = url.match(/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/uploads\/.*)$/);
+    if (m) return `${backendOrigin}${m[1]}`;
+    // Avoid mixed-content blocking on https sites
+    if (isHttps && url.startsWith('http://') && !/^http:\/\/(localhost|127\.0\.0\.1)/.test(url)) {
+      return url.replace(/^http:\/\//, 'https://');
+    }
     return url;
   }
 
   const cleanPath = url.startsWith('/') ? url : `/${url}`;
-  return `${backendOrigin}${cleanPath}`;
+  if (cleanPath.startsWith('/uploads/')) return `${backendOrigin}${cleanPath}`;
+  return cleanPath;
 };

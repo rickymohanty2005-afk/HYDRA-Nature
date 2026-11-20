@@ -125,8 +125,8 @@ export const AboutPage: React.FC = () => {
         {/* Wide image with overlapping stats */}
         <div className="mx-auto mt-12 w-full max-w-[1440px] px-4 sm:px-8 lg:mt-10 lg:px-12">
           <div className="relative overflow-hidden rounded-2xl border border-white/15 shadow-[0_30px_80px_-30px_rgba(2,20,25,0.8)]">
-            <img
-              src="/images/home/skincare%20banner%202.png"
+            <img loading="lazy" decoding="async"
+              src="/images/home/skincare%20banner%202.webp"
               alt="The Hydra skincare collection on a stone pedestal"
               className="aspect-[16/9] w-full object-cover sm:aspect-[1871/660]"
             />
@@ -159,7 +159,7 @@ export const AboutPage: React.FC = () => {
           {/* Image collage */}
           <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
             <div className="aspect-[4/5] w-[78%] overflow-hidden rounded-2xl lg:aspect-auto lg:h-[min(56svh,540px)]">
-              <img src="/images/home/Woman.png" alt="Hydra skincare care ritual" className="h-full w-full object-cover" />
+              <img loading="lazy" decoding="async" src="/images/home/Woman.webp" alt="Hydra skincare care ritual" className="h-full w-full object-cover" />
             </div>
         
         
@@ -265,8 +265,8 @@ export const AboutPage: React.FC = () => {
                 A slower process, for skin that <em className="text-[#6FE4E8]">shows it.</em>
               </h2>
               <div className="mt-8 overflow-hidden rounded-2xl border border-white/15 shadow-[0_30px_80px_-30px_rgba(2,20,25,0.8)]">
-                <img
-                  src="/images/home/Bottle-Ritual.png"
+                <img loading="lazy" decoding="async"
+                  src="/images/home/Bottle-Ritual.webp"
                   alt="Botanicals used in Hydra formulations"
                   className="aspect-[16/10] w-full object-cover lg:aspect-auto lg:h-[min(36svh,340px)]"
                 />
@@ -315,8 +315,8 @@ export const AboutPage: React.FC = () => {
         {/* 7. CTA */}
         <section className="bg-[#FAF8F5] px-4 pb-20 sm:px-8 sm:pb-28 lg:pb-14">
           <div className="relative isolate mx-auto max-w-[1376px] overflow-hidden rounded-3xl bg-[#06373F] shadow-[0_30px_80px_-30px_rgba(3,31,38,0.7)]">
-            <img
-              src="/images/home/Hydra24n.png"
+            <img loading="lazy" decoding="async"
+              src="/images/home/Hydra24n.webp"
               alt=""
               className="absolute inset-0 h-full w-full object-cover object-right"
             />

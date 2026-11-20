@@ -14,31 +14,31 @@ const SLIDES = [
   
   {
     id: 1,
-    src: '/images/home/banner1.jpeg',
+    src: '/images/home/banner1.webp',
     alt: 'Hydra Skincare Formulation Banner 1',
     link: '/shop',
   },
   {
     id: 2,
-    src: '/images/home/banner2.jpeg',
+    src: '/images/home/banner2.webp',
     alt: 'Hydra Skincare Formulation Banner 2',
     link: '/shop',
   },
   {
     id: 3,
-    src: '/images/home/banner3.jpeg',
+    src: '/images/home/banner3.webp',
     alt: 'Hydra Skincare Formulation Banner 3',
     link: '/shop',
   },
    {
     id: 4,
-    src: '/images/home/banner4.png',
+    src: '/images/home/banner4.webp',
     alt: 'Hydra Skincare Formulation Banner 4',
     link: '/shop',
   },
    {
     id: 5,
-    src: '/images/home/banner5.png',
+    src: '/images/home/banner5.webp',
     alt: 'Hydra Skincare Formulation Banner 5',
     link: '/shop',
   },
@@ -127,6 +127,8 @@ export const HomeHeroCarousel: React.FC = () => {
                       alt={slide.alt}
                       className="w-full h-full object-cover object-center select-none"
                       loading={index === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      decoding="async"
                       draggable={false}
                     />
                   </Link>
