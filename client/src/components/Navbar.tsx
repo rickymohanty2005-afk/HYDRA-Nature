@@ -166,9 +166,9 @@ export const Navbar: React.FC = () => {
                 About
               </Link>
 
-              <Link to="/blog" className={navLinkClass(location.pathname.startsWith('/blog'))}>
+              {/* <Link to="/blog" className={navLinkClass(location.pathname.startsWith('/blog'))}>
                 Blog
-              </Link>
+              </Link> */}
 
               <Link to="/contact" className={navLinkClass(location.pathname === '/contact')}>
                 Contact
