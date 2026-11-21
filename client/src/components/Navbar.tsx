@@ -393,9 +393,9 @@ export const Navbar: React.FC = () => {
             <Link to="/about" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               About Us
             </Link>
-            <Link to="/blog" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
+            {/* <Link to="/blog" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Blog
-            </Link>
+            </Link> */}
             <Link to="/contact" className="block py-2.5 font-serif text-lg text-[#04282B] hover:text-[#1E9AA3]">
               Contact
             </Link>

@@ -219,32 +219,27 @@ export const HomePage: React.FC = () => {
           2. VALUE PROPOSITIONS BAR — thin luxury credential band
          ------------------------------------------------------------------ */}
       <section className="border-y border-[#EDE8E1] bg-white">
-        <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center divide-y divide-[#EDE8E1] sm:divide-y-0 sm:divide-x">
-            <div className="flex w-1/2 items-center justify-center gap-2 px-3 py-3.5 sm:w-auto sm:px-6">
-              <FlaskConicalOff strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />
-              <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#13382B] sm:text-[12px]">
-                Paraben Free
-              </span>
-            </div>
-            <div className="flex w-1/2 items-center justify-center gap-2 px-3 py-3.5 sm:w-auto sm:px-6">
-              <SulfateFreeIcon className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />
-              <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#13382B] sm:text-[12px]">
-                Sulfate Free
-              </span>
-            </div>
-            <div className="flex w-1/2 items-center justify-center gap-2 px-3 py-3.5 sm:w-auto sm:px-6">
-              <Rabbit strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />
-              <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#13382B] sm:text-[12px]">
-                Cruelty Free
-              </span>
-            </div>
-            <div className="flex w-1/2 items-center justify-center gap-2 px-3 py-3.5 sm:w-auto sm:px-6">
-              <Microscope strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />
-              <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#13382B] sm:text-[12px]">
-                Clinically Tested
-              </span>
-            </div>
+        <div className="mx-auto max-w-[1240px] sm:px-6 lg:px-8">
+          {/* Mobile/tablet: clean 2×2 grid with a centred cross divider.
+              md+: single row of 4 with vertical dividers only.
+              Borders are set per cell so lines always meet exactly. */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:flex lg:justify-center">
+            {[
+              { label: 'Paraben Free', icon: <FlaskConicalOff strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />, border: 'border-r border-b md:border-b-0' },
+              { label: 'Sulfate Free', icon: <SulfateFreeIcon className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />, border: 'border-b md:border-b-0 md:border-r' },
+              { label: 'Cruelty Free', icon: <Rabbit strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />, border: 'border-r' },
+              { label: 'Clinically Tested', icon: <Microscope strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />, border: '' },
+            ].map(({ label, icon, border }) => (
+              <div
+                key={label}
+                className={`flex min-w-0 flex-col items-center justify-center gap-1.5 border-[#EDE8E1] px-2 py-3.5 text-center sm:flex-row sm:gap-2 sm:px-4 lg:px-8 ${border}`}
+              >
+                {icon}
+                <span className="whitespace-nowrap text-[10.5px] font-extrabold uppercase leading-none tracking-[0.12em] text-[#13382B] sm:text-[12px] sm:tracking-[0.14em]">
+                  {label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -262,7 +257,7 @@ export const HomePage: React.FC = () => {
             {/* Image: full-bleed on desktop (subject sits on the right, dark negative space behind the copy) */}
             <div className="relative aspect-[4/3] w-full sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
               <img
-                src="/images/home/care_model.png"
+                src="/images/home/model.png"
                 alt="Woman enjoying a gentle skincare ritual"
                 className="absolute inset-0 h-full w-full object-cover object-[78%_center] lg:object-right"
                 loading="lazy"
