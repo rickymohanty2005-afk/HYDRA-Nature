@@ -25,7 +25,8 @@ export default {
       },
       fontFamily: {
         serif: ['"Playfair Display"', 'Cormorant Garamond', 'serif'],
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif']
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif']
       },
       boxShadow: {
         'luxury': '0 10px 30px -10px rgba(19, 56, 43, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04)',

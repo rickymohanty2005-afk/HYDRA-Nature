@@ -23,3 +23,6 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Local backup files
+backupcode.md

@@ -103,7 +103,7 @@ export const Navbar: React.FC = () => {
       <div className="bg-[#04282B] text-[#FFFFFF] text-xs py-2 px-4 border-b border-[#04282B] transition-all">
         <div className="max-w-[1440px] mx-auto sm:px-4 lg:px-8 flex items-center justify-between">
           <div className="hidden sm:block text-[10px] tracking-[0.3em] text-[#7FDDE2]/80">
-            NATURE • SCIENCE • RADIANCE
+           
           </div>
 
           <div className="mx-auto sm:mx-0 flex items-center gap-2 text-center text-[11px] tracking-wider">

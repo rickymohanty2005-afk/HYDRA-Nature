@@ -21,6 +21,9 @@ import {
   ZoomIn,
   X,
   Camera,
+  FileText,
+  ExternalLink,
+  Award,
 } from 'lucide-react';
 import { productService } from '../services/productService';
 import { reviewService } from '../services/reviewService';
@@ -34,7 +37,7 @@ import { getImageUrl, isVideoUrl } from '../utils/imageUrl';
 const FALLBACK_PRODUCT_IMAGE = '/images/placeholder.svg';
 
 // 2.jpeg is an exact duplicate of 1.jpeg, so it is skipped
-const TRUSTED_LOGOS = [1, 3, 4, 5, 6, 7, 8, 9].map((n) => `/images/trustedlogo/${n}.jpeg`);
+const TRUSTED_LOGOS = [ 3, 4, 6,9].map((n) => `/images/trustedlogo/${n}.jpeg`);
 
 export const ProductDetailsPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -71,6 +74,7 @@ export const ProductDetailsPage: React.FC = () => {
     src: string;
     title: string;
     desc: string;
+    isPdf?: boolean;
   } | null>(null);
 
   const isInWishlist = product ? wishlistItems.some((i) => i._id === product._id) : false;
@@ -1088,221 +1092,7 @@ export const ProductDetailsPage: React.FC = () => {
           )}
         </section>
 
-        {/* Clinically Tested Section */}
-        <section id="clinically-tested-section" className="mt-20 pt-14 border-t border-[#EDE8E1]">
-          {/* Header & Badges */}
-          <div className="text-center max-w-3xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF1EB] text-[#2E6B48] text-xs font-bold tracking-wider uppercase mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              Clinically Tested & Dermatologist Supervised
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#13382B]">
-              Clinically Tested & Certified Safe
-            </h2>
-           
 
-            {/* Clinical Highlights Strip */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 mt-5">
-              <span className="px-3.5 py-1.5 rounded-full bg-[#EAF1EB] text-[#2E6B48] text-xs font-semibold flex items-center gap-1.5 border border-[#C5DBCB]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E6B48]" /> Steroid-free
-              </span>
-              <span className="px-3.5 py-1.5 rounded-full bg-[#EAF1EB] text-[#2E6B48] text-xs font-semibold flex items-center gap-1.5 border border-[#C5DBCB]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E6B48]" /> 4 heavy metals not detected
-              </span>
-              <span className="px-3.5 py-1.5 rounded-full bg-[#FAF8F5] text-[#13382B] text-xs font-semibold flex items-center gap-1.5 border border-[#EDE8E1]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E6B48]" /> Dermatologically tested
-              </span>
-              <span className="px-3.5 py-1.5 rounded-full bg-[#EAF1EB] text-[#2E6B48] text-xs font-semibold flex items-center gap-1.5 border border-[#C5DBCB]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#2E6B48]" /> Non-irritant to varied skin
-              </span>
-            </div>
-          </div>
-
-          {/* 1. First Section: ad.webp Clinical Showcase Banner */}
-          <div className="mb-10 rounded-3xl overflow-hidden border border-[#EDE8E1] bg-white shadow-sm hover:shadow-md transition-all group">
-            <div
-              className="relative cursor-pointer overflow-hidden bg-[#FAF8F5]"
-              onClick={() => setSelectedClinicalImage({
-                src: '/images/home/ad.webp',
-                title: 'Hydra Clinical Formulation Showcase',
-                desc: 'Independent laboratory screened & certified skincare formulation.'
-              })}
-            >
-              <img loading="lazy" decoding="async"
-                src="/images/home/ad.webp"
-                alt="Hydra Skincare Clinical Campaign"
-                className="w-full h-auto object-cover max-h-[500px] transition-transform duration-500 group-hover:scale-[1.01]"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-              
-              </div>
-            </div>
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-[#FAF8F5] via-white to-[#FAF8F5] border-t border-[#EDE8E1] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-600">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#2E6B48]"></span>
-                <span className="font-semibold text-[#13382B]">100% Clean Formulation</span>
-                <span className="text-gray-400">•</span>
-                <span>Clinically Validated on Varied Skin Types</span>
-              </div>
-              <span className="text-[11px] text-[#2E6B48] font-semibold bg-[#EAF1EB] px-3 py-1 rounded-full">
-                Laboratory Certified
-              </span>
-            </div>
-          </div>
-
-          {/* 2 & 3. Second and Third Sections: Lab Reports & Irritation / Safety Analysis */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-            {/* Second Section: Verified Lab Reports */}
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EDE8E1] shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EDE8E1]">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2E6B48]">
-                      Independent Laboratories
-                    </span>
-                    <h3 className="font-serif text-lg sm:text-xl font-bold text-[#13382B]">
-                      Verified Lab Reports
-                    </h3>
-                  </div>
-                  <span className="text-xs bg-[#EAF1EB] text-[#2E6B48] font-bold px-3 py-1 rounded-full border border-[#C5DBCB]">
-                    4 Verified Reports
-                  </span>
-                </div>
-
-                <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                  Multi-facility testing across NABL-accredited and ISO-certified research centers ensuring 
-                  complete absence of steroids and heavy metals, plus in-vivo patch evaluation.
-                </p>
-
-                <div
-                  className="relative rounded-2xl overflow-hidden border border-[#EDE8E1] bg-[#FAF8F5] cursor-pointer group mb-4"
-                  onClick={() => setSelectedClinicalImage({
-                    src: '/images/home/clinical-reports.jpg',
-                    title: 'Verified Independent Lab Reports',
-                    desc: 'Official test reports from Mascot Spincontrol, FARE Labs, and Wave Analytical Labs.'
-                  })}
-                >
-                  <img loading="lazy" decoding="async"
-                    src="/images/home/clinical-reports.jpg"
-                    alt="Verified Lab Reports - Mascot Spincontrol, FARE Labs, Wave Analytical Labs"
-                    className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <span className="px-3.5 py-1.5 bg-white/95 backdrop-blur-sm text-[#13382B] text-xs font-bold rounded-full shadow flex items-center gap-1.5">
-                      <ZoomIn className="w-3.5 h-3.5 text-[#2E6B48]" /> Click to Inspect Certificates
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-[11px] text-gray-700">
-                  <div className="p-2.5 rounded-xl bg-[#FAF8F5] border border-[#EDE8E1]">
-                    <p className="font-bold text-[#13382B]">Mascot Spincontrol</p>
-                    <p className="text-[10px] text-gray-500 mt-0.5">ISO 9001 In-Vivo Clinical Patch Testing</p>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-[#FAF8F5] border border-[#EDE8E1]">
-                    <p className="font-bold text-[#13382B]">FARE Labs (NABL)</p>
-                    <p className="text-[10px] text-gray-500 mt-0.5">Accredited TC-5503 Heavy Metal Detection</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Third Section: Irritation Score & Safety Profile */}
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EDE8E1] shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EDE8E1]">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2E6B48]">
-                      IS 4011:2018 Protocol
-                    </span>
-                    <h3 className="font-serif text-lg sm:text-xl font-bold text-[#13382B]">
-                      Dermatologically tested on real skin
-                    </h3>
-                  </div>
-                  <span className="text-xs bg-[#2E6B48] text-white font-bold px-3 py-1 rounded-full shadow-sm whitespace-nowrap">
-                    Non-Irritant
-                  </span>
-                </div>
-
-                {/* Irritation score */}
-                <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-2xl bg-[#FAF8F5] border border-[#EDE8E1] mb-4">
-                  <div className="shrink-0 text-center">
-                    <div className="font-serif font-bold text-[#13382B] leading-none">
-                      <span className="text-4xl sm:text-5xl">0.3</span>
-                      <span className="text-lg sm:text-xl text-gray-400"> / 4</span>
-                    </div>
-                    <div className="mt-2 h-1.5 w-24 rounded-full bg-[#EDE8E1] overflow-hidden">
-                      <div className="h-full rounded-full bg-[#2E6B48]" style={{ width: '7.5%' }} />
-                    </div>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs sm:text-sm font-bold text-[#13382B] mb-1">
-                      Mean irritation score — rated Non-Irritant
-                    </p>
-                    <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed">
-                      Scored 0.3 out of 4 in a dermatologist-supervised patch test — well within the gentle range.
-                      The lower the score, the gentler on skin.
-                    </p>
-                  </div>
-                </div>
-
-                <ul className="space-y-2 mb-5">
-                  {[
-                    <>
-                      <strong className="text-[#13382B]">24 human volunteers</strong> (12 male + 12 female), aged 18–56, all skin types.
-                    </>,
-                    <>
-                      <strong className="text-[#13382B]">Dermatologist-supervised</strong>, Ethics Committee-approved protocol (IS 4011:2018).
-                    </>,
-                    <>
-                      <strong className="text-[#13382B]">Clinically & dermatologically tested</strong> — Non-Irritant to varied skin.
-                    </>,
-                  ].map((line, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-gray-600 leading-relaxed">
-                      <CheckCircle2 className="w-4 h-4 text-[#2E6B48] shrink-0 mt-px" />
-                      <span>{line}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Safety */}
-                <div className="pt-4 border-t border-[#EDE8E1] mb-4">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#13382B] flex items-center gap-1.5 mb-3">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#2E6B48]" />
-                    Safety — zero harmful substances
-                  </h4>
-                  <ul className="space-y-2">
-                    {[
-                      ['Steroid-free.', 'Steroids tested — absent (Wave Analytical Labs).'],
-                      ['Heavy metals not detected.', 'Confirmed by two independent labs.'],
-                      ['Clean formula.', 'No hormones, no toxins, no shortcuts.'],
-                    ].map(([title, text]) => (
-                      <li key={title} className="flex items-start gap-2 text-xs text-gray-600 leading-relaxed">
-                        <CheckCircle2 className="w-4 h-4 text-[#2E6B48] shrink-0 mt-px" />
-                        <span>
-                          <strong className="text-[#13382B]">{title}</strong> {text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Heavy metals */}
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2">
-                  Heavy metals
-                </span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[11px]">
-                  {['Lead', 'Mercury', 'Cadmium', 'Arsenic'].map((metal) => (
-                    <div key={metal} className="p-2 rounded-xl bg-emerald-50/80 border border-emerald-100">
-                      <span className="block text-[10px] text-gray-500 font-medium">{metal}</span>
-                      <span className="font-bold text-emerald-800">Not detected</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
@@ -1328,8 +1118,8 @@ export const ProductDetailsPage: React.FC = () => {
               className="bg-white rounded-3xl overflow-hidden max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100 bg-[#FAF8F5]">
-                <div>
+              <div className="px-5 py-4 flex items-center justify-between gap-3 border-b border-gray-100 bg-[#FAF8F5]">
+                <div className="min-w-0">
                   <h3 className="font-serif text-base sm:text-lg font-bold text-[#13382B]">
                     {selectedClinicalImage.title}
                   </h3>
@@ -1337,20 +1127,43 @@ export const ProductDetailsPage: React.FC = () => {
                     {selectedClinicalImage.desc}
                   </p>
                 </div>
-                <button
-                  onClick={() => setSelectedClinicalImage(null)}
-                  className="p-2 rounded-full hover:bg-gray-200 text-gray-600 transition-colors"
-                  aria-label="Close modal"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  {selectedClinicalImage.isPdf && (
+                    <a
+                      href={selectedClinicalImage.src}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-full bg-[#13382B] text-white text-xs font-semibold hover:bg-[#1E4D3B] transition-colors inline-flex items-center gap-1.5"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open in New Tab</span>
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setSelectedClinicalImage(null)}
+                    className="p-2 rounded-full hover:bg-gray-200 text-gray-600 transition-colors"
+                    aria-label="Close modal"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
               <div className="p-3 sm:p-5 overflow-auto flex items-center justify-center bg-[#F7F5F0] max-h-[calc(92vh-90px)]">
-                <img loading="lazy" decoding="async"
-                  src={selectedClinicalImage.src}
-                  alt={selectedClinicalImage.title}
-                  className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-md"
-                />
+                {selectedClinicalImage.isPdf ? (
+                  <iframe
+                    src={selectedClinicalImage.src}
+                    title={selectedClinicalImage.title}
+                    className="w-full h-[75vh] rounded-xl border border-[#EDE8E1] bg-white shadow-md"
+                  />
+                ) : (
+                  <img
+                    loading="lazy"
+                    decoding="async"
+                    src={selectedClinicalImage.src}
+                    alt={selectedClinicalImage.title}
+                    className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-md"
+                  />
+                )}
               </div>
             </div>
           </div>

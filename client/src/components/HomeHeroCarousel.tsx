@@ -12,12 +12,12 @@ export const NIGHT_RITUAL = [
 
 const SLIDES = [
   
-  {
-    id: 1,
-    src: '/images/home/banner1.webp',
-    alt: 'Hydra Skincare Formulation Banner 1',
-    link: '/shop',
-  },
+  // {
+  //   id: 1,
+  //   src: '/images/home/banner1.webp',
+  //   alt: 'Hydra Skincare Formulation Banner 1',
+  //   link: '/shop',
+  // },
   {
     id: 2,
     src: '/images/home/banner2.webp',
@@ -30,12 +30,12 @@ const SLIDES = [
     alt: 'Hydra Skincare Formulation Banner 3',
     link: '/shop',
   },
-   {
-    id: 4,
-    src: '/images/home/banner4.webp',
-    alt: 'Hydra Skincare Formulation Banner 4',
-    link: '/shop',
-  },
+  //  {
+  //   id: 4,
+  //   src: '/images/home/banner4.webp',
+  //   alt: 'Hydra Skincare Formulation Banner 4',
+  //   link: '/shop',
+  // },
    {
     id: 5,
     src: '/images/home/banner5.webp',

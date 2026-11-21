@@ -18,14 +18,28 @@ import {
   Mail,
   BadgeCheck,
   ArrowUpRight,
+  FlaskConicalOff,
+  Rabbit,
+  Microscope,
 } from 'lucide-react';
-import {
-  NaturalIngredientsIcon,
-  LabTestedIcon,
-  SafeFormulaIcon,
-  FreeShippingIcon,
-  CategoryIcon,
-} from '../components/common/BotanicalIcons';
+import { CategoryIcon } from '../components/common/BotanicalIcons';
+
+// Droplet with a slash — "Sulfate Free"
+const SulfateFreeIcon = ({ className = '' }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2.25}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M12 2.7 6.3 8.9a8 8 0 1 0 11.4 0Z" />
+    <line x1="3" y1="3" x2="21" y2="21" />
+  </svg>
+);
 import { HomeHeroCarousel } from '../components/HomeHeroCarousel';
 import { productService } from '../services/productService';
 import { newsletterService } from '../services/newsletterService';
@@ -36,12 +50,7 @@ import { Product } from '../types';
 import { getImageUrl } from '../utils/imageUrl';
 
 // Ultra Radiance face wash spotlight content
-const RADIANCE_INGREDIENTS = [
-  'Niacinamide',
-  'Hyaluronic Acid',
-  'Willow Bark Extract',
-  'Glutathione',
-];
+
 
 const RADIANCE_BENEFITS = [
   { icon: Sparkles, title: 'Brightening', text: 'Helps even out skin tone and reveal a fresher glow.' },
@@ -213,27 +222,27 @@ export const HomePage: React.FC = () => {
         <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-center divide-y divide-[#EDE8E1] sm:divide-y-0 sm:divide-x">
             <div className="flex w-1/2 items-center justify-center gap-2 px-3 py-3.5 sm:w-auto sm:px-6">
-              <NaturalIngredientsIcon className="h-4 w-4 flex-shrink-0 text-[#13382B]" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#13382B] sm:text-[11px]">
-                100% Natural
+              <FlaskConicalOff strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />
+              <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#13382B] sm:text-[12px]">
+                Paraben Free
               </span>
             </div>
             <div className="flex w-1/2 items-center justify-center gap-2 px-3 py-3.5 sm:w-auto sm:px-6">
-              <LabTestedIcon className="h-4 w-4 flex-shrink-0 text-[#13382B]" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#13382B] sm:text-[11px]">
-                Dermatologically Tested
+              <SulfateFreeIcon className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />
+              <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#13382B] sm:text-[12px]">
+                Sulfate Free
               </span>
             </div>
             <div className="flex w-1/2 items-center justify-center gap-2 px-3 py-3.5 sm:w-auto sm:px-6">
-              <SafeFormulaIcon className="h-4 w-4 flex-shrink-0 text-[#13382B]" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#13382B] sm:text-[11px]">
-                Safe & Effective
+              <Rabbit strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />
+              <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#13382B] sm:text-[12px]">
+                Cruelty Free
               </span>
             </div>
             <div className="flex w-1/2 items-center justify-center gap-2 px-3 py-3.5 sm:w-auto sm:px-6">
-              <FreeShippingIcon className="h-4 w-4 flex-shrink-0 text-[#13382B]" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#13382B] sm:text-[11px]">
-                Free Shipping India
+              <Microscope strokeWidth={2.25} className="h-[18px] w-[18px] flex-shrink-0 text-[#13382B]" />
+              <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#13382B] sm:text-[12px]">
+                Clinically Tested
               </span>
             </div>
           </div>
@@ -243,16 +252,17 @@ export const HomePage: React.FC = () => {
       {/* ------------------------------------------------------------------
           THE HYDRA DIFFERENCE - BRAND STORY
          ------------------------------------------------------------------ */}
-      <section className="bg-[#FAF8F5] py-10 sm:py-14 lg:py-20">
-        <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative isolate overflow-hidden rounded-[28px] bg-[#06373F] shadow-[0_30px_80px_-30px_rgba(3,31,38,0.7)] ring-1 ring-black/5 lg:min-h-[620px]">
+      
+      <section className="bg-[#FAF8F5] py-10 sm:py-14 lg:flex lg:h-[min(calc(100svh-7.5rem),720px)] lg:min-h-[560px] lg:py-[min(2.25rem,3.5svh)]">
+        <div className="max-w-[1240px] mx-auto w-full px-4 sm:px-6 lg:h-full lg:px-8">
+          <div className="relative isolate overflow-hidden rounded-[28px] bg-[#06373F] shadow-[0_30px_80px_-30px_rgba(3,31,38,0.7)] ring-1 ring-black/5 lg:h-full">
             {/* Background: deep teal water */}
             <div className="absolute inset-0 -z-10" style={{ background: BRAND_STORY_WATER }} aria-hidden="true" />
 
             {/* Image: full-bleed on desktop (subject sits on the right, dark negative space behind the copy) */}
             <div className="relative aspect-[4/3] w-full sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
               <img
-                src="/images/home/care_model.webp"
+                src="/images/home/care_model.png"
                 alt="Woman enjoying a gentle skincare ritual"
                 className="absolute inset-0 h-full w-full object-cover object-[78%_center] lg:object-right"
                 loading="lazy"
@@ -277,25 +287,25 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Copy */}
-            <div className="relative z-10 flex flex-col justify-center px-6 pb-10 pt-2 text-white sm:px-10 sm:pb-12 lg:min-h-[620px] lg:max-w-[560px] lg:px-14 lg:py-16">
-              <p className="mb-5 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#6FE4E8] sm:text-xs">
+            <div className="relative z-10 flex flex-col justify-center px-6 pb-10 pt-2 text-white sm:px-10 sm:pb-12 lg:h-full lg:max-w-[540px] lg:px-14 lg:py-[min(3.5rem,5.5svh)]">
+              <p className="mb-5 lg:mb-[min(1.25rem,2svh)] flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#6FE4E8] sm:text-xs">
                 <span className="h-px w-8 bg-[#6FE4E8]/70" aria-hidden="true" />
                 The Hydra Difference
               </p>
 
-              <h2 className="font-serif text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl lg:text-[52px]">
+              <h2 className="font-serif text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl lg:text-[clamp(2.25rem,5.2svh,3rem)]">
                 Inspired by nature.{' '}
                 <span className="bg-gradient-to-r from-[#BEFAFC] to-[#6FE4E8] bg-clip-text italic text-transparent">
                   Powered by science.
                 </span>
               </h2>
 
-              <p className="mt-5 max-w-md text-sm leading-7 text-[#D3EEEE] sm:text-base">
+              <p className="mt-5 max-w-md text-sm leading-7 text-[#D3EEEE] sm:text-base lg:mt-[min(1.25rem,2svh)]">
                 A fusion skincare philosophy inspired by Korean, Japanese and Indian botanical traditions,
                 thoughtfully combining nature-derived ingredients with modern, science-led formulations.
               </p>
 
-              <ul className="mt-8 grid gap-3">
+              <ul className="mt-8 grid gap-3 lg:mt-[min(2rem,3.2svh)] lg:gap-[min(0.75rem,1.2svh)]">
                 {[
                   {
                     icon: Leaf,
@@ -315,7 +325,7 @@ export const HomePage: React.FC = () => {
                 ].map(({ icon: Icon, title, text }) => (
                   <li
                     key={title}
-                    className="flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-[0_12px_30px_-16px_rgba(2,20,25,0.8)] backdrop-blur-xl transition-colors hover:border-white/30 hover:bg-white/[0.12]"
+                    className="flex items-start gap-4 rounded-2xl border border-white/15 bg-white/[0.07] p-4 lg:p-[min(1rem,1.6svh)] shadow-[0_12px_30px_-16px_rgba(2,20,25,0.8)] backdrop-blur-xl transition-colors hover:border-white/30 hover:bg-white/[0.12]"
                   >
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#031F26] shadow-md">
                       <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -328,13 +338,7 @@ export const HomePage: React.FC = () => {
                 ))}
               </ul>
 
-              <Link
-                to="/about"
-                className="group mt-9 inline-flex w-fit items-center gap-3 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#031F26] transition-all hover:bg-[#D3EEEE] hover:shadow-[0_10px_30px_-10px_rgba(111,228,232,0.8)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#6FE4E8]"
-              >
-                Meet the Hydra difference
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-              </Link>
+       
             </div>
           </div>
         </div>
@@ -543,7 +547,7 @@ export const HomePage: React.FC = () => {
                   />
 
                   <img
-                    src="/images/home/RadianceFaceWash.webp"
+                    src="/images/home/RadianceFace.png"
                     alt="Hydra 24h Ultra Radiance face wash in a gold-capped white jar"
                     className="relative block h-auto w-full object-contain drop-shadow-[0_30px_40px_rgba(2,20,25,0.55)]"
                     loading="lazy"
@@ -573,23 +577,24 @@ export const HomePage: React.FC = () => {
                 </h2>
 
                 <p className="mt-4 max-w-xl text-sm leading-7 text-[#D3EEEE] sm:text-base">
-                  Start your day with a cleanse that does more. This Korean-inspired formula is created for Indian
-                  skin and lifts away dirt, oil and dullness without leaving your skin tight or dry. It leaves every
-                  wash fresh, soft and visibly brighter. Niacinamide and Glutathione help even out skin tone,
-                  Willow Bark Extract keeps pores clear, and Hyaluronic Acid helps skin retain moisture.
+                  I&rsquo;ll start your day with a cleanse that does more. I&rsquo;m made with a Korean-inspired
+                  formula, created especially for Indian skin.
                 </p>
 
-                {/* Ingredients as glass chips */}
-                <ul className="mt-5 flex max-w-xl flex-wrap gap-2" aria-label="Key ingredients">
-                  {RADIANCE_INGREDIENTS.map((ing) => (
-                    <li
-                      key={ing}
-                      className="rounded-full border border-white/15 bg-white/[0.07] px-3 py-1 text-[11px] font-medium text-[#D3EEEE] backdrop-blur"
-                    >
-                      {ing}
+                <ul className="mt-3 max-w-xl space-y-1.5 text-sm leading-6 text-[#D3EEEE] sm:text-base">
+                  {[
+                    'My Niacinamide and Glutathione will help even out your skin tone.',
+                    'My Willow Bark Extract will keep your pores clear.',
+                    'My Hyaluronic Acid will help your skin hold on to its moisture.',
+                  ].map((line) => (
+                    <li key={line} className="flex items-start gap-2.5">
+                      <span className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-[#6FE4E8]" aria-hidden="true" />
+                      <span>{line}</span>
                     </li>
                   ))}
                 </ul>
+
+  
 
                 {/* Benefits */}
                 <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
